@@ -217,9 +217,10 @@ stamp-h[1-9]
 # Local library dependencies specific files
 /libbfio
 /libcaes
-/libcdata
 /libcdatetime
 /libcerror
+/libcdata/*
+!/libcdata/libcdata_definitions.h
 /libcfile
 /libclocale
 /libcnotify

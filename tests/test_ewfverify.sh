@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# ewfverify tool testing script
+# ewfverify testing script
 #
-# Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -24,47 +24,24 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-list_contains()
-{
-	LIST=$1;
-	SEARCH=$2;
+INPUT="input";
+INPUT_ERROR="input_error";
+INPUT_MORE="input_more";
+TMP="tmp";
 
-	for LINE in $LIST;
-	do
-		if test $LINE = $SEARCH;
-		then
-			return ${EXIT_SUCCESS};
-		fi
-	done
-
-	return ${EXIT_FAILURE};
-}
+LS="ls";
+TR="tr";
+WC="wc";
 
 test_verify()
 { 
-	DIRNAME=$1;
-	INPUT_FILE=$2;
-	BASENAME=`basename ${INPUT_FILE}`;
+	INPUT_FILE=$1;
 
-	rm -rf tmp;
-	mkdir tmp;
-
-	${TEST_RUNNER} ${EWFVERIFY} -q -d sha1 ${INPUT_FILE} | sed '1,2d' > tmp/${BASENAME}.log;
+	${EWFVERIFY} -q -d sha1 ${INPUT_FILE};
 
 	RESULT=$?;
 
-	if test -f "input/.ewfverify/${DIRNAME}/${BASENAME}.log.gz";
-	then
-		zdiff "input/.ewfverify/${DIRNAME}/${BASENAME}.log.gz" "tmp/${BASENAME}.log";
-
-		RESULT=$?;
-	else
-		mv "tmp/${BASENAME}.log" "input/.ewfverify/${DIRNAME}";
-
-		gzip "input/.ewfverify/${DIRNAME}/${BASENAME}.log";
-	fi
-
-	rm -rf tmp;
+	echo "";
 
 	echo -n "Testing ewfverify of input: ${INPUT_FILE} ";
 
@@ -91,82 +68,84 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
-TEST_RUNNER="tests/test_runner.sh";
-
-if ! test -x ${TEST_RUNNER};
+if ! test -d ${INPUT};
 then
-	TEST_RUNNER="./test_runner.sh";
-fi
-
-if ! test -x ${TEST_RUNNER};
-then
-	echo "Missing test runner: ${TEST_RUNNER}";
-
-	exit ${EXIT_FAILURE};
-fi
-
-if ! test -d "input";
-then
-	echo "No input directory found.";
+	echo "No ${INPUT} directory found, to test ewfverify create ${INPUT} directory and place EWF test files in directory.";
 
 	exit ${EXIT_IGNORE};
 fi
 
-OLDIFS=${IFS};
-IFS="
-";
+EXIT_RESULT=${EXIT_IGNORE};
 
-RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
-
-if test ${RESULT} -eq 0;
+if test -d ${INPUT};
 then
-	echo "No files or directories found in the input directory.";
+	RESULT=`${LS} ${INPUT}/*.[esE]01 | ${TR} ' ' '\n' | ${WC} -l`;
 
-	EXIT_RESULT=${EXIT_IGNORE};
-else
-	IGNORELIST="";
-
-	if ! test -d "input/.ewfverify";
+	if test ${RESULT} -eq 0;
 	then
-		mkdir "input/.ewfverify";
-	fi
-	if test -f "input/.ewfverify/ignore";
-	then
-		IGNORELIST=`cat input/.ewfverify/ignore | sed '/^#/d'`;
-	fi
-	for TESTDIR in input/*;
-	do
-		if test -d "${TESTDIR}";
-		then
-			DIRNAME=`basename ${TESTDIR}`;
-
-			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
+		echo "No files found in ${INPUT} directory, to test ewfverify place EWF test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT}/*.[esE]01 | ${TR} ' ' '\n'`;
+		do
+			if [ "${FILENAME}" = "${INPUT}/floppy-ewf1.35-best-compression.E01" ];
 			then
-				if ! test -d "input/.ewfverify/${DIRNAME}";
-				then
-					mkdir "input/.ewfverify/${DIRNAME}";
-				fi
-				if test -f "input/.ewfverify/${DIRNAME}/files";
-				then
-					TESTFILES=`cat input/.ewfverify/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
-				else
-					TESTFILES=`ls ${TESTDIR}/*.[ELes]01 ${TESTDIR}/*.[EL]x01 2> /dev/null`;
-				fi
-				for TESTFILE in ${TESTFILES};
-				do
-					if ! test_verify "${DIRNAME}" "${TESTFILE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
-			fi
-		fi
-	done
+				# experimental version only
+				echo;
 
-	EXIT_RESULT=${EXIT_SUCCESS};
+			elif [ "${FILENAME}" = "${INPUT}/floppy-ewf1.35-nocompression.E01" ];
+			then
+				# experimental version only
+				echo;
+
+			elif ! test_verify "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
 fi
 
-IFS=${OLDIFS};
+if test -d ${INPUT_ERROR};
+then
+	RESULT=`${LS} ${INPUT_ERROR}/*.[esE]01 | ${TR} ' ' '\n' | ${WC} -l`;
+
+	if test ${RESULT} -eq 0;
+	then
+		echo "No files found in ${INPUT_ERROR} directory, to test read place test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT_ERROR}/*.[esE]01 | ${TR} ' ' '\n'`;
+		do
+			if test_verify "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
+fi
+
+if test -d ${INPUT_MORE};
+then
+	RESULT=`${LS} ${INPUT_MORE}/*.[esE]01 | ${TR} ' ' '\n' | ${WC} -l`;
+
+	if test ${RESULT} -eq 0;
+	then
+		echo "No files found in ${INPUT_MORE} directory, to test read place test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT_MORE}/*.[esE]01 | ${TR} ' ' '\n'`;
+		do
+			if ! test_verify "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
+fi
 
 exit ${EXIT_RESULT};
 

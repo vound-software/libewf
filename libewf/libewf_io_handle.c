@@ -5,31 +5,33 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
 #include <types.h>
 
+#include "libewf_libcerror.h"
+
 #include "libewf_codepage.h"
 #include "libewf_definitions.h"
 #include "libewf_io_handle.h"
-#include "libewf_libcerror.h"
 
-/* Creates an IO handle
- * Make sure the value io_handle is referencing, is set to NULL
+#include "ewf_definitions.h"
+
+/* Initialize the IO handle
  * Returns 1 if successful or -1 on error
  */
 int libewf_io_handle_initialize(
@@ -88,14 +90,10 @@ int libewf_io_handle_initialize(
 
 		goto on_error;
 	}
-	( *io_handle )->segment_file_type  = LIBEWF_SEGMENT_FILE_TYPE_UNDEFINED;
-	( *io_handle )->format             = LIBEWF_FORMAT_ENCASE6;
-	( *io_handle )->major_version      = 1;
-	( *io_handle )->minor_version      = 0;
-	( *io_handle )->compression_method = LIBEWF_COMPRESSION_METHOD_DEFLATE;
-	( *io_handle )->compression_level  = LIBEWF_COMPRESSION_NONE;
-	( *io_handle )->zero_on_error      = 1;
-	( *io_handle )->header_codepage    = LIBEWF_CODEPAGE_ASCII;
+	( *io_handle )->format            = LIBEWF_FORMAT_ENCASE5;
+	( *io_handle )->ewf_format        = EWF_FORMAT_E01;
+	( *io_handle )->compression_level = EWF_COMPRESSION_NONE;
+	( *io_handle )->header_codepage   = LIBEWF_CODEPAGE_ASCII;
 
 	return( 1 );
 
@@ -110,7 +108,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees an IO handle
+/* Frees the IO handle including elements
  * Returns 1 if successful or -1 on error
  */
 int libewf_io_handle_free(
@@ -188,14 +186,10 @@ int libewf_io_handle_clear(
 
 		return( -1 );
 	}
-	io_handle->segment_file_type  = LIBEWF_SEGMENT_FILE_TYPE_UNDEFINED;
-	io_handle->format             = LIBEWF_FORMAT_ENCASE6;
-	io_handle->major_version      = 1;
-	io_handle->minor_version      = 0;
-	io_handle->compression_method = LIBEWF_COMPRESSION_METHOD_DEFLATE;
-	io_handle->compression_level  = LIBEWF_COMPRESSION_NONE;
-	io_handle->zero_on_error      = 1;
-	io_handle->header_codepage    = LIBEWF_CODEPAGE_ASCII;
+	io_handle->format            = LIBEWF_FORMAT_ENCASE5;
+	io_handle->ewf_format        = EWF_FORMAT_E01;
+	io_handle->compression_level = EWF_COMPRESSION_NONE;
+	io_handle->header_codepage   = LIBEWF_CODEPAGE_ASCII;
 
 	return( 1 );
 }
@@ -266,8 +260,6 @@ int libewf_io_handle_clone(
 
 		goto on_error;
 	}
-	( *destination_io_handle )->zero_on_error = source_io_handle->zero_on_error;
-
 	return( 1 );
 
 on_error:

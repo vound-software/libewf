@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -24,15 +24,14 @@
 
 #include "digest_hash.h"
 #include "ewftools_libcerror.h"
-#include "ewftools_libcstring.h"
 
-/* Converts the digest hash to a printable string
+/* Converts the EWF digest hash to a printable string
  * Returns 1 if successful or -1 on error
  */
 int digest_hash_copy_to_string(
      const uint8_t *digest_hash,
      size_t digest_hash_size,
-     libcstring_system_character_t *string,
+     system_character_t *string,
      size_t string_size,
      libcerror_error_t **error )
 {
@@ -106,21 +105,21 @@ int digest_hash_copy_to_string(
 
 		if( digest_digit <= 9 )
 		{
-			string[ string_iterator++ ] = (libcstring_system_character_t) ( (uint8_t) '0' + digest_digit );
+			string[ string_iterator++ ] = (system_character_t) ( (uint8_t) '0' + digest_digit );
 		}
 		else
 		{
-			string[ string_iterator++ ] = (libcstring_system_character_t) ( (uint8_t) 'a' + ( digest_digit - 10 ) );
+			string[ string_iterator++ ] = (system_character_t) ( (uint8_t) 'a' + ( digest_digit - 10 ) );
 		}
 		digest_digit = digest_hash[ digest_hash_iterator ] % 16;
 
 		if( digest_digit <= 9 )
 		{
-			string[ string_iterator++ ] = (libcstring_system_character_t) ( (uint8_t) '0' + digest_digit );
+			string[ string_iterator++ ] = (system_character_t) ( (uint8_t) '0' + digest_digit );
 		}
 		else
 		{
-			string[ string_iterator++ ] = (libcstring_system_character_t) ( (uint8_t) 'a' + ( digest_digit - 10 ) );
+			string[ string_iterator++ ] = (system_character_t) ( (uint8_t) 'a' + ( digest_digit - 10 ) );
 		}
 	}
 	string[ string_iterator ] = 0;

@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# ewfinfo tool testing script
+# ewfinfo testing script
 #
-# Copyright (C) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -24,47 +24,21 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-list_contains()
-{
-	LIST=$1;
-	SEARCH=$2;
+INPUT="input";
+INPUT_LOGICAL="input_logical";
+INPUT_OPTICAL="input_optical";
 
-	for LINE in $LIST;
-	do
-		if test $LINE = $SEARCH;
-		then
-			return ${EXIT_SUCCESS};
-		fi
-	done
-
-	return ${EXIT_FAILURE};
-}
+LS="ls";
+TR="tr";
+WC="wc";
 
 test_info()
 { 
-	DIRNAME=$1;
-	INPUT_FILE=$2;
-	BASENAME=`basename ${INPUT_FILE}`;
+	INPUT_FILE=$1;
 
-	rm -rf tmp;
-	mkdir tmp;
-
-	${TEST_RUNNER} ${EWFINFO} ${INPUT_FILE} | sed '1,2d' > tmp/${BASENAME}.log;
+	${EWFINFO} ${INPUT_FILE};
 
 	RESULT=$?;
-
-	if test -f "input/.ewfinfo/${DIRNAME}/${BASENAME}.log.gz";
-	then
-		zdiff "input/.ewfinfo/${DIRNAME}/${BASENAME}.log.gz" "tmp/${BASENAME}.log";
-
-		RESULT=$?;
-	else
-		mv "tmp/${BASENAME}.log" "input/.ewfinfo/${DIRNAME}";
-
-		gzip "input/.ewfinfo/${DIRNAME}/${BASENAME}.log";
-	fi
-
-	rm -rf tmp;
 
 	echo -n "Testing ewfinfo of input: ${INPUT_FILE} ";
 
@@ -91,82 +65,74 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
-TEST_RUNNER="tests/test_runner.sh";
-
-if ! test -x ${TEST_RUNNER};
+if ! test -d ${INPUT};
 then
-	TEST_RUNNER="./test_runner.sh";
-fi
-
-if ! test -x ${TEST_RUNNER};
-then
-	echo "Missing test runner: ${TEST_RUNNER}";
-
-	exit ${EXIT_FAILURE};
-fi
-
-if ! test -d "input";
-then
-	echo "No input directory found.";
+	echo "No ${INPUT} directory found, to test ewfinfo create ${INPUT} directory and place EWF test files in directory.";
 
 	exit ${EXIT_IGNORE};
 fi
 
-OLDIFS=${IFS};
-IFS="
-";
+EXIT_RESULT=${EXIT_IGNORE};
 
-RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
-
-if test ${RESULT} -eq 0;
+if test -d ${INPUT};
 then
-	echo "No files or directories found in the input directory.";
+	RESULT=`${LS} ${INPUT}/*.[esE]01 | ${TR} ' ' '\n' | ${WC} -l`;
 
-	EXIT_RESULT=${EXIT_IGNORE};
-else
-	IGNORELIST="";
-
-	if ! test -d "input/.ewfinfo";
+	if test ${RESULT} -eq 0;
 	then
-		mkdir "input/.ewfinfo";
-	fi
-	if test -f "input/.ewfinfo/ignore";
-	then
-		IGNORELIST=`cat input/.ewfinfo/ignore | sed '/^#/d'`;
-	fi
-	for TESTDIR in input/*;
-	do
-		if test -d "${TESTDIR}";
-		then
-			DIRNAME=`basename ${TESTDIR}`;
-
-			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
+		echo "No files found in ${INPUT} directory, to test ewfinfo place EWF test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT}/*.[esE]01 | ${TR} ' ' '\n'`;
+		do
+			if ! test_info "${FILENAME}";
 			then
-				if ! test -d "input/.ewfinfo/${DIRNAME}";
-				then
-					mkdir "input/.ewfinfo/${DIRNAME}";
-				fi
-				if test -f "input/.ewfinfo/${DIRNAME}/files";
-				then
-					TESTFILES=`cat input/.ewfinfo/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
-				else
-					TESTFILES=`ls ${TESTDIR}/*.[Ees]01 ${TESTDIR}/*.Ex01 2> /dev/null`;
-				fi
-				for TESTFILE in ${TESTFILES};
-				do
-					if ! test_info "${DIRNAME}" "${TESTFILE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
+				exit ${EXIT_FAILURE};
 			fi
-		fi
-	done
+		done
 
-	EXIT_RESULT=${EXIT_SUCCESS};
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
 fi
 
-IFS=${OLDIFS};
+if test -d ${INPUT_LOGICAL};
+then
+	RESULT=`${LS} ${INPUT_LOGICAL}/*.[esE]01 | ${TR} ' ' '\n' | ${WC} -l`;
+
+	if test ${RESULT} -eq 0;
+	then
+		echo "No files found in ${INPUT_LOGICAL} directory, to test ewfinfo place EWF test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT_LOGICAL}/*.[esE]01 | ${TR} ' ' '\n'`;
+		do
+			if ! test_info "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
+fi
+
+if test -d ${INPUT_OPTICAL};
+then
+	RESULT=`${LS} ${INPUT_OPTICAL}/*.[esE]01 | ${TR} ' ' '\n' | ${WC} -l`;
+
+	if test ${RESULT} -eq 0;
+	then
+		echo "No files found in ${INPUT_OPTICAL} directory, to test ewfinfo place EWF test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT_OPTICAL}/*.[esE]01 | ${TR} ' ' '\n'`;
+		do
+			if ! test_info "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
+fi
 
 exit ${EXIT_RESULT};
 

@@ -2,21 +2,18 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libewf],
- [20140608],
+ [20140809],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
  [include/libewf.h.in])
 
-AM_INIT_AUTOMAKE([gnu 1.6])
+AM_INIT_AUTOMAKE([gnu 1.6 tar-ustar])
 
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Check for host type
 AC_CANONICAL_HOST
-
-dnl Check for large file support
-AC_SYS_LARGEFILE
 
 dnl Check for libtool DLL support
 AC_LIBTOOL_WIN32_DLL
@@ -26,6 +23,11 @@ AC_PROG_CC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+
+dnl Check for C++ preprocessor and compiler for ewftools-mt
+AC_PROG_CXXCPP
+AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX_11(noext, optional)
 
 dnl Check for libtool
 AC_PROG_LIBTOOL
@@ -42,20 +44,29 @@ dnl Check for compiler language support
 AC_C_CONST
 AC_C_VOLATILE
 
+dnl Check for large file support
+AC_SYS_LARGEFILE
+
+dnl Check if shared library support should be disabled
+AX_COMMON_CHECK_DISABLE_SHARED_LIBS
+
 dnl Check if WINAPI support should be enabled
 AX_COMMON_CHECK_ENABLE_WINAPI
 
 dnl Check if wide character type should be enabled
 AX_COMMON_CHECK_ENABLE_WIDE_CHARACTER_TYPE
 
+dnl Check if verbose output should be enabled
+AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
+
+dnl Check if debug output should be enabled
+AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
+
 dnl Check for type definitions
 AX_TYPES_CHECK_LOCAL
 
 dnl Checks for libraries and library functions
 AX_COMMON_CHECK_LOCAL
-
-dnl Check for enabling libcstring for cross-platform C string functions
-AX_LIBCSTRING_CHECK_ENABLE
 
 dnl Check for enabling libcerror for cross-platform C error functions
 AX_LIBCERROR_CHECK_ENABLE
@@ -66,11 +77,11 @@ AX_LIBCTHREADS_CHECK_ENABLE
 dnl Check for enabling libcdata for cross-platform C generic data functions
 AX_LIBCDATA_CHECK_ENABLE
 
-dnl Check for enabling libclocale for cross-platform C locale functions
-AX_LIBCLOCALE_CHECK_ENABLE
-
 dnl Check for enabling libcdatetime for cross-platform C datetime functions
 AX_LIBCDATETIME_CHECK_ENABLE
+
+dnl Check for enabling libclocale for cross-platform C locale functions
+AX_LIBCLOCALE_CHECK_ENABLE
 
 dnl Check for enabling libcnotify for cross-platform C notification functions
 AX_LIBCNOTIFY_CHECK_ENABLE
@@ -99,23 +110,40 @@ AX_LIBFDATA_CHECK_ENABLE
 dnl Check for enabling libfvalue for file value support
 AX_LIBFVALUE_CHECK_ENABLE
 
+dnl Check for enabling libmfdata for multi-file data types support
+AX_LIBMFDATA_CHECK_ENABLE
+
 dnl Check for zlib compression support
 AX_ZLIB_CHECK_ENABLE
-
-dnl Check for bz2lib compression support
-AX_BZIP2_CHECK_ENABLE
+AX_ZLIB_CHECK_ADLER32
+AX_ZLIB_CHECK_COMPRESS2
+AX_ZLIB_CHECK_COMPRESSBOUND
+AX_ZLIB_CHECK_UNCOMPRESS
 
 dnl Check for enabling libhmac for message digest hash function support
 AX_LIBHMAC_CHECK_ENABLE
 
-dnl Check for enabling libcaes for AES cipher function support
-AX_LIBCAES_CHECK_ENABLE
-
 dnl Check for library function support
 AX_LIBEWF_CHECK_LOCAL
 
-dnl Check for enabling libcsystem for cross-platform C generic system functions
-AX_LIBCSYSTEM_CHECK_ENABLE
+dnl Check if libewf should be build with version 1 API
+AX_LIBEWF_CHECK_ENABLE_V1_API
+ 
+dnl Check if libewf python bindings (pyewf) should be build
+AX_PYTHON_CHECK_ENABLE
+
+AS_IF(
+  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [dnl Headers included in pyewf/pyewf_error.c
+  AC_CHECK_HEADERS([stdarg.h varargs.h])
+
+  AS_IF(
+    [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
+    [AC_MSG_FAILURE(
+      [Missing headers: stdarg.h and varargs.h],
+      [1])
+    ])
+  ])
 
 dnl Check for enabling GUID/UUID support
 AX_LIBUUID_CHECK_ENABLE
@@ -132,42 +160,15 @@ AX_LIBSMRAW_CHECK_ENABLE
 dnl Check for libfuse Filesystem in Userspace (FUSE) support
 AX_LIBFUSE_CHECK_ENABLE
 
-dnl Check for headers and functions used in tools
-
-dnl Check if ewftools should be build as static executables
-AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES
-
-dnl Check if libewf should be build with verbose output
-AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
-
-dnl Check if libewf should be build with debug output
-AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
-
-dnl Check if libewf python bindings (pyewf) should be build
-AX_PYTHON_CHECK_ENABLE
-
-dnl Check if libewf should be build with version 1 API
-AX_LIBEWF_CHECK_ENABLE_V1_API
-
-dnl Check for the host operation system will be used as a fall back in the ewftools
-AX_LIBEWF_CHECK_HOST_OPERATING_SYSTEM
-
-dnl Headers included in various places
-AC_CHECK_HEADERS([stdarg.h varargs.h])
-
-AS_IF(
- [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
- [AC_MSG_FAILURE(
-  [Missing headers: stdarg.h and varargs.h],
-  [1])
- ])
+dnl Check if ewftools required headers and functions are available
+AX_EWFTOOLS_CHECK_LOCAL
 
 dnl Check if DLL support is needed
 AS_IF(
  [test "x$enable_shared" = xyes],
  [AS_CASE(
   [$host],
-  [*cygwin* | *mingw*],
+  [*cygwin* | *mingw* | *msys*],
   [AC_DEFINE(
    [HAVE_DLLMAIN],
    [1],
@@ -190,12 +191,16 @@ CFLAGS="$CFLAGS -Wall";
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
- [test "x$ac_cv_libcstring" = xyes || test "x$ac_cv_libcerror" = xyes || test "x$ac_cv_libcthreads" = xyes || test "x$ac_cv_libcdata" = xyes ||  test "x$ac_cv_libclocale" = xyes ||  test "x$ac_cv_libcnotify" = xyes || test "x$ac_cv_libcsplit" = xyes || test "x$ac_cv_libuna" = xyes || test "x$ac_cv_libcfile" = xyes || test "x$ac_cv_libcpath" = xyes || test "x$ac_cv_libbfio" = xyes || test "x$ac_cv_libfcache" = xyes || test "x$ac_cv_libfdata" = xyes || test "x$ac_cv_libfvalue" = xyes || test "x$ac_cv_zlib" != xno || test "x$ac_cv_bzip2" != xno || test "x$ac_cv_libhmac" = xyes || test "x$ac_cv_libcaes" = xyes],
+ [test "x$ac_cv_libcerror" = xyes || test "x$ac_cv_libcthreads" = xyes || test "x$ac_cv_libcdata" = xyes || test "x$ac_cv_libclocale" = xyes || test "x$ac_cv_libcnotify" = xyes || test "x$ac_cv_libcsplit" = xyes || test "x$ac_cv_libuna" = xyes || test "x$ac_cv_libcfile" = xyes || test "x$ac_cv_libcpath" = xyes || test "x$ac_cv_libbfio" = xyes || test "x$ac_cv_libfcache" = xyes || test "x$ac_cv_libfdata" = xyes || test "x$ac_cv_libfvalue" = xyes || test "x$ac_cv_libmfdata" = xyes || test "x$ac_cv_zlib" != xno || test "x$ac_cv_libhmac" = xyes],
  [AC_SUBST(
   [libewf_spec_requires],
   [Requires:])
- AC_SUBST(
-  [libewf_spec_build_requires],
+ ])
+
+AS_IF(
+ [test "x$ac_cv_libodraw" = xyes || test "x$ac_cv_libsmdev" = xyes || test "x$ac_cv_libsmraw" = xyes || test "x$ac_cv_libfuse" != xno],
+ [AC_SUBST(
+  [libewf_spec_tools_build_requires],
   [BuildRequires:])
  ])
 
@@ -209,21 +214,15 @@ AC_SUBST(
  [SPEC_DATE],
  [`date +"%a %b %e %Y" 2> /dev/null`])
 
-dnl Set the current working directory for PackageMaker files
-AC_SUBST(
- [PWD],
- [`pwd`])
-
-dnl Have configure make the Makefiles
+dnl Generate Makefiles
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([common/Makefile])
-AC_CONFIG_FILES([libcstring/Makefile])
 AC_CONFIG_FILES([libcerror/Makefile])
 AC_CONFIG_FILES([libcthreads/Makefile])
 AC_CONFIG_FILES([libcdata/Makefile])
-AC_CONFIG_FILES([libclocale/Makefile])
 AC_CONFIG_FILES([libcdatetime/Makefile])
+AC_CONFIG_FILES([libclocale/Makefile])
 AC_CONFIG_FILES([libcnotify/Makefile])
 AC_CONFIG_FILES([libcsplit/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
@@ -233,16 +232,17 @@ AC_CONFIG_FILES([libbfio/Makefile])
 AC_CONFIG_FILES([libfcache/Makefile])
 AC_CONFIG_FILES([libfdata/Makefile])
 AC_CONFIG_FILES([libfvalue/Makefile])
+AC_CONFIG_FILES([libmfdata/Makefile])
 AC_CONFIG_FILES([libhmac/Makefile])
-AC_CONFIG_FILES([libcaes/Makefile])
 AC_CONFIG_FILES([libewf/Makefile])
 AC_CONFIG_FILES([libodraw/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([libsmraw/Makefile])
-AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([ewftools/Makefile])
 AC_CONFIG_FILES([ewf.net/Makefile])
 AC_CONFIG_FILES([pyewf/Makefile])
+AC_CONFIG_FILES([pyewf-python2/Makefile])
+AC_CONFIG_FILES([pyewf-python3/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([documents/Makefile])
@@ -259,10 +259,8 @@ AC_CONFIG_FILES([libewf/libewf_definitions.h])
 dnl Have configure make distribution specific files
 AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
-AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([ewf.net/ewf.net.rc])
 AC_CONFIG_FILES([libewf/libewf.rc])
-AC_CONFIG_FILES([pyewf/setup.py])
 AC_CONFIG_FILES([libewf.pc])
 AC_CONFIG_FILES([libewf.spec])
 dnl Have configure write its configuration
@@ -273,7 +271,6 @@ AC_OUTPUT
 dnl Print a summary
 AC_MSG_NOTICE([
 Building:
-   libcstring support:                       $ac_cv_libcstring
    libcerror support:                        $ac_cv_libcerror
    libcthreads support:                      $ac_cv_libcthreads
    libcdata support:                         $ac_cv_libcdata
@@ -288,19 +285,16 @@ Building:
    libfcache support:                        $ac_cv_libfcache
    libfdata support:                         $ac_cv_libfdata
    libfvalue support:                        $ac_cv_libfvalue
+   libmfdata support:                        $ac_cv_libmfdata
    ADLER32 checksum support:                 $ac_cv_adler32
-   DEFLATE compression support:              $ac_cv_zlib
-   BZIP2 compression support:                $ac_cv_bzip2
+   DEFLATE compression support:              $ac_cv_uncompress
    libhmac support:                          $ac_cv_libhmac
    MD5 support:                              $ac_cv_libhmac_md5
    SHA1 support:                             $ac_cv_libhmac_sha1
    SHA256 support:                           $ac_cv_libhmac_sha256
-   libcaes support:                          $ac_cv_libcaes
-   AES support:                              $ac_cv_libcaes_aes
    libodraw support:                         $ac_cv_libodraw
    libsmdev support:                         $ac_cv_libsmdev
    libsmraw support:                         $ac_cv_libsmraw
-   libcsystem support:                       $ac_cv_libcsystem
    GUID/UUID support:                        $ac_cv_libuuid
    FUSE support:                             $ac_cv_libfuse
 

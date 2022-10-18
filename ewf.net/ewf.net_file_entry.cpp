@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma managed( push, off )
 #include <common.h>
@@ -839,77 +839,6 @@ int FileEntry::ReadBuffer( array<System::Byte>^ buffer,
 	return( (int) read_count );
 }
 
-int FileEntry::ReadBufferAtOffset( array<System::Byte>^ buffer,
-                                   int size,
-                                   System::Int64 offset )
-{
-	char ewf_error_string[ EWF_NET_ERROR_STRING_SIZE ];
-
-	libewf_error_t *error           = NULL;
-	libewf_file_entry_t *file_entry = NULL;
-	System::String^ error_string    = nullptr;
-	System::String^ function        = "FileEntry::ReadBufferAtOffset";
-	pin_ptr<uint8_t> ewf_buffer     = nullptr;
-	off64_t ewf_offset              = 0;
-	size_t read_count               = 0;
-
-	if( size < 0 )
-	{
-		throw gcnew System::ArgumentException(
-			     "ewf.net " + function + ": invalid size" );
-	}
-	if( size == 0 )
-	{
-		return( 0 );
-	}
-	if( size > buffer->Length )
-	{
-		throw gcnew System::ArgumentException(
-			     "ewf.net " + function + ": buffer too small" );
-	}
-	Marshal::WriteIntPtr(
-	 (IntPtr) &file_entry,
-	 this->ewf_file_entry );
-
-	Marshal::WriteInt64(
-	 (IntPtr) &ewf_offset,
-	 offset );
-
-	ewf_buffer = &( buffer[ 0 ] );
-
-	read_count = libewf_file_entry_read_buffer_at_offset(
-	              file_entry,
-	              ewf_buffer,
-	              (size_t) size,
-	              ewf_offset,
-	              &error );
-
-	if( read_count == -1 )
-	{
-		error_string = gcnew System::String(
-		                      "ewf.net " + function + ": unable to read buffer at offset from ewf file entry." );
-
-		if( libewf_error_backtrace_sprint(
-		     error,
-		     &( ewf_error_string[ 1 ] ),
-		     EWF_NET_ERROR_STRING_SIZE - 1 ) > 0 )
-		{
-			ewf_error_string[ 0 ] = '\n';
-
-			error_string = System::String::Concat(
-			                error_string,
-			                gcnew System::String(
-			                       ewf_error_string ) );
-		}
-		libewf_error_free(
-		 &error );
-
-		throw gcnew System::Exception(
-			     error_string );
-	}
-	return( (int) read_count );
-}
-
 int FileEntry::ReadRandom( array<System::Byte>^ buffer,
                            int size,
                            System::Int64 offset )
@@ -948,7 +877,7 @@ int FileEntry::ReadRandom( array<System::Byte>^ buffer,
 
 	ewf_buffer = &( buffer[ 0 ] );
 
-	read_count = libewf_file_entry_read_buffer_at_offset(
+	read_count = libewf_file_entry_read_random(
 	              file_entry,
 	              ewf_buffer,
 	              (size_t) size,
@@ -958,7 +887,7 @@ int FileEntry::ReadRandom( array<System::Byte>^ buffer,
 	if( read_count == -1 )
 	{
 		error_string = gcnew System::String(
-		                      "ewf.net " + function + ": unable to read buffer at offset from ewf file entry." );
+		                      "ewf.net " + function + ": unable to read random from ewf file entry." );
 
 		if( libewf_error_backtrace_sprint(
 		     error,

@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _EWF_LTREE_H )
@@ -33,33 +33,33 @@ typedef struct ewf_ltree_header ewf_ltree_header_t;
 
 struct ewf_ltree_header
 {
-	/* The MD5 hash of the ltree data
-	 * Consists of 16 bytes
+	/* Unknown
+	 * consists of 16 bytes
 	 */
-	uint8_t integrity_hash[ 16 ];
+	uint8_t unknown1[ 16 ];
 
-	/* The size of the data in bytes
+	/* The size of the tree in bytes
 	 * consists of 4 bytes (32 bits)
 	 */
-	uint8_t data_size[ 4 ];
+	uint8_t tree_size[ 4 ];
 
 	/* Unknown
 	 * consists of 4 bytes
 	 * contains 0x00
 	 */
-	uint8_t unknown1[ 4 ];
+	uint8_t unknown2[ 4 ];
 
-	/* The section checksum of all data in the header
-	 * where the checksum value itself is zeroed out
-	 * consists of 4 bytes (32 bits)
+	/* Unknown
+	 * consists of 4 bytes
+	 * possible checksum?
 	 */
-	uint8_t checksum[ 4 ];
+	uint8_t unknown3[ 4 ];
 
 	/* Unknown
 	 * consists of 20 bytes
 	 * contains 0x00
 	 */
-	uint8_t unknown2[ 20 ];
+	uint8_t unknown4[ 20 ];
 };
 
 #if defined( __cplusplus )

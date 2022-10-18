@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _EWF_SESSION_H )
@@ -29,92 +29,55 @@
 extern "C" {
 #endif
 
-typedef struct ewf_session_header_v1 ewf_session_header_v1_t;
+typedef struct ewf_session_header ewf_session_header_t;
 
-struct ewf_session_header_v1
+struct ewf_session_header
 {
-	/* Number of entries
-	 * Consists of 4 bytes
+	/* Number of sessions
+	 * consists of 4 bytes
 	 */
-	uint8_t number_of_entries[ 4 ];
+	uint8_t number_of_sessions[ 4 ];
 
 	/* Unknown
-	 * Consists of 28 bytes
-	 * Contains 0x00
+	 * consists of 28 bytes
+	 * contains 0x00
 	 */
 	uint8_t unknown1[ 28 ];
 
-	/* The section checksum of all (previous) session header data
-	 * Consists of 4 bytes
+	/* The section checksum of all (previous) session data
+	 * consists of 4 bytes (32 bits)
+	 * starts with offset 76
 	 */
 	uint8_t checksum[ 4 ];
+
+	/* The session entry array
+	 * consists of 32 bytes per sector
+	 * as long as necessary
+	 */
+
+	/* The last session entry is followed by a 4 byte checksum
+	 */
 };
 
-typedef struct ewf_session_entry_v1 ewf_session_entry_v1_t;
+typedef struct ewf_session_entry ewf_session_entry_t;
 
-struct ewf_session_entry_v1
+struct ewf_session_entry
 {
-	/* The flags
-	 * Consists of 4 bytes
+	/* The type
+	 * consists of 4 bytes
 	 */
-	uint8_t flags[ 4 ];
+	uint8_t type[ 4 ];
 
 	/* The start sector of the session
-	 * Consists of 4 bytes
+	 * consists of 4 bytes
 	 */
 	uint8_t start_sector[ 4 ];
 
 	/* Unknown
-	 * Consists of 24 bytes
-	 * Contains 0x00
+	 * consists of 24 bytes
+	 * contains 0x00
 	 */
-	uint8_t unknown1[ 24 ];
-};
-
-typedef struct ewf_session_header_v2 ewf_session_header_v2_t;
-
-struct ewf_session_header_v2
-{
-	/* Number of entries
-	 * Consists of 4 bytes
-	 */
-	uint8_t number_of_entries[ 4 ];
-
-	/* Unknown
-	 * Consists of 12 bytes
-	 */
-	uint8_t unknown1[ 12 ];
-
-	/* The section checksum of all (previous) session header data
-	 * Consists of 4 bytes
-	 */
-	uint8_t checksum[ 4 ];
-
-	/* Padding
-	 * Consists of 12 bytes
-	 */
-	uint8_t padding[ 12 ];
-};
-
-typedef struct ewf_session_entry_v2 ewf_session_entry_v2_t;
-
-struct ewf_session_entry_v2
-{
-	/* The start sector of the session
-	 * Consists of 8 bytes
-	 */
-	uint8_t start_sector[ 8 ];
-
-	/* The flags
-	 * Consists of 4 bytes
-	 */
-	uint8_t flags[ 4 ];
-
-	/* Unknown
-	 * Consists of 20 bytes
-	 * Contains 0x00
-	 */
-	uint8_t unknown1[ 20 ];
+	uint8_t unknown2[ 24 ];
 };
 
 #if defined( __cplusplus )

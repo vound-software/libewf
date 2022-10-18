@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_LEGACY_H )
@@ -25,8 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include "libewf_extern.h"
 #include "libewf_libcerror.h"
+
+#include "libewf_extern.h"
 #include "libewf_types.h"
 
 #if defined( __cplusplus )
@@ -50,22 +51,6 @@ uint8_t libewf_get_flags_write(
 LIBEWF_EXTERN \
 uint8_t libewf_get_flags_write_resume(
          void );
-
-LIBEWF_EXTERN \
-ssize_t libewf_handle_read_random(
-         libewf_handle_t *handle,
-         void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libcerror_error_t **error );
-
-LIBEWF_EXTERN \
-ssize_t libewf_handle_write_random(
-         libewf_handle_t *handle,
-         const void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libcerror_error_t **error );
 
 LIBEWF_EXTERN \
 int libewf_handle_set_maximum_amount_of_open_handles(
@@ -101,12 +86,6 @@ LIBEWF_EXTERN \
 int libewf_handle_get_amount_of_sectors(
      libewf_handle_t *handle,
      uint64_t *amount_of_sectors,
-     libcerror_error_t **error );
-
-LIBEWF_EXTERN \
-int libewf_handle_get_number_of_chunks_written(
-     libewf_handle_t *handle,
-     uint32_t *number_of_chunks,
      libcerror_error_t **error );
 
 LIBEWF_EXTERN \
@@ -239,14 +218,6 @@ int libewf_handle_set_hash_value(
      libcerror_error_t **error );
 
 LIBEWF_EXTERN \
-ssize_t libewf_file_entry_read_random(
-         libewf_file_entry_t *file_entry,
-         void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libcerror_error_t **error );
-
-LIBEWF_EXTERN \
 int libewf_file_entry_get_amount_of_sub_file_entries(
      libewf_file_entry_t *file_entry,
      int *amount_of_sub_file_entries,
@@ -319,7 +290,7 @@ ssize_t libewf_raw_read_prepare_buffer(
          size_t *uncompressed_buffer_size,
          int8_t is_compressed,
          uint32_t chunk_checksum,
-         int8_t chunk_io_flags );
+         int8_t read_checksum );
 
 LIBEWF_EXTERN \
 ssize_t libewf_raw_read_buffer(
@@ -328,7 +299,7 @@ ssize_t libewf_raw_read_buffer(
          size_t buffer_size,
          int8_t *is_compressed,
          uint32_t *chunk_checksum,
-         int8_t *chunk_io_flags );
+         int8_t *read_checksum );
 
 LIBEWF_EXTERN \
 ssize_t libewf_read_buffer(
@@ -352,7 +323,7 @@ ssize_t libewf_raw_write_prepare_buffer(
          size_t *compressed_buffer_size,
          int8_t *is_compressed,
          uint32_t *chunk_checksum,
-         int8_t *chunk_io_flags );
+         int8_t *write_checksum );
 
 LIBEWF_EXTERN \
 ssize_t libewf_raw_write_buffer(
@@ -362,7 +333,7 @@ ssize_t libewf_raw_write_buffer(
          size_t data_size,
          int8_t is_compressed,
          uint32_t chunk_checksum,
-         int8_t chunk_io_flags );
+         int8_t write_checksum );
 
 LIBEWF_EXTERN \
 ssize_t libewf_write_buffer(

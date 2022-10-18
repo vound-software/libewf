@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -27,7 +27,6 @@
 #include "pyewf_integer.h"
 #include "pyewf_libbfio.h"
 #include "pyewf_libcerror.h"
-#include "pyewf_libcstring.h"
 #include "pyewf_python.h"
 
 /* Initializes the file objects IO pool
@@ -42,7 +41,7 @@ int pyewf_file_objects_pool_initialize(
 	libbfio_handle_t *file_io_handle = NULL;
 	PyObject *file_object            = NULL;
 	static char *function            = "pyewf_file_objects_pool_initialize";
-	Py_ssize_t sequence_size         = 0;
+        Py_ssize_t sequence_size         = 0;
 	int element_index                = 0;
 	int file_io_pool_entry           = 0;
 	int number_of_elements           = 0;
@@ -72,7 +71,7 @@ int pyewf_file_objects_pool_initialize(
 	sequence_size = PySequence_Size(
 	                 sequence_object );
 
-	if( sequence_size > (Py_ssize_t) INT_MAX )
+        if( sequence_size > (Py_ssize_t) INT_MAX )
 	{
 		libcerror_error_set(
 		 error,

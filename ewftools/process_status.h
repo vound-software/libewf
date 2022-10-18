@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _PROCESS_STATUS_H )
@@ -27,8 +27,6 @@
 
 #include "ewftools_libcdatetime.h"
 #include "ewftools_libcerror.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -47,15 +45,15 @@ struct process_status
 {
 	/* The status process string
 	 */
-	const libcstring_system_character_t *status_process_string;
+	const system_character_t *status_process_string;
 
 	/* The status update string
 	 */
-	const libcstring_system_character_t *status_update_string;
+	const system_character_t *status_update_string;
 
 	/* The status summary string
 	 */
-	const libcstring_system_character_t *status_summary_string;
+	const system_character_t *status_summary_string;
 
 	/* The ouput stream
 	 */
@@ -88,9 +86,9 @@ struct process_status
 
 int process_status_initialize(
      process_status_t **process_status,
-     const libcstring_system_character_t *status_process_string,
-     const libcstring_system_character_t *status_update_string,
-     const libcstring_system_character_t *status_summary_string,
+     const system_character_t *status_process_string,
+     const system_character_t *status_update_string,
+     const system_character_t *status_summary_string,
      FILE *output_stream,
      uint8_t print_status_information,
      libcerror_error_t **error );

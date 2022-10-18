@@ -2,7 +2,7 @@
 #
 # ewfacquire resume testing script
 #
-# Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -25,6 +25,7 @@ EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
 INPUT="input_raw";
+TMP="tmp";
 
 AWK="awk";
 LS="ls";
@@ -36,10 +37,10 @@ test_write_resume()
 	INPUT_FILE=$1;
 	RESUME_OFFSET=$2;
 
-	mkdir tmp/;
+	mkdir ${TMP};
 
 	${EWFACQUIRE} -q -u \
-	-t tmp/resume \
+	-t ${TMP}/resume \
 	-C case_number \
 	-D description \
 	-E evidence_number \
@@ -57,22 +58,22 @@ test_write_resume()
 
 	if [ ${RESULT} -eq ${EXIT_SUCCESS} ];
 	then
-		${EWFVERIFY} -q tmp/resume.E01
+		${EWFVERIFY} -q ${TMP}/resume.E01
 
 		RESULT=$?;
 	fi
 
 	if [ ${RESULT} -eq ${EXIT_SUCCESS} ];
 	then
-		${EWFTRUNCATE} ${RESUME_OFFSET} tmp/resume.E01
+		${EWFTRUNCATE} ${RESUME_OFFSET} ${TMP}/resume.E01
 
 		RESULT=$?;
 	fi
 
 	if [ ${RESULT} -eq ${EXIT_SUCCESS} ];
 	then
-		${EWFACQUIRE} -q -R ${INPUT_FILE} <<EOI
-tmp/resume.E01
+${EWFACQUIRE} -q -R ${INPUT_FILE} <<EOI
+${TMP}/resume.E01
 
 
 yes
@@ -83,12 +84,12 @@ EOI
 
 	if [ ${RESULT} -eq ${EXIT_SUCCESS} ];
 	then
-		${EWFVERIFY} -q tmp/resume.E01
+		${EWFVERIFY} -q ${TMP}/resume.E01
 
 		RESULT=$?;
 	fi
 
-	# rm -rf tmp;
+	rm -rf ${TMP};
 
 	if [ ${RESULT} -ne ${EXIT_IGNORE} ];
 	then

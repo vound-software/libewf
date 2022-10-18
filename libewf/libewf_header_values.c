@@ -5,24 +5,24 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
-
 
 #if defined( TIME_WITH_SYS_TIME )
 #include <sys/time.h>
@@ -39,12 +39,10 @@
 #include "libewf_header_values.h"
 #include "libewf_libcerror.h"
 #include "libewf_libcnotify.h"
-#include "libewf_libcstring.h"
 #include "libewf_libfvalue.h"
 #include "libewf_libuna.h"
 
-/* Creates header values
- * Make sure the value header_values is referencing, is set to NULL
+/* Initializes the header values
  * Returns 1 if successful or -1 on error
  */
 int libewf_header_values_initialize(
@@ -1400,7 +1398,7 @@ int libewf_header_values_copy(
 		 * They will be auto generated
 		 */
 		else if( ( identifier_size == 13 )
-		      && ( libcstring_narrow_string_compare(
+		      && ( narrow_string_compare(
 		            (char *) identifier,
 		            "acquiry_date",
 		            12 ) == 0 ) )
@@ -1408,7 +1406,7 @@ int libewf_header_values_copy(
 			continue;
 		}
 		else if( ( identifier_size == 12 )
-		      && ( libcstring_narrow_string_compare(
+		      && ( narrow_string_compare(
 		            (char *) identifier,
 		            "system_date",
 		            11 ) == 0 ) )
@@ -2089,7 +2087,7 @@ int libewf_header_values_parse_utf8_header_string(
 					/* If the date time values string contains spaces it's in the old header
 					 * format otherwise is in new header2 format
 					 */
-					else if( libcstring_narrow_string_search_character(
+					else if( narrow_string_search_character(
 					          (char *) value_string,
 					          ' ',
 					          value_string_size - 1 ) != NULL )
@@ -2138,7 +2136,7 @@ int libewf_header_values_parse_utf8_header_string(
 					if( date_time_values_string != NULL )
 					{
 						value_string      = date_time_values_string;
-						value_string_size = 1 + libcstring_narrow_string_length(
+						value_string_size = 1 + narrow_string_length(
 									 (char *) date_time_values_string );
 
 						if( type_string[ 0 ] == (uint8_t) 'm' )
@@ -3451,7 +3449,7 @@ int libewf_header_values_generate_utf8_header_string(
 		{
 			/* Make sure to determine the actual length of the date time values string
 			 */
-			acquiry_date_string_length = libcstring_narrow_string_length(
+			acquiry_date_string_length = narrow_string_length(
 			                              (char *) generated_acquiry_date );
 		}
 	}
@@ -3529,7 +3527,7 @@ int libewf_header_values_generate_utf8_header_string(
 		{
 			/* Make sure to determine the actual length of the date time values string
 			 */
-			 system_date_string_length = libcstring_narrow_string_length(
+			 system_date_string_length = narrow_string_length(
 			                              (char *) generated_system_date );
 		}
 	}
@@ -3671,7 +3669,7 @@ int libewf_header_values_generate_utf8_header_string(
 			{
 				generated_compression_level = LIBEWF_HEADER_VALUE_COMPRESSION_LEVEL_BEST;
 			}
-			compression_level_string_length = libcstring_narrow_string_length(
+			compression_level_string_length = narrow_string_length(
 			                                   generated_compression_level );
 		}
 		*utf8_string_size += compression_level_string_length;
@@ -3862,7 +3860,7 @@ int libewf_header_values_generate_utf8_header_string(
 		                         "p\tn\tid\tev\ttb\tlo\tpo\tah\tgu\taq\n0\t0\n\t\t\t\t\t-1\t-1\t\t\t\n"
 		                         "\n";
 
-		srce_section_string_length = libcstring_narrow_string_length(
+		srce_section_string_length = narrow_string_length(
 		                              generated_srce_section );
 
 		*utf8_string_size += srce_section_string_length;
@@ -3876,7 +3874,7 @@ int libewf_header_values_generate_utf8_header_string(
 		                         "\t\t\t\t\t-1\t-1\t00000000000000000000000000000000\t0000000000000000000000000000000000000000\t00000000000000000000000000000000\t\n"
 		                         "\n";
 
-		srce_section_string_length = libcstring_narrow_string_length(
+		srce_section_string_length = narrow_string_length(
 		                              generated_srce_section );
 
 		*utf8_string_size += srce_section_string_length;
@@ -3892,7 +3890,7 @@ int libewf_header_values_generate_utf8_header_string(
 		                        "\t\t\t\t1\t\n"
 		                        "\n";
 
-		sub_section_string_length = libcstring_narrow_string_length(
+		sub_section_string_length = narrow_string_length(
 		                             generated_sub_section );
 
 		*utf8_string_size += sub_section_string_length;
@@ -3906,7 +3904,7 @@ int libewf_header_values_generate_utf8_header_string(
 		                        "\t\t\t\t1\t00000000000000000000000000000000\n"
 		                        "\n";
 
-		sub_section_string_length = libcstring_narrow_string_length(
+		sub_section_string_length = narrow_string_length(
 		                             generated_sub_section );
 
 		*utf8_string_size += sub_section_string_length;
@@ -4396,7 +4394,7 @@ int libewf_header_values_generate_utf8_header_string(
 	}
 	else
 	{
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *utf8_string )[ utf8_string_index ] ),
 		     (char *) generated_acquiry_date,
 		     acquiry_date_string_length ) == NULL )
@@ -4446,7 +4444,7 @@ int libewf_header_values_generate_utf8_header_string(
 	}
 	else
 	{
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *utf8_string )[ utf8_string_index ] ),
 		     (char *) generated_system_date,
 		     system_date_string_length ) == NULL )
@@ -4496,7 +4494,7 @@ int libewf_header_values_generate_utf8_header_string(
 	}
 	else
 	{
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *utf8_string )[ utf8_string_index ] ),
 		     generated_password,
 		     password_string_length ) == NULL )
@@ -4542,7 +4540,7 @@ int libewf_header_values_generate_utf8_header_string(
 		}
 		else
 		{
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *utf8_string )[ utf8_string_index ] ),
 			     generated_compression_level,
 			     compression_level_string_length ) == NULL )
@@ -4667,7 +4665,7 @@ int libewf_header_values_generate_utf8_header_string(
 	{
 		if( srce_section_string_length > 0 )
 		{
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *utf8_string )[ utf8_string_index ] ),
 			     generated_srce_section,
 			     srce_section_string_length ) == NULL )
@@ -4685,7 +4683,7 @@ int libewf_header_values_generate_utf8_header_string(
 		}
 		if( sub_section_string_length > 0 )
 		{
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *utf8_string )[ utf8_string_index ] ),
 			     generated_sub_section,
 			     sub_section_string_length ) == NULL )
@@ -5815,7 +5813,7 @@ int libewf_convert_date_xheader_value(
 	{
 		( *date_time_values_string )[ date_time_values_string_index++ ] = (uint8_t) ' ';
 
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *date_time_values_string )[ date_time_values_string_index ] ),
 		     (char *) timezone_string,
 		     timezone_string_size - 1 ) == NULL )
@@ -5835,7 +5833,7 @@ int libewf_convert_date_xheader_value(
 	{
 		( *date_time_values_string )[ date_time_values_string_index++ ] = (uint8_t) ' ';
 
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *date_time_values_string )[ date_time_values_string_index ] ),
 		     (char *) timezone_name,
 		     timezone_name_size - 1 ) == NULL )
@@ -6083,7 +6081,7 @@ int libewf_generate_date_xheader_value(
 #if defined( _BSD_SOURCE )
 	time_elements.tm_gmtoff /= 60;
 
-	print_count = libcstring_narrow_string_snprintf(
+	print_count = narrow_string_snprintf(
 	               (char *) &( ( ( *date_time_values_string )[ date_time_values_string_index ] ) ),
 		       *date_time_values_string_size - date_time_values_string_index,
 		       "%+03ld:%02ld (%s)",
@@ -6094,12 +6092,12 @@ int libewf_generate_date_xheader_value(
 #elif defined( WINAPI )
 	/* WINAPI sometimes uses long timezone names
 	 */
-	tzname_length = libcstring_narrow_string_length(
+	tzname_length = narrow_string_length(
 	                 _tzname[ time_elements.tm_isdst ] );
 
 	if( tzname_length <= 4 )
 	{
-		print_count = libcstring_narrow_string_snprintf(
+		print_count = narrow_string_snprintf(
 			       (char *) &( ( ( *date_time_values_string )[ date_time_values_string_index ] ) ),
 			       *date_time_values_string_size - date_time_values_string_index,
 			       "%s",
@@ -6110,7 +6108,7 @@ int libewf_generate_date_xheader_value(
 		print_count = 0;
 	}
 #else
-	print_count = libcstring_narrow_string_snprintf(
+	print_count = narrow_string_snprintf(
 	               (char *) &( ( ( *date_time_values_string )[ date_time_values_string_index ] ) ),
 		       *date_time_values_string_size - date_time_values_string_index,
 		       "%s",
@@ -6285,7 +6283,7 @@ int libewf_header_values_parse_xheader_date_value(
 		{
 			/* Make sure to determine the actual length of the date time values string
 			 */
-			date_time_values_string_size = 1 + libcstring_narrow_string_length(
+			date_time_values_string_size = 1 + narrow_string_length(
 							    (char *) date_time_values_string );
 
 			if( libfvalue_value_set_data(
@@ -6411,17 +6409,17 @@ int libewf_header_values_generate_xheader(
 	}
 	xml_head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-	xml_head_length = libcstring_narrow_string_length(
+	xml_head_length = narrow_string_length(
 	                   xml_head );
 
 	xml_xheader_open_tag = "<xheader>\n";
 
-	xml_xheader_open_tag_length = libcstring_narrow_string_length(
+	xml_xheader_open_tag_length = narrow_string_length(
 	                               xml_xheader_open_tag );
 
 	xml_xheader_close_tag = "</xheader>\n\n";
 
-	xml_xheader_close_tag_length = libcstring_narrow_string_length(
+	xml_xheader_close_tag_length = narrow_string_length(
 	                                xml_xheader_close_tag );
 
 	/* Reserve space for the UTF-8 byte order mark and the XML skeleton data
@@ -6498,7 +6496,7 @@ int libewf_header_values_generate_xheader(
 		{
 			if( ( generated_acquiry_date == NULL )
 			 && ( identifier_size == 13 )
-			 && ( libcstring_narrow_string_compare(
+			 && ( narrow_string_compare(
 			       (char *) identifier,
 			       "acquiry_date",
 			       12 ) == 0 ) )
@@ -6532,7 +6530,7 @@ int libewf_header_values_generate_xheader(
 				}
 				else
 				{
-					acquiry_date_string_length = libcstring_narrow_string_length(
+					acquiry_date_string_length = narrow_string_length(
 								      (char *) generated_acquiry_date );
 
 					/* Reserve space for a leading tab, <acquiry_date>, header value, </acquiry_date> and a newline
@@ -6590,7 +6588,7 @@ int libewf_header_values_generate_xheader(
 	( *xheader )[ xheader_index++ ] = 0xbb;
 	( *xheader )[ xheader_index++ ] = 0xbf;
 
-	if( libcstring_narrow_string_copy(
+	if( narrow_string_copy(
 	     (char *) &( ( *xheader )[ xheader_index ] ),
 	     xml_head,
 	     xml_head_length ) == NULL )
@@ -6606,7 +6604,7 @@ int libewf_header_values_generate_xheader(
 	}
 	xheader_index += xml_head_length;
 
-	if( libcstring_narrow_string_copy(
+	if( narrow_string_copy(
 	     (char *) &( ( *xheader )[ xheader_index ] ),
 	     xml_xheader_open_tag,
 	     xml_xheader_open_tag_length ) == NULL )
@@ -6715,7 +6713,7 @@ int libewf_header_values_generate_xheader(
 			( *xheader )[ xheader_index++ ] = (uint8_t) '\t';
 			( *xheader )[ xheader_index++ ] = (uint8_t) '<';
 
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *xheader )[ xheader_index ] ),
 			     (char *) identifier,
 			     identifier_size - 1 ) == NULL )
@@ -6757,7 +6755,7 @@ int libewf_header_values_generate_xheader(
 			( *xheader )[ xheader_index - 1 ] = (uint8_t) '<';
 			( *xheader )[ xheader_index++ ]   = (uint8_t) '/';
 
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *xheader )[ xheader_index ] ),
 			     (char *) identifier,
 			     identifier_size - 1 ) == NULL )
@@ -6780,7 +6778,7 @@ int libewf_header_values_generate_xheader(
 	}
 	if( generated_acquiry_date != NULL )
 	{
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *xheader )[ xheader_index ] ),
 		     "\t<acquiry_date>",
 		     15 ) == NULL )
@@ -6796,7 +6794,7 @@ int libewf_header_values_generate_xheader(
 		}
 		xheader_index += 15;
 
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *xheader )[ xheader_index ] ),
 		     (char *) generated_acquiry_date,
 		     acquiry_date_string_length ) == NULL )
@@ -6817,7 +6815,7 @@ int libewf_header_values_generate_xheader(
 
 		generated_acquiry_date = NULL;
 
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) &( ( *xheader )[ xheader_index ] ),
 		     "</acquiry_date>\n",
 		     16 ) == NULL )
@@ -6833,7 +6831,7 @@ int libewf_header_values_generate_xheader(
 		}
 		xheader_index += 16;
 	}
-	if( libcstring_narrow_string_copy(
+	if( narrow_string_copy(
 	     (char *) &( ( *xheader )[ xheader_index ] ),
 	     xml_xheader_close_tag,
 	     xml_xheader_close_tag_length ) == NULL )

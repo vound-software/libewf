@@ -2,7 +2,7 @@
 #
 # ewfacquire testing script for (split) RAW image input
 #
-# Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -187,7 +187,7 @@ for FILENAME in `${LS} ${INPUT}/*.[rR][aA][wW] | ${TR} ' ' '\n'`;
 do
 	for SEGMENT_SIZE in 650MB 1MiB;
 	do
-		for FORMAT in ewf encase1 encase2 encase3 encase4 encase5 encase6 encase7 linen5 linen6 linen7 ftk smart ewfx;
+		for FORMAT in ewf encase1 encase2 encase3 encase4 encase5 encase6 linen5 linen6 ftk smart ewfx;
 		do
 			for COMPRESSION_LEVEL in none empty-block fast best;
 			do
@@ -195,20 +195,6 @@ do
 				then
 					exit ${EXIT_FAILURE};
 				fi
-			done
-		done
-
-		for FORMAT in encase7-v2;
-		do
-			for COMPRESSION_METHOD in deflate bzip2;
-			do
-				for COMPRESSION_LEVEL in none empty-block fast best;
-				do
-					if ! test_acquire_file "${FILENAME}" "${FORMAT}" "${COMPRESSION_METHOD}" "${COMPRESSION_LEVEL}" "${SEGMENT_SIZE}" 64;
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
 			done
 		done
 	done
@@ -232,17 +218,6 @@ do
 					exit ${EXIT_FAILURE};
 				fi
 			done
-
-			for COMPRESSION_METHOD in deflate bzip2;
-			do
-				for COMPRESSION_LEVEL in none empty-block fast best;
-				do
-					if ! test_acquire_file "${FILENAME}" encase7-v2 deflate "${COMPRESSION_LEVEL}" "${SEGMENT_SIZE}" "${CHUNK_SIZE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
-			done
 		done
 	done
 done
@@ -251,7 +226,7 @@ for FILENAME in `${LS} ${INPUT}/*.[rR][aA][wW] | ${TR} ' ' '\n'`;
 do
 	for SEGMENT_SIZE in 650MB 1MiB;
 	do
-		for FORMAT in ewf encase1 encase2 encase3 encase4 encase5 encase6 encase7 linen5 linen6 linen7 ftk smart ewfx;
+		for FORMAT in ewf encase1 encase2 encase3 encase4 encase5 encase6 linen5 linen6 ftk smart ewfx;
 		do
 			for COMPRESSION_LEVEL in none empty-block fast best;
 			do
@@ -259,20 +234,6 @@ do
 				then
 					exit ${EXIT_FAILURE};
 				fi
-			done
-		done
-
-		for FORMAT in encase7-v2;
-		do
-			for COMPRESSION_METHOD in deflate bzip2;
-			do
-				for COMPRESSION_LEVEL in none empty-block fast best;
-				do
-					if ! test_acquire_unattended_file "${FILENAME}" "${FORMAT}" "${COMPRESSION_METHOD}" "${COMPRESSION_LEVEL}" "${SEGMENT_SIZE}" 64;
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
 			done
 		done
 	done
@@ -294,17 +255,6 @@ do
 				exit ${EXIT_FAILURE};
 			fi
 		done
-
-		for COMPRESSION_METHOD in deflate bzip2;
-		do
-			for COMPRESSION_LEVEL in none empty-block fast best;
-			do
-				if ! test_acquire_unattended_file "${FILENAME}" encase7-v2 "${COMPRESSION_METHOD}" "${COMPRESSION_LEVEL}" 650MB "${CHUNK_SIZE}";
-				then
-					exit ${EXIT_FAILURE};
-				fi
-			done
-		done
 	done
 done
 
@@ -316,17 +266,6 @@ do
 		then
 			exit ${EXIT_FAILURE};
 		fi
-	done
-
-	for COMPRESSION_METHOD in deflate bzip2;
-	do
-		for COMPRESSION_LEVEL in none empty-block fast best;
-		do
-			if ! test_acquire_file "${FILENAME}" encase7-v2 "${COMPRESSION_METHOD}" "${COMPRESSION_LEVEL}" 100GB 64;
-			then
-				exit ${EXIT_FAILURE};
-			fi
-		done
 	done
 done
 

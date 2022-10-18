@@ -5,40 +5,49 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
+
+#include <stdio.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
+#endif
+
+#if defined( HAVE_IO_H ) || defined( WINAPI )
+#include <io.h>
 #endif
 
 #include "byte_size_string.h"
 #include "device_handle.h"
 #include "ewfcommon.h"
 #include "ewfinput.h"
-#include "ewfoutput.h"
+#include "ewftools_getopt.h"
 #include "ewftools_libcerror.h"
 #include "ewftools_libclocale.h"
 #include "ewftools_libcnotify.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
-#include "ewftools_libcthreads.h"
 #include "ewftools_libewf.h"
+#include "ewftools_output.h"
+#include "ewftools_signal.h"
+#include "ewftools_unused.h"
 #include "imaging_handle.h"
 #include "log_handle.h"
 #include "process_status.h"
@@ -61,10 +70,10 @@ int ewfacquire_abort                        = 0;
 void ewfacquire_usage_fprint(
       FILE *stream )
 {
-	libcstring_system_character_t default_segment_file_size_string[ 16 ];
-	libcstring_system_character_t minimum_segment_file_size_string[ 16 ];
-	libcstring_system_character_t maximum_32bit_segment_file_size_string[ 16 ];
-	libcstring_system_character_t maximum_64bit_segment_file_size_string[ 16 ];
+	system_character_t default_segment_file_size_string[ 16 ];
+	system_character_t minimum_segment_file_size_string[ 16 ];
+	system_character_t maximum_32bit_segment_file_size_string[ 16 ];
+	system_character_t maximum_64bit_segment_file_size_string[ 16 ];
 
 	int result = 0;
 
@@ -165,9 +174,9 @@ void ewfacquire_usage_fprint(
 
 	if( result == 1 )
 	{
-		fprintf( stream, "\t-S:     specify the segment file size in bytes (default is %" PRIs_LIBCSTRING_SYSTEM ")\n"
-		                 "\t        (minimum is %" PRIs_LIBCSTRING_SYSTEM ", maximum is %" PRIs_LIBCSTRING_SYSTEM " for encase6\n"
-		                 "\t        and encase7 format and %" PRIs_LIBCSTRING_SYSTEM " for other formats)\n",
+		fprintf( stream, "\t-S:     specify the segment file size in bytes (default is %" PRIs_SYSTEM ")\n"
+		                 "\t        (minimum is %" PRIs_SYSTEM ", maximum is %" PRIs_SYSTEM " for encase6\n"
+		                 "\t        and encase7 format and %" PRIs_SYSTEM " for other formats)\n",
 		 default_segment_file_size_string,
 		 minimum_segment_file_size_string,
 		 maximum_64bit_segment_file_size_string,
@@ -191,8 +200,8 @@ void ewfacquire_usage_fprint(
 	fprintf( stream, "\t-v:     verbose output to stderr\n" );
 	fprintf( stream, "\t-V:     print version\n" );
 	fprintf( stream, "\t-w:     zero sectors on read error (mimic EnCase like behavior)\n" );
-	fprintf( stream, "\t-x:     in single-threaded mode use the chunk data instead of\n"
-	                 "\t        the buffered read and write functions.\n");
+	fprintf( stream, "\t-x:     use the chunk data instead of the buffered read and write\n"
+	                 "\t        functions.\n" );
 	fprintf( stream, "\t-2:     specify the secondary target file (without extension) to write\n"
 	                 "\t        to\n" );
 }
@@ -200,12 +209,12 @@ void ewfacquire_usage_fprint(
 /* Signal handler for ewfacquire
  */
 void ewfacquire_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      ewftools_signal_t signal EWFTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
-	static char *function   = "ewfacquire_signal_handler";
+	static char *function    = "ewfacquire_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	EWFTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	ewfacquire_abort = 1;
 
@@ -243,8 +252,13 @@ void ewfacquire_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -257,11 +271,11 @@ void ewfacquire_signal_handler(
  */
 int8_t ewfacquire_confirm_acquiry_parameters(
         FILE *stream,
-        libcstring_system_character_t *input_buffer,
+        system_character_t *input_buffer,
         size_t input_buffer_size,
         libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	int8_t input_confirmed                               = -1;
 	int result                                           = 0;
 
@@ -277,7 +291,7 @@ int8_t ewfacquire_confirm_acquiry_parameters(
 		          stream,
 		          input_buffer,
 		          input_buffer_size,
-		          _LIBCSTRING_SYSTEM_STRING( "Continue acquiry with these values" ),
+		          _SYSTEM_STRING( "Continue acquiry with these values" ),
 		          ewfinput_yes_no,
 		          2,
 		          0,
@@ -550,29 +564,6 @@ int ewfacquire_determine_sessions(
 	return( 1 );
 }
 
-#if defined( HAVE_MULTI_THREAD_SUPPORT )
-
-/* Prepares a storage media buffer for writing
- * Callback function for the process thread pool
- * Returns 1 if successful or -1 on error
- */
-int ewfacquire_process_storage_media_buffer(
-     storage_media_buffer_t *storage_media_buffer,
-     void *arguments LIBCSYSTEM_ATTRIBUTE_UNUSED )
-{
-        libcerror_error_t *error = NULL;
-        static char *function    = "cthreads_test_thread_pool_callback_function";
-        int result               = 0;
-
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( arguments )
-
-	/* TODO */
-
-	return( -1 );
-}
-
-#endif /* defined( HAVE_MULTI_THREAD_SUPPORT ) */
-
 /* Reads the input
  * Returns 1 if successful or -1 on error
  */
@@ -582,32 +573,28 @@ int ewfacquire_read_input(
      off64_t resume_acquiry_offset,
      uint8_t swap_byte_pairs,
      uint8_t print_status_information,
-     uint8_t use_multi_threading,
      uint8_t use_chunk_data_functions,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-#if defined( HAVE_MULTI_THREAD_SUPPORT )
-	libcthreads_thread_pool_t *process_thread_pool = NULL;
-#endif
-	process_status_t *process_status               = NULL;
-	storage_media_buffer_t *storage_media_buffer   = NULL;
-	uint8_t *data                                  = NULL;
-	static char *function                          = "ewfacquire_read_input";
-	off64_t read_error_offset                      = 0;
-	size64_t acquiry_count                         = 0;
-	size64_t read_error_size                       = 0;
-	size_t data_size                               = 0;
-	size_t process_buffer_size                     = 0;
-	size_t read_size                               = 0;
-	ssize_t read_count                             = 0;
-	ssize_t process_count                          = 0;
-	ssize_t write_count                            = 0;
-	uint32_t chunk_size                            = 0;
-	uint8_t storage_media_buffer_mode              = 0;
-	int number_of_read_errors                      = 0;
-	int read_error_iterator                        = 0;
-	int status                                     = PROCESS_STATUS_COMPLETED;
+	process_status_t *process_status             = NULL;
+	storage_media_buffer_t *storage_media_buffer = NULL;
+	uint8_t *data                                = NULL;
+	static char *function                        = "ewfacquire_read_input";
+	off64_t read_error_offset                    = 0;
+	size64_t acquiry_count                       = 0;
+	size64_t read_error_size                     = 0;
+	size_t data_size                             = 0;
+	size_t process_buffer_size                   = 0;
+	size_t read_size                             = 0;
+	ssize_t read_count                           = 0;
+	ssize_t process_count                        = 0;
+	ssize_t write_count                          = 0;
+	uint32_t chunk_size                          = 0;
+	uint8_t storage_media_buffer_mode            = 0;
+	int number_of_read_errors                    = 0;
+	int read_error_iterator                      = 0;
+	int status                                   = PROCESS_STATUS_COMPLETED;
 
 	if( imaging_handle == NULL )
 	{
@@ -653,19 +640,6 @@ int ewfacquire_read_input(
 
 		return( -1 );
 	}
-#if !defined( HAVE_MULTI_THREAD_SUPPORT )
-	if( use_multi_threading != 0 )
-	{
-		libcerror_error_set(
-		 &error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: multi-threading not supported.",
-		 function );
-
-		return( -1 );
-	}
-#endif
 	if( ( imaging_handle->acquiry_size > imaging_handle->input_media_size )
 	 || ( imaging_handle->acquiry_size > (ssize64_t) INT64_MAX ) )
 	{
@@ -776,8 +750,7 @@ int ewfacquire_read_input(
 
 		goto on_error;
 	}
-	if( ( use_multi_threading != 0 )
-	 || ( use_chunk_data_functions != 0 ) )
+	if( use_chunk_data_functions != 0 )
 	{
 		process_buffer_size       = (size_t) chunk_size;
 		storage_media_buffer_mode = STORAGE_MEDIA_BUFFER_MODE_CHUNK_DATA;
@@ -794,30 +767,21 @@ int ewfacquire_read_input(
 		}
 		storage_media_buffer_mode = STORAGE_MEDIA_BUFFER_MODE_BUFFERED;
 	}
-#if defined( HAVE_MULTI_THREAD_SUPPORT )
-	if( use_multi_threading != 0 )
+	if( storage_media_buffer_initialize(
+	     &storage_media_buffer,
+	     storage_media_buffer_mode,
+	     process_buffer_size,
+	     error ) != 1 )
 	{
-/* TODO multi-processing set up processing and write threads */
-		if( libcthreads_thread_pool_create(
-		     &process_thread_pool,
-		     NULL,
-		     4,
-		     256,
-		     NULL,
-		     NULL,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to initialize integrity hash(es).",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create storage media buffer.",
+		 function );
 
-			goto on_error;
-		}
+		goto on_error;
 	}
-#endif
 	if( imaging_handle_initialize_integrity_hash(
 	     imaging_handle,
 	     error ) != 1 )
@@ -833,9 +797,9 @@ int ewfacquire_read_input(
         }
 	if( process_status_initialize(
 	     &process_status,
-	     _LIBCSTRING_SYSTEM_STRING( "Acquiry" ),
-	     _LIBCSTRING_SYSTEM_STRING( "acquired" ),
-	     _LIBCSTRING_SYSTEM_STRING( "Written" ),
+	     _SYSTEM_STRING( "Acquiry" ),
+	     _SYSTEM_STRING( "acquired" ),
+	     _SYSTEM_STRING( "Written" ),
 	     stdout,
 	     print_status_information,
 	     error ) != 1 )
@@ -864,24 +828,6 @@ int ewfacquire_read_input(
 	}
 	while( acquiry_count < (size64_t) imaging_handle->acquiry_size )
 	{
-		if( storage_media_buffer == NULL )
-		{
-			if( storage_media_buffer_initialize(
-			     &storage_media_buffer,
-			     storage_media_buffer_mode,
-			     process_buffer_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create storage media buffer.",
-				 function );
-
-				goto on_error;
-			}
-		}
 		read_size = process_buffer_size;
 
 		if( ( (size64_t) imaging_handle->acquiry_size - acquiry_count ) < (size64_t) read_size )
@@ -1056,45 +1002,38 @@ int ewfacquire_read_input(
 		}
 		if( (off64_t) acquiry_count >= resume_acquiry_offset )
 		{
-			if( use_multi_threading != 0 )
+			process_count = imaging_handle_prepare_write_buffer(
+					 imaging_handle,
+					 storage_media_buffer,
+					 error );
+
+			if( process_count < 0 )
 			{
-/* TODO multi-processing */
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				"%s: unable to prepare buffer before write.",
+				 function );
+
+				goto on_error;
 			}
-			else
+			write_count = imaging_handle_write_buffer(
+				       imaging_handle,
+				       storage_media_buffer,
+				       process_count,
+				       error );
+
+			if( write_count < 0 )
 			{
-				process_count = imaging_handle_prepare_write_buffer(
-						 imaging_handle,
-						 storage_media_buffer,
-						 error );
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write data to file.",
+				 function );
 
-				if( process_count < 0 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_READ_FAILED,
-					"%s: unable to prepare buffer before write.",
-					 function );
-
-					goto on_error;
-				}
-				write_count = imaging_handle_write_buffer(
-					       imaging_handle,
-					       storage_media_buffer,
-					       process_count,
-					       error );
-
-				if( write_count < 0 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write data to file.",
-					 function );
-
-					goto on_error;
-				}
+				goto on_error;
 			}
 		}
 		acquiry_count += read_count;
@@ -1119,23 +1058,19 @@ int ewfacquire_read_input(
 			break;
 		}
 	}
-	if( storage_media_buffer != NULL )
+	if( storage_media_buffer_free(
+	     &storage_media_buffer,
+	     error ) != 1 )
 	{
-		if( storage_media_buffer_free(
-		     &storage_media_buffer,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free storage media buffer.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free storage media buffer.",
+		 function );
 
-			goto on_error;
-		}
+		goto on_error;
 	}
-/* TODO multi-processing */
 	if( imaging_handle_finalize_integrity_hash(
 	     imaging_handle,
 	     error ) != 1 )
@@ -1223,10 +1158,6 @@ int ewfacquire_read_input(
 	if( ewfacquire_abort != 0 )
 	{
 		status = PROCESS_STATUS_ABORTED;
-	}
-	if( use_multi_threading != 0 )
-	{
-/* TODO multi-processing tear down processing and write threads */
 	}
 	if( process_status_stop(
 	     process_status,
@@ -1321,12 +1252,6 @@ int ewfacquire_read_input(
 	return( 1 );
 
 on_error:
-	if( storage_media_buffer != NULL )
-	{
-		storage_media_buffer_free(
-		 &storage_media_buffer,
-		 NULL );
-	}
 	if( process_status != NULL )
 	{
 		process_status_stop(
@@ -1338,52 +1263,58 @@ on_error:
 		 &process_status,
 		 NULL );
 	}
+	if( storage_media_buffer != NULL )
+	{
+		storage_media_buffer_free(
+		 &storage_media_buffer,
+		 NULL );
+	}
 	return( -1 );
 }
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )
 #endif
 {
-	libcstring_system_character_t input_buffer[ EWFACQUIRE_INPUT_BUFFER_SIZE ];
-	libcstring_system_character_t media_information_model[ 64 ];
-	libcstring_system_character_t media_information_serial_number[ 64 ];
+	system_character_t input_buffer[ EWFACQUIRE_INPUT_BUFFER_SIZE ];
+	system_character_t media_information_model[ 64 ];
+	system_character_t media_information_serial_number[ 64 ];
 
 	libcerror_error_t *error                                         = NULL;
 
-	libcstring_system_character_t *log_filename                     = NULL;
-	libcstring_system_character_t *option_additional_digest_types   = NULL;
-	libcstring_system_character_t *option_bytes_per_sector          = NULL;
-	libcstring_system_character_t *option_case_number               = NULL;
-	libcstring_system_character_t *option_compression_values        = NULL;
-	libcstring_system_character_t *option_description               = NULL;
-	libcstring_system_character_t *option_examiner_name             = NULL;
-	libcstring_system_character_t *option_evidence_number           = NULL;
-	libcstring_system_character_t *option_format                    = NULL;
-	libcstring_system_character_t *option_header_codepage           = NULL;
-	libcstring_system_character_t *option_maximum_segment_size      = NULL;
-	libcstring_system_character_t *option_media_flags               = NULL;
-	libcstring_system_character_t *option_media_type                = NULL;
-	libcstring_system_character_t *option_notes                     = NULL;
-	libcstring_system_character_t *option_number_of_error_retries   = NULL;
-	libcstring_system_character_t *option_offset                    = NULL;
-	libcstring_system_character_t *option_process_buffer_size       = NULL;
-	libcstring_system_character_t *option_secondary_target_filename = NULL;
-	libcstring_system_character_t *option_sector_error_granularity  = NULL;
-	libcstring_system_character_t *option_sectors_per_chunk         = NULL;
-	libcstring_system_character_t *option_size                      = NULL;
-	libcstring_system_character_t *option_target_filename           = NULL;
-	libcstring_system_character_t *option_toc_filename              = NULL;
-	libcstring_system_character_t *program                          = _LIBCSTRING_SYSTEM_STRING( "ewfacquire" );
-	libcstring_system_character_t *request_string                   = NULL;
+	system_character_t *log_filename                     = NULL;
+	system_character_t *option_additional_digest_types   = NULL;
+	system_character_t *option_bytes_per_sector          = NULL;
+	system_character_t *option_case_number               = NULL;
+	system_character_t *option_compression_values        = NULL;
+	system_character_t *option_description               = NULL;
+	system_character_t *option_examiner_name             = NULL;
+	system_character_t *option_evidence_number           = NULL;
+	system_character_t *option_format                    = NULL;
+	system_character_t *option_header_codepage           = NULL;
+	system_character_t *option_maximum_segment_size      = NULL;
+	system_character_t *option_media_flags               = NULL;
+	system_character_t *option_media_type                = NULL;
+	system_character_t *option_notes                     = NULL;
+	system_character_t *option_number_of_error_retries   = NULL;
+	system_character_t *option_offset                    = NULL;
+	system_character_t *option_process_buffer_size       = NULL;
+	system_character_t *option_secondary_target_filename = NULL;
+	system_character_t *option_sector_error_granularity  = NULL;
+	system_character_t *option_sectors_per_chunk         = NULL;
+	system_character_t *option_size                      = NULL;
+	system_character_t *option_target_filename           = NULL;
+	system_character_t *option_toc_filename              = NULL;
+	system_character_t *program                          = _SYSTEM_STRING( "ewfacquire" );
+	system_character_t *request_string                   = NULL;
 
 	log_handle_t *log_handle                                        = NULL;
 
-	libcstring_system_integer_t option                              = 0;
+	system_integer_t option                              = 0;
 	off64_t resume_acquiry_offset                                   = 0;
 	size_t string_length                                            = 0;
 	uint8_t calculate_md5                                           = 1;
@@ -1391,7 +1322,6 @@ int main( int argc, char * const argv[] )
 	uint8_t resume_acquiry                                          = 0;
 	uint8_t swap_byte_pairs                                         = 0;
 	uint8_t use_chunk_data_functions                                = 0;
-	uint8_t use_multi_threading                                     = 0;
 	uint8_t verbose                                                 = 0;
 	uint8_t zero_buffer_on_error                                    = 0;
 	int8_t acquiry_parameters_confirmed                             = 0;
@@ -1414,36 +1344,36 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_initialize(
+	if( ewftools_output_initialize(
 	     _IONBF,
 	     &error ) != 1 )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stdout,
 		 program );
 
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
-	while( ( option = libcsystem_getopt(
+	while( ( option = ewftools_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "A:b:B:c:C:d:D:e:E:f:g:hl:m:M:N:o:p:P:qr:RsS:t:T:uvVwx2:" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _SYSTEM_STRING( "A:b:B:c:C:d:D:e:E:f:g:hl:m:M:N:o:p:P:qr:RsS:t:T:uvVwx2:" ) ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
-			case (libcstring_system_integer_t) '?':
+			case (system_integer_t) '?':
 			default:
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stdout,
 				 program );
 
 				fprintf(
 				 stderr,
-				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM "\n",
+				 "Invalid argument: %" PRIs_SYSTEM "\n",
 				 argv[ optind - 1 ] );
 
 				ewfacquire_usage_fprint(
@@ -1451,63 +1381,63 @@ int main( int argc, char * const argv[] )
 
 				goto on_error;
 
-			case (libcstring_system_integer_t) 'A':
+			case (system_integer_t) 'A':
 				option_header_codepage = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'b':
+			case (system_integer_t) 'b':
 				option_sectors_per_chunk = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'B':
+			case (system_integer_t) 'B':
 				option_size = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'c':
+			case (system_integer_t) 'c':
 				option_compression_values = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'C':
+			case (system_integer_t) 'C':
 				option_case_number = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'd':
+			case (system_integer_t) 'd':
 				option_additional_digest_types = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'D':
+			case (system_integer_t) 'D':
 				option_description = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'e':
+			case (system_integer_t) 'e':
 				option_examiner_name = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'E':
+			case (system_integer_t) 'E':
 				option_evidence_number = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'f':
+			case (system_integer_t) 'f':
 				option_format = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'g':
+			case (system_integer_t) 'g':
 				option_sector_error_granularity = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'h':
-				ewfoutput_version_fprint(
+			case (system_integer_t) 'h':
+				ewftools_output_version_fprint(
 				 stdout,
 				 program );
 
@@ -1516,107 +1446,107 @@ int main( int argc, char * const argv[] )
 
 				return( EXIT_SUCCESS );
 
-			case (libcstring_system_integer_t) 'l':
+			case (system_integer_t) 'l':
 				log_filename = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'm':
+			case (system_integer_t) 'm':
 				option_media_type = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'M':
+			case (system_integer_t) 'M':
 				option_media_flags = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'N':
+			case (system_integer_t) 'N':
 				option_notes = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'o':
+			case (system_integer_t) 'o':
 				option_offset = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'p':
+			case (system_integer_t) 'p':
 				option_process_buffer_size = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'P':
+			case (system_integer_t) 'P':
 				option_bytes_per_sector = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'q':
+			case (system_integer_t) 'q':
 				print_status_information = 0;
 
 				break;
 
-			case (libcstring_system_integer_t) 'r':
+			case (system_integer_t) 'r':
 				option_number_of_error_retries = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'R':
+			case (system_integer_t) 'R':
 				resume_acquiry = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 's':
+			case (system_integer_t) 's':
 				swap_byte_pairs = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'S':
+			case (system_integer_t) 'S':
 				option_maximum_segment_size = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 't':
+			case (system_integer_t) 't':
 				option_target_filename = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'T':
+			case (system_integer_t) 'T':
 				option_toc_filename = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'u':
+			case (system_integer_t) 'u':
 				interactive_mode = 0;
 
 				break;
 
-			case (libcstring_system_integer_t) 'v':
+			case (system_integer_t) 'v':
 				verbose = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'V':
-				ewfoutput_version_fprint(
+			case (system_integer_t) 'V':
+				ewftools_output_version_fprint(
 				 stdout,
 				 program );
 
-				ewfoutput_copyright_fprint(
+				ewftools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
 
-			case (libcstring_system_integer_t) 'w':
+			case (system_integer_t) 'w':
 				zero_buffer_on_error = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'x':
+			case (system_integer_t) 'x':
 				use_chunk_data_functions = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) '2':
+			case (system_integer_t) '2':
 				option_secondary_target_filename = optarg;
 
 				break;
@@ -1624,7 +1554,7 @@ int main( int argc, char * const argv[] )
 	}
 	if( optind == argc )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stdout,
 		 program );
 
@@ -1637,7 +1567,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	ewfoutput_version_fprint(
+	ewftools_output_version_fprint(
 	 stdout,
 	 program );
 
@@ -1654,9 +1584,9 @@ int main( int argc, char * const argv[] )
 
 	/* Check if to read from stdin
 	 */
-	if( libcstring_system_string_compare(
+	if( system_string_compare(
 	     argv[ optind ],
-	     _LIBCSTRING_SYSTEM_STRING( "-" ),
+	     _SYSTEM_STRING( "-" ),
 	     1 ) == 0 )
 	{
 		fprintf(
@@ -1668,13 +1598,13 @@ int main( int argc, char * const argv[] )
 	if( ( option_target_filename != NULL )
 	 && ( option_secondary_target_filename != NULL ) )
 	{
-		string_length = libcstring_system_string_length(
+		string_length = system_string_length(
 				 option_secondary_target_filename );
 
-		if( libcstring_system_string_length(
+		if( system_string_length(
 		     option_target_filename ) == string_length )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     option_target_filename,
 			     option_secondary_target_filename,
 			     string_length ) == 0 )
@@ -1717,7 +1647,7 @@ int main( int argc, char * const argv[] )
 	{
 		result = device_handle_set_number_of_error_retries(
 			  ewfacquire_device_handle,
-			  option_sectors_per_chunk,
+			  option_number_of_error_retries,
 			  &error );
 
 		if( result == -1 )
@@ -1837,7 +1767,7 @@ int main( int argc, char * const argv[] )
 		 */
 		if( imaging_handle_set_string(
 		     ewfacquire_imaging_handle,
-		     _LIBCSTRING_SYSTEM_STRING( "image" ),
+		     _SYSTEM_STRING( "image" ),
 		     &( ewfacquire_imaging_handle->target_filename ),
 		     &( ewfacquire_imaging_handle->target_filename_size ),
 		     &error ) != 1 )
@@ -2259,11 +2189,11 @@ int main( int argc, char * const argv[] )
 
 		if( resume_acquiry != 0 )
 		{
-			request_string = _LIBCSTRING_SYSTEM_STRING( "Image path and filename with extension" );
+			request_string = _SYSTEM_STRING( "Image path and filename with extension" );
 		}
 		else if( option_target_filename == NULL )
 		{
-			request_string = _LIBCSTRING_SYSTEM_STRING( "Image path and filename without extension" );
+			request_string = _SYSTEM_STRING( "Image path and filename without extension" );
 		}
 		if( request_string != NULL )
 		{
@@ -2295,7 +2225,7 @@ int main( int argc, char * const argv[] )
 		}
 		if( resume_acquiry != 0 )
 		{
-			if( libcsystem_signal_attach(
+			if( ewftools_signal_attach(
 			     ewfacquire_signal_handler,
 			     &error ) != 1 )
 			{
@@ -2324,7 +2254,7 @@ int main( int argc, char * const argv[] )
 
 				resume_acquiry = 0;
 			}
-			if( libcsystem_signal_detach(
+			if( ewftools_signal_detach(
 			     &error ) != 1 )
 			{
 				fprintf(
@@ -2389,7 +2319,7 @@ int main( int argc, char * const argv[] )
 			{
 				if( imaging_handle_prompt_for_string(
 				     ewfacquire_imaging_handle,
-				     _LIBCSTRING_SYSTEM_STRING( "Case number" ),
+				     _SYSTEM_STRING( "Case number" ),
 				     &( ewfacquire_imaging_handle->case_number ),
 				     &( ewfacquire_imaging_handle->case_number_size ),
 				     &error ) == -1 )
@@ -2405,7 +2335,7 @@ int main( int argc, char * const argv[] )
 			{
 				if( imaging_handle_prompt_for_string(
 				     ewfacquire_imaging_handle,
-				     _LIBCSTRING_SYSTEM_STRING( "Description" ),
+				     _SYSTEM_STRING( "Description" ),
 				     &( ewfacquire_imaging_handle->description ),
 				     &( ewfacquire_imaging_handle->description_size ),
 				     &error ) == -1 )
@@ -2421,7 +2351,7 @@ int main( int argc, char * const argv[] )
 			{
 				if( imaging_handle_prompt_for_string(
 				     ewfacquire_imaging_handle,
-				     _LIBCSTRING_SYSTEM_STRING( "Evidence number" ),
+				     _SYSTEM_STRING( "Evidence number" ),
 				     &( ewfacquire_imaging_handle->evidence_number ),
 				     &( ewfacquire_imaging_handle->evidence_number_size ),
 				     &error ) == -1 )
@@ -2437,7 +2367,7 @@ int main( int argc, char * const argv[] )
 			{
 				if( imaging_handle_prompt_for_string(
 				     ewfacquire_imaging_handle,
-				     _LIBCSTRING_SYSTEM_STRING( "Examiner name" ),
+				     _SYSTEM_STRING( "Examiner name" ),
 				     &( ewfacquire_imaging_handle->examiner_name ),
 				     &( ewfacquire_imaging_handle->examiner_name_size ),
 				     &error ) == -1 )
@@ -2453,7 +2383,7 @@ int main( int argc, char * const argv[] )
 			{
 				if( imaging_handle_prompt_for_string(
 				     ewfacquire_imaging_handle,
-				     _LIBCSTRING_SYSTEM_STRING( "Notes" ),
+				     _SYSTEM_STRING( "Notes" ),
 				     &( ewfacquire_imaging_handle->notes ),
 				     &( ewfacquire_imaging_handle->notes_size ),
 				     &error ) == -1 )
@@ -2469,7 +2399,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_media_type(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Media type" ),
+				          _SYSTEM_STRING( "Media type" ),
 					  &error );
 
 				if( result == -1 )
@@ -2485,7 +2415,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_media_flags(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Media characteristics" ),
+				          _SYSTEM_STRING( "Media characteristics" ),
 					  &error );
 
 				if( result == -1 )
@@ -2501,7 +2431,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_format(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Use EWF file format" ),
+				          _SYSTEM_STRING( "Use EWF file format" ),
 					  &error );
 
 				if( result == -1 )
@@ -2517,7 +2447,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_compression_method(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Compression method" ),
+				          _SYSTEM_STRING( "Compression method" ),
 					  &error );
 
 				if( result == -1 )
@@ -2530,7 +2460,7 @@ int main( int argc, char * const argv[] )
 				}
 				result = imaging_handle_prompt_for_compression_level(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Compression level" ),
+				          _SYSTEM_STRING( "Compression level" ),
 					  &error );
 
 				if( result == -1 )
@@ -2550,7 +2480,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_acquiry_offset(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Start to acquire at offset" ),
+				          _SYSTEM_STRING( "Start to acquire at offset" ),
 					  &error );
 
 				if( result == -1 )
@@ -2573,7 +2503,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_acquiry_size(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "The number of bytes to acquire" ),
+				          _SYSTEM_STRING( "The number of bytes to acquire" ),
 					  &error );
 
 				if( result == -1 )
@@ -2593,7 +2523,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_maximum_segment_size(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Evidence segment file size in bytes" ),
+				          _SYSTEM_STRING( "Evidence segment file size in bytes" ),
 					  &error );
 
 				if( result == -1 )
@@ -2622,7 +2552,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_bytes_per_sector(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "The number of bytes per sector" ),
+				          _SYSTEM_STRING( "The number of bytes per sector" ),
 					  &error );
 
 				if( result == -1 )
@@ -2638,7 +2568,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_sectors_per_chunk(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "The number of sectors to read at once" ),
+				          _SYSTEM_STRING( "The number of sectors to read at once" ),
 					  &error );
 
 				if( result == -1 )
@@ -2654,7 +2584,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = imaging_handle_prompt_for_sector_error_granularity(
 					  ewfacquire_imaging_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "The number of sectors to be used as error granularity" ),
+				          _SYSTEM_STRING( "The number of sectors to be used as error granularity" ),
 					  &error );
 
 				if( result == -1 )
@@ -2680,7 +2610,7 @@ int main( int argc, char * const argv[] )
 		{
 			result = device_handle_prompt_for_number_of_error_retries(
 				  ewfacquire_device_handle,
-				  _LIBCSTRING_SYSTEM_STRING( "The number of retries when a read error occurs" ),
+				  _SYSTEM_STRING( "The number of retries when a read error occurs" ),
 				  &error );
 
 			if( result == -1 )
@@ -2696,7 +2626,7 @@ int main( int argc, char * const argv[] )
 		{
 			result = device_handle_prompt_for_zero_buffer_on_error(
 				  ewfacquire_device_handle,
-			          _LIBCSTRING_SYSTEM_STRING( "Wipe sectors on read error (mimic EnCase like behavior)" ),
+			          _SYSTEM_STRING( "Wipe sectors on read error (mimic EnCase like behavior)" ),
 				  &error );
 
 			if( result == -1 )
@@ -2889,7 +2819,7 @@ int main( int argc, char * const argv[] )
 		if( imaging_handle_set_output_values(
 		     ewfacquire_imaging_handle,
 		     program,
-		     _LIBCSTRING_SYSTEM_STRING( LIBEWF_VERSION_STRING ),
+		     _SYSTEM_STRING( LIBEWF_VERSION_STRING ),
 		     media_information_model,
 		     media_information_serial_number,
 		     &error ) != 1 )
@@ -2915,7 +2845,7 @@ int main( int argc, char * const argv[] )
 			}
 		}
 	}
-	if( libcsystem_signal_attach(
+	if( ewftools_signal_attach(
 	     ewfacquire_signal_handler,
 	     &error ) != 1 )
 	{
@@ -2947,7 +2877,7 @@ int main( int argc, char * const argv[] )
 		{
 			fprintf(
 			 stderr,
-			 "Unable to open log file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+			 "Unable to open log file: %" PRIs_SYSTEM ".\n",
 			 log_filename );
 
 			goto on_error;
@@ -2959,7 +2889,6 @@ int main( int argc, char * const argv[] )
 		  resume_acquiry_offset,
 		  swap_byte_pairs,
 		  print_status_information,
-	          use_multi_threading,
 	          use_chunk_data_functions,
 		  log_handle,
 		  &error );
@@ -2999,7 +2928,7 @@ int main( int argc, char * const argv[] )
 		}
 	}
 on_abort:
-	if( libcsystem_signal_detach(
+	if( ewftools_signal_detach(
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -3055,7 +2984,7 @@ on_abort:
 	{
 		fprintf(
 		 stdout,
-		 "%" PRIs_LIBCSTRING_SYSTEM ": ABORTED\n",
+		 "%" PRIs_SYSTEM ": ABORTED\n",
 		 program );
 
 		return( EXIT_FAILURE );
@@ -3064,14 +2993,14 @@ on_abort:
 	{
 		fprintf(
 		 stdout,
-		 "%" PRIs_LIBCSTRING_SYSTEM ": FAILURE\n",
+		 "%" PRIs_SYSTEM ": FAILURE\n",
 		 program );
 
 		return( EXIT_FAILURE );
 	}
 	fprintf(
 	 stdout,
-	 "%" PRIs_LIBCSTRING_SYSTEM ": SUCCESS\n",
+	 "%" PRIs_SYSTEM ": SUCCESS\n",
 	 program );
 
 	return( EXIT_SUCCESS );

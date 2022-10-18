@@ -5,22 +5,23 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #if defined( TIME_WITH_SYS_TIME )
@@ -36,7 +37,6 @@
 #include "libewf_date_time_values.h"
 #include "libewf_definitions.h"
 #include "libewf_libcerror.h"
-#include "libewf_libcstring.h"
 #include "libewf_libfvalue.h"
 
 /* Copies date and time values string from a timestamp
@@ -888,49 +888,49 @@ int libewf_utf8_string_day_of_week_copy_to_time_elements(
 
 		return( -1 );
 	}
-	if( libcstring_narrow_string_compare(
+	if( narrow_string_compare(
 	     utf8_string,
 	     "Sun",
 	     3 ) == 0 )
 	{
 		time_elements->tm_wday = 0;
 	}
-	else if( libcstring_narrow_string_compare(
+	else if( narrow_string_compare(
 	          utf8_string,
 	          "Mon",
 	          3 ) == 0 )
 	{
 		time_elements->tm_wday = 1;
 	}
-	else if( libcstring_narrow_string_compare(
+	else if( narrow_string_compare(
 	          utf8_string,
 		  "Tue",
 		  3 ) == 0 )
 	{
 		time_elements->tm_wday = 2;
 	}
-	else if( libcstring_narrow_string_compare(
+	else if( narrow_string_compare(
 	          utf8_string,
 		  "Wed",
 		  3 ) == 0 )
 	{
 		time_elements->tm_wday = 3;
 	}
-	else if( libcstring_narrow_string_compare(
+	else if( narrow_string_compare(
 	          utf8_string,
 		  "Thu",
 		  3 ) == 0 )
 	{
 		time_elements->tm_wday = 4;
 	}
-	else if( libcstring_narrow_string_compare(
+	else if( narrow_string_compare(
 	          utf8_string,
 		  "Fri",
 		  3 ) == 0 )
 	{
 		time_elements->tm_wday = 5;
 	}
-	else if( libcstring_narrow_string_compare(
+	else if( narrow_string_compare(
 	          utf8_string,
 		  "Sat",
 		  3 ) == 0 )
@@ -1286,84 +1286,84 @@ int libewf_utf8_string_month_copy_to_time_elements(
 
 			return( -1 );
 		}
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     utf8_string,
 		     "Jan",
 		     3 ) == 0 )
 		{
 			time_elements->tm_mon = 0;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Feb",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 1;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Mar",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 2;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Apr",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 3;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "May",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 4;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Jun",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 5;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Jul",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 6;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Aug",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 7;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Sep",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 8;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Oct",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 9;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Nov",
 			  3 ) == 0 )
 		{
 			time_elements->tm_mon = 10;
 		}
-		else if( libcstring_narrow_string_compare(
+		else if( narrow_string_compare(
 			  utf8_string,
 			  "Dec",
 			  3 ) == 0 )

@@ -124,22 +124,3 @@ stamp-h1
 /tests/ewf_test_write
 /tests/ewf_test_write_chunk
 
-# Local library dependencies specific files
-/libbfio
-/libcaes
-/libcdata
-/libcerror
-/libcfile
-/libclocale
-/libcnotify
-/libcpath
-/libcsplit
-/libcthreads
-/libfcache
-/libfdata
-/libfvalue
-/libhmac
-/libodraw
-/libsmdev
-/libsmraw
-/libuna

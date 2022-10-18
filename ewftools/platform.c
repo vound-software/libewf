@@ -1,25 +1,26 @@
 /*
  * Platform functions
  *
- * Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #if defined( HAVE_SYS_UTSNAME_H )
@@ -27,8 +28,8 @@
 #endif
 
 #include "ewftools_libcerror.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
+#include "ewftools_libclocale.h"
+#include "ewftools_libuna.h"
 #include "platform.h"
 
 #if !defined( LIBEWF_OPERATING_SYSTEM )
@@ -39,7 +40,7 @@
  * Returns 1 if successful or -1 on error
  */
 int platform_get_operating_system(
-     libcstring_system_character_t *operating_system_string,
+     system_character_t *operating_system_string,
      size_t operating_system_string_size,
      libcerror_error_t **error )
 {
@@ -47,16 +48,16 @@ int platform_get_operating_system(
 	struct utsname utsname_buffer;
 #endif
 
-	char *operating_system         = NULL;
-	static char *function          = "platform_get_operating_system";
-	size_t operating_system_length = 0;
+	char *operating_system       = NULL;
+	static char *function        = "platform_get_operating_system";
+	size_t operating_system_size = 0;
 
 #if defined( WINAPI )
-	DWORD windows_version          = 0;
-	DWORD windows_major_version    = 0;
-	DWORD windows_minor_version    = 0;
+	DWORD windows_version        = 0;
+	DWORD windows_major_version  = 0;
+	DWORD windows_minor_version  = 0;
 /*
-	DWORD windows_build_number     = 0;
+	DWORD windows_build_number   = 0;
  */
 #endif
 
@@ -171,10 +172,10 @@ int platform_get_operating_system(
 	operating_system = LIBEWF_OPERATING_SYSTEM;
 #endif
 
-	operating_system_length = libcstring_narrow_string_length(
-	                           operating_system );
+	operating_system_size = 1 + narrow_string_length(
+	                             operating_system );
 
-	if( operating_system_string_size < ( operating_system_length + 1 ) )
+	if( operating_system_string_size < operating_system_size )
 	{
 		libcerror_error_set(
 		 error,
@@ -185,22 +186,82 @@ int platform_get_operating_system(
 
 		return( -1 );
 	}	
-	if( libcsystem_string_copy_from_utf8_string(
-	     operating_system_string,
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+#if SIZEOF_WCHAR_T == 4
+	if( libuna_utf32_string_copy_from_utf8(
+	     (libuna_utf32_character_t *) operating_system_string,
 	     operating_system_string_size,
-	     (uint8_t *) operating_system,
-	     operating_system_length + 1,
+	     (libuna_utf8_character_t *) operating_system,
+	     operating_system_size,
 	     error ) != 1 )
+#elif SIZEOF_WCHAR_T == 2
+	if( libuna_utf16_string_copy_from_utf8(
+	     (libuna_utf16_character_t *) operating_system_string,
+	     operating_system_string_size,
+	     (libuna_utf8_character_t *) operating_system,
+	     operating_system_size,
+	     error ) != 1 )
+#endif
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
 		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set operating system string.",
+		 "%s: unable to set string.",
 		 function );
 
 		return( -1 );
 	}
+#else
+	if( libclocale_codepage == 0 )
+	{
+		if( operating_system_string_size < operating_system_size )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: string too small.",
+			 function );
+
+			return( -1 );
+		}
+		if( memory_copy(
+		     operating_system_string,
+		     operating_system,
+		     operating_system_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to set string.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	else
+	{
+		if( libuna_byte_stream_copy_from_utf8(
+		     (uint8_t *) operating_system_string,
+		     operating_system_string_size,
+		     libclocale_codepage,
+		     (libuna_utf8_character_t *) operating_system,
+		     operating_system_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBCERROR_CONVERSION_ERROR_GENERIC,
+			 "%s: unable to set string.",
+			 function );
+
+			return( -1 );
+		}
+	}
+#endif
 	return( 1 );
 }
 

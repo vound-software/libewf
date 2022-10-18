@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -27,14 +27,12 @@
 #include "libewf_libcdata.h"
 #include "libewf_libcerror.h"
 #include "libewf_libcnotify.h"
-#include "libewf_libcstring.h"
 #include "libewf_libfvalue.h"
 #include "libewf_libuna.h"
 #include "libewf_single_file_entry.h"
 #include "libewf_single_files.h"
 
-/* Creates single files
- * Make sure the value single_files is referencing, is set to NULL
+/* Initialize the single files
  * Returns 1 if successful or -1 on error
  */
 int libewf_single_files_initialize(
@@ -106,7 +104,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees single files
+/* Frees the single files including elements
  * Returns 1 if successful or -1 on error
  */
 int libewf_single_files_free(
@@ -585,35 +583,37 @@ int libewf_single_files_parse_file_entries(
 			}
 			/* The single files entries should be followed by an empty line
 			 */
-			if( libfvalue_split_utf8_string_get_segment_by_index(
-			     lines,
-			     line_index,
-			     &line_string,
-			     &line_string_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve line string: %d.",
-				 function,
-				 line_index );
+			if (line_index < ((libfvalue_internal_split_utf8_string_t*)lines)->number_of_segments) {
+				if (libfvalue_split_utf8_string_get_segment_by_index(
+					lines,
+					line_index,
+					&line_string,
+					&line_string_size,
+					error) != 1)
+				{
+					libcerror_error_set(
+						error,
+						LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+						"%s: unable to retrieve line string: %d.",
+						function,
+						line_index);
 
-				goto on_error;
-			}
-			if( ( line_string_size != 1 )
-			 || ( line_string[ 0 ] != 0 ) )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported empty line string: %d - not empty.",
-				 function,
-				 line_index );
+					goto on_error;
+				}
+				if ((line_string_size != 1)
+					|| (line_string[0] != 0))
+				{
+					libcerror_error_set(
+						error,
+						LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+						"%s: unsupported empty line string: %d - not empty.",
+						function,
+						line_index);
 
-				goto on_error;
+					goto on_error;
+				}
 			}
 		}
 		if( libfvalue_split_utf8_string_free(
@@ -1641,7 +1641,7 @@ int libewf_single_files_parse_file_entry(
 			if( type_string[ 0 ] == (uint8_t) 'n' )
 			{
 				single_file_entry->name = (uint8_t *) memory_allocate(
-								       sizeof( uint8_t ) * value_string_size );
+				                                       sizeof( uint8_t ) * value_string_size );
 
 				if( single_file_entry->name == NULL )
 				{
@@ -1654,7 +1654,7 @@ int libewf_single_files_parse_file_entry(
 
 					goto on_error;
 				}
-				if( libcstring_narrow_string_copy(
+				if( memory_copy(
 				     single_file_entry->name,
 				     value_string,
 				     value_string_size - 1 ) == NULL )

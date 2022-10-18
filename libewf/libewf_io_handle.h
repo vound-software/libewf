@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_IO_HANDLE_H )
@@ -26,6 +26,8 @@
 #include <types.h>
 
 #include "libewf_libcerror.h"
+
+#include "libewf_libbfio.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -43,45 +45,22 @@ struct libewf_io_handle
 	 */
 	off64_t current_offset;
 
-	/* The segment file type
-	 */
-	uint8_t segment_file_type;
-
 	/* Value to indicate which file format is used
 	 */
 	uint8_t format;
 
-	/* The format major version
+	/* Value to indicate which ewf format is used
 	 */
-	uint8_t major_version;
+	uint8_t ewf_format;
 
-	/* The format minor version
-	 */
-	uint8_t minor_version;
-
-	/* The compression method
-	 */
-	uint16_t compression_method;
-
-	/* The compression level
+	/* Value to indicate the compression level used
 	 */
 	int8_t compression_level;
 
-	/* The compression flags
+	/* Value to indicate certain compression modes
+	 * like empty block compression
 	 */
 	uint8_t compression_flags;
-
-	/* Value to indicate the data and some metadata is encrypted
-	 */
-	uint8_t is_encrypted;
-
-	/* The size of an individual chunk
-	 */
-	size32_t chunk_size;
-
-	/* A value to indicate if the chunk data should be zeroed on error
-	 */
-	uint8_t zero_on_error;
 
 	/* The header codepage
 	 */

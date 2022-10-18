@@ -1,9 +1,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
-	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCDATETIME_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -16,14 +14,13 @@ AM_CPPFLAGS = \
 	@LIBFCACHE_CPPFLAGS@ \
 	@LIBFDATA_CPPFLAGS@ \
 	@LIBFVALUE_CPPFLAGS@ \
+	@LIBMFDATA_CPPFLAGS@ \
+	@LIBCRYPTO_CPPFLAGS@ \
 	@LIBHMAC_CPPFLAGS@ \
 	@LIBODRAW_CPPFLAGS@ \
 	@LIBSMDEV_CPPFLAGS@ \
 	@LIBSMRAW_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
-	@LIBCRYPTO_CPPFLAGS@ \
 	@LIBFUSE_CPPFLAGS@ \
-	@PTHREAD_CPPFLAGS@ \
 	@LIBEWF_DLL_IMPORT@
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
@@ -45,22 +42,25 @@ ewfacquire_SOURCES = \
 	ewfacquire.c \
 	ewfcommon.h \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcdatetime.h \
 	ewftools_libcerror.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
 	ewftools_libcpath.h \
 	ewftools_libcsplit.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
-	ewftools_libcthreads.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	guid.c guid.h \
 	imaging_handle.c imaging_handle.h \
 	log_handle.c log_handle.h \
@@ -76,17 +76,20 @@ ewfacquire_LDADD = \
 	@LIBHMAC_LIBADD@ \
 	@LIBCRYPTO_LIBADD@ \
 	@LIBDL_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
+	@LIBFVALUE_LIBADD@ \
+	@LIBFDATA_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATETIME_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
-	@LIBCTHREADS_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
-	@LIBINTL@ \
-	@PTHREAD_LIBADD@
+	@LIBINTL@
 
 ewfacquirestream_SOURCES = \
 	byte_size_string.c byte_size_string.h \
@@ -94,21 +97,25 @@ ewfacquirestream_SOURCES = \
 	ewfacquirestream.c \
 	ewfcommon.h \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcdatetime.h \
 	ewftools_libcerror.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
 	ewftools_libcpath.h \
 	ewftools_libcsplit.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	guid.c guid.h \
 	imaging_handle.c imaging_handle.h \
 	log_handle.c log_handle.h \
@@ -121,40 +128,44 @@ ewfacquirestream_LDADD = \
 	@LIBHMAC_LIBADD@ \
 	@LIBCRYPTO_LIBADD@ \
 	@LIBDL_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATETIME_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 ewfdebug_SOURCES = \
 	byte_size_string.c byte_size_string.h \
 	ewfdebug.c \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_find.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_glob.c ewftools_glob.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcerror.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
-	ewftools_libuna.h
+	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h
 
 ewfdebug_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 ewfexport_SOURCES = \
@@ -163,7 +174,11 @@ ewfexport_SOURCES = \
 	ewfcommon.h \
 	ewfexport.c \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_find.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_glob.c ewftools_glob.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcdatetime.h \
 	ewftools_libcerror.h \
 	ewftools_libcfile.h \
@@ -171,14 +186,16 @@ ewfexport_SOURCES = \
 	ewftools_libcnotify.h \
 	ewftools_libcpath.h \
 	ewftools_libcsplit.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	export_handle.c export_handle.h \
 	guid.c guid.h \
 	log_handle.c log_handle.h \
@@ -192,14 +209,19 @@ ewfexport_LDADD = \
 	@LIBHMAC_LIBADD@ \
 	@LIBCRYPTO_LIBADD@ \
 	@LIBDL_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
+	@LIBFVALUE_LIBADD@ \
+	@LIBFDATA_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATETIME_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 ewfinfo_SOURCES = \
@@ -207,32 +229,37 @@ ewfinfo_SOURCES = \
 	digest_hash.c digest_hash.h \
 	ewfinfo.c \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_find.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_glob.c ewftools_glob.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcerror.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
 	ewftools_libcsplit.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	guid.c guid.h \
 	info_handle.c info_handle.h \
 	platform.c platform.h
 
 ewfinfo_LDADD = \
 	@LIBUUID_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 ewfmount_SOURCES = \
@@ -240,31 +267,45 @@ ewfmount_SOURCES = \
 	digest_hash.c digest_hash.h \
 	ewfmount.c \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_find.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_glob.c ewftools_glob.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcerror.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
+	ewftools_libcpath.h \
 	ewftools_libewf.h \
+	ewftools_libfvalue.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	guid.c guid.h \
+	mount_dokan.c mount_dokan.h \
+	mount_file_entry.c mount_file_entry.h \
+	mount_file_system.c mount_file_system.h \
+	mount_fuse.c mount_fuse.h \
 	mount_handle.c mount_handle.h \
 	platform.c platform.h
 
 ewfmount_LDADD = \
 	@LIBFUSE_LIBADD@ \
 	@LIBUUID_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
-	../libewf/libewf.la \
+	@LIBCPATH_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	../libewf/libewf.la \
+	@LIBCTHREADS_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 ewfrecover_SOURCES = \
@@ -273,21 +314,27 @@ ewfrecover_SOURCES = \
 	ewfcommon.h \
 	ewfrecover.c \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_find.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_glob.c ewftools_glob.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcdatetime.h \
 	ewftools_libcerror.h \
 	ewftools_libcfile.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
 	ewftools_libcpath.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	export_handle.c export_handle.h \
 	guid.c guid.h \
 	log_handle.c log_handle.h \
@@ -301,14 +348,19 @@ ewfrecover_LDADD = \
 	@LIBHMAC_LIBADD@ \
 	@LIBCRYPTO_LIBADD@ \
 	@LIBDL_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
+	@LIBFVALUE_LIBADD@ \
+	@LIBFDATA_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATETIME_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 ewfverify_SOURCES = \
@@ -316,19 +368,25 @@ ewfverify_SOURCES = \
 	digest_hash.c digest_hash.h \
 	ewfcommon.h \
 	ewfinput.c ewfinput.h \
-	ewfoutput.c ewfoutput.h \
+	ewftools_find.h \
+	ewftools_getopt.c ewftools_getopt.h \
+	ewftools_glob.c ewftools_glob.h \
+	ewftools_i18n.h \
+	ewftools_libbfio.h \
 	ewftools_libcdatetime.h \
 	ewftools_libcerror.h \
 	ewftools_libclocale.h \
 	ewftools_libcnotify.h \
-	ewftools_libcstring.h \
-	ewftools_libcsystem.h \
 	ewftools_libewf.h \
 	ewftools_libhmac.h \
 	ewftools_libodraw.h \
 	ewftools_libsmdev.h \
 	ewftools_libsmraw.h \
 	ewftools_libuna.h \
+	ewftools_output.c ewftools_output.h \
+	ewftools_signal.c ewftools_signal.h \
+	ewftools_system_string.c ewftools_system_string.h \
+	ewftools_unused.h \
 	ewfverify.c \
 	log_handle.c log_handle.h \
 	process_status.c process_status.h \
@@ -339,15 +397,14 @@ ewfverify_LDADD = \
 	@LIBHMAC_LIBADD@ \
 	@LIBCRYPTO_LIBADD@ \
 	@LIBDL_LIBADD@ \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
+	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCDATETIME_LIBADD@ \
 	../libewf/libewf.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 MAINTAINERCLEANFILES = \

@@ -2,7 +2,7 @@
 #
 # Expert Witness Compression Format (EWF) library read/write testing script
 #
-# Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -24,7 +24,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-INPUT="input_old";
+INPUT="input";
 TMP="tmp";
 
 LS="ls";
@@ -65,6 +65,9 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
+echo "read/write test is ignored for now".
+exit ${EXIT_IGNORE};
+
 if ! test -d ${INPUT};
 then
 	echo "No ${INPUT} directory found, to test read/write create ${INPUT} directory and place EWF test files in directory.";
@@ -89,19 +92,6 @@ BASENAMES=`${LS} ${INPUT}/*.??? | ${TR} ' ' '\n' | ${SED} 's/[.][^.]*$//' | ${SO
 for BASENAME in ${BASENAMES};
 do
 	FILENAMES=`${LS} ${BASENAME}.??? | ${TR} '\n' ' '`;
-
-	if ! test_read_write ${FILENAMES};
-	then
-		exit ${EXIT_FAILURE};
-	fi
-done
-
-# Run tests for: Ex01
-BASENAMES=`${LS} ${INPUT}/*.???? | ${TR} ' ' '\n' | ${SED} 's/[.][^.]*$//' | ${SORT} | ${UNIQ}`;
-
-for BASENAME in ${BASENAMES};
-do
-	FILENAMES=`${LS} ${BASENAME}.???? | ${TR} '\n' ' '`;
 
 	if ! test_read_write ${FILENAMES};
 	then

@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# ewfverify tool testing script
+# ewfverify testing script for logical evidence files
 #
-# Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -24,47 +24,23 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-list_contains()
-{
-	LIST=$1;
-	SEARCH=$2;
+INPUT="input_logical";
+INPUT_ERROR="input_logical_error";
+TMP="tmp";
 
-	for LINE in $LIST;
-	do
-		if test $LINE = $SEARCH;
-		then
-			return ${EXIT_SUCCESS};
-		fi
-	done
+LS="ls";
+TR="tr";
+WC="wc";
 
-	return ${EXIT_FAILURE};
-}
-
-test_verify()
+test_verify_logical()
 { 
-	DIRNAME=$1;
-	INPUT_FILE=$2;
-	BASENAME=`basename ${INPUT_FILE}`;
+	INPUT_FILE=$1;
 
-	rm -rf tmp;
-	mkdir tmp;
-
-	${TEST_RUNNER} ${EWFVERIFY} -q -f files ${INPUT_FILE} | sed '1,2d' > tmp/${BASENAME}.log;
+	${EWFVERIFY} -q -f files ${INPUT_FILE};
 
 	RESULT=$?;
 
-	if test -f "input/.ewfverify_logical/${DIRNAME}/${BASENAME}.log.gz";
-	then
-		zdiff "input/.ewfverify_logical/${DIRNAME}/${BASENAME}.log.gz" "tmp/${BASENAME}.log";
-
-		RESULT=$?;
-	else
-		mv "tmp/${BASENAME}.log" "input/.ewfverify_logical/${DIRNAME}";
-
-		gzip "input/.ewfverify_logical/${DIRNAME}/${BASENAME}.log";
-	fi
-
-	rm -rf tmp;
+	echo "";
 
 	echo -n "Testing ewfverify of input: ${INPUT_FILE} ";
 
@@ -91,82 +67,69 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
-TEST_RUNNER="tests/test_runner.sh";
-
-if ! test -x ${TEST_RUNNER};
+if ! test -d ${INPUT};
 then
-	TEST_RUNNER="./test_runner.sh";
-fi
-
-if ! test -x ${TEST_RUNNER};
-then
-	echo "Missing test runner: ${TEST_RUNNER}";
-
-	exit ${EXIT_FAILURE};
-fi
-
-if ! test -d "input";
-then
-	echo "No input directory found.";
+	echo "No ${INPUT} directory found, to test ewfverify create ${INPUT} directory and place EWF test files in directory.";
 
 	exit ${EXIT_IGNORE};
 fi
 
-OLDIFS=${IFS};
-IFS="
-";
+EXIT_RESULT=${EXIT_IGNORE};
 
-RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
-
-if test ${RESULT} -eq 0;
+if test -d ${INPUT};
 then
-	echo "No files or directories found in the input directory.";
+	RESULT=`${LS} ${INPUT}/*.L01 | ${TR} ' ' '\n' | ${WC} -l`;
 
-	EXIT_RESULT=${EXIT_IGNORE};
-else
-	IGNORELIST="";
-
-	if ! test -d "input/.ewfverify_logical";
+	if test ${RESULT} -eq 0;
 	then
-		mkdir "input/.ewfverify_logical";
-	fi
-	if test -f "input/.ewfverify_logical/ignore";
-	then
-		IGNORELIST=`cat input/.ewfverify_logical/ignore | sed '/^#/d'`;
-	fi
-	for TESTDIR in input/*;
-	do
-		if test -d "${TESTDIR}";
-		then
-			DIRNAME=`basename ${TESTDIR}`;
-
-			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
+		echo "No files found in ${INPUT} directory, to test ewfverify place EWF test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT}/*.L01 | ${TR} ' ' '\n'`;
+		do
+			if [ "${FILENAME}" = "${INPUT}/encase6.19.3.L01" ];
 			then
-				if ! test -d "input/.ewfverify_logical/${DIRNAME}";
-				then
-					mkdir "input/.ewfverify_logical/${DIRNAME}";
-				fi
-				if test -f "input/.ewfverify_logical/${DIRNAME}/files";
-				then
-					TESTFILES=`cat input/.ewfverify_logical/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
-				else
-					TESTFILES=`ls ${TESTDIR}/*.L01 ${TESTDIR}/*.Lx01 2> /dev/null`;
-				fi
-				for TESTFILE in ${TESTFILES};
-				do
-					if ! test_verify "${DIRNAME}" "${TESTFILE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
-			fi
-		fi
-	done
+				# experimental version only
+				echo;
 
-	EXIT_RESULT=${EXIT_SUCCESS};
+			elif [ "${FILENAME}" = "${INPUT}/encase7.04.01.L01" ];
+			then
+				# experimental version only
+				echo;
+
+			elif [ "${FILENAME}" = "${INPUT}/Rader_Subset.L01" ];
+			then
+				# experimental version only
+				echo;
+
+			elif ! test_verify_logical "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
 fi
 
-IFS=${OLDIFS};
+if test -d ${INPUT_ERROR};
+then
+	RESULT=`${LS} ${INPUT_ERROR}/*.L01 | ${TR} ' ' '\n' | ${WC} -l`;
+
+	if test ${RESULT} -eq 0;
+	then
+		echo "No files found in error directory, to test read place test files in directory.";
+	else
+		for FILENAME in `${LS} ${INPUT_ERROR}/*.L01 | ${TR} ' ' '\n'`;
+		do
+			if test_verify_logical "${FILENAME}";
+			then
+				exit ${EXIT_FAILURE};
+			fi
+		done
+
+		EXIT_RESULT=${EXIT_SUCCESS};
+	fi
+fi
 
 exit ${EXIT_RESULT};
 

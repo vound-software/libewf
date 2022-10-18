@@ -5,23 +5,34 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
+
+#if defined( HAVE_IO_H ) || defined( WINAPI )
+#include <io.h>
+#endif
+
+#if defined( HAVE_UNISTD_H )
+#include <unistd.h>
+#endif
 
 #if defined( WINAPI )
 #include <rpcdce.h>
@@ -38,11 +49,10 @@
 #include "ewftools_libcfile.h"
 #include "ewftools_libcpath.h"
 #include "ewftools_libcsplit.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
 #include "ewftools_libewf.h"
 #include "ewftools_libsmraw.h"
 #include "ewftools_libhmac.h"
+#include "ewftools_system_string.h"
 #include "export_handle.h"
 #include "guid.h"
 #include "process_status.h"
@@ -132,7 +142,7 @@ int export_handle_initialize(
 
 		goto on_error;
 	}
-	( *export_handle )->input_buffer = libcstring_system_string_allocate(
+	( *export_handle )->input_buffer = system_string_allocate(
 					    EXPORT_HANDLE_INPUT_BUFFER_SIZE );
 
 	if( ( *export_handle )->input_buffer == NULL )
@@ -149,7 +159,7 @@ int export_handle_initialize(
 	if( memory_set(
 	     ( *export_handle )->input_buffer,
 	     0,
-	     sizeof( libcstring_system_character_t ) * EXPORT_HANDLE_INPUT_BUFFER_SIZE ) == NULL )
+	     sizeof( system_character_t ) * EXPORT_HANDLE_INPUT_BUFFER_SIZE ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -162,7 +172,7 @@ int export_handle_initialize(
 	}
 	if( calculate_md5 != 0 )
 	{
-		( *export_handle )->calculated_md5_hash_string = libcstring_system_string_allocate(
+		( *export_handle )->calculated_md5_hash_string = system_string_allocate(
 								  33 );
 
 		if( ( *export_handle )->calculated_md5_hash_string == NULL )
@@ -483,11 +493,11 @@ int export_handle_set_maximum_number_of_open_handles(
  */
 int export_handle_open_input(
      export_handle_t *export_handle,
-     libcstring_system_character_t * const * filenames,
+     system_character_t * const * filenames,
      int number_of_filenames,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t **libewf_filenames = NULL;
+	system_character_t **libewf_filenames = NULL;
 	static char *function                            = "export_handle_open_input";
 	size_t first_filename_length                     = 0;
 
@@ -526,10 +536,10 @@ int export_handle_open_input(
 	}
 	if( number_of_filenames == 1 )
 	{
-		first_filename_length = libcstring_system_string_length(
+		first_filename_length = system_string_length(
 		                         filenames[ 0 ] );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_glob_wide(
 		     filenames[ 0 ],
 		     first_filename_length,
@@ -556,9 +566,9 @@ int export_handle_open_input(
 
 			return( -1 );
 		}
-		filenames = (libcstring_system_character_t * const *) libewf_filenames;
+		filenames = (system_character_t * const *) libewf_filenames;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libewf_handle_open_wide(
 	     export_handle->input_handle,
 	     filenames,
@@ -583,7 +593,7 @@ int export_handle_open_input(
 
 		if( libewf_filenames != NULL )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			libewf_glob_wide_free(
 			 libewf_filenames,
 			 number_of_filenames,
@@ -599,7 +609,7 @@ int export_handle_open_input(
 	}
 	if( libewf_filenames != NULL )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_glob_wide_free(
 		     libewf_filenames,
 		     number_of_filenames,
@@ -671,10 +681,10 @@ int export_handle_open_input(
  */
 int export_handle_open_output(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *filenames[ 1 ] = { NULL };
+	system_character_t *filenames[ 1 ] = { NULL };
 	static char *function                         = "export_handle_open_output";
 	size_t filename_length                        = 0;
 
@@ -738,9 +748,9 @@ int export_handle_open_output(
 
 			return( -1 );
 		}
-		filenames[ 0 ] = (libcstring_system_character_t *) filename;
+		filenames[ 0 ] = (system_character_t *) filename;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_handle_open_wide(
 		     export_handle->ewf_output_handle,
 		     filenames,
@@ -760,7 +770,7 @@ int export_handle_open_output(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to open file: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to open file: %" PRIs_SYSTEM ".",
 			 function,
 			 filename );
 
@@ -773,13 +783,13 @@ int export_handle_open_output(
 	}
 	else if( export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_RAW )
 	{
-		filename_length = libcstring_system_string_length(
+		filename_length = system_string_length(
 		                   filename );
 
 		if( ( filename_length == 1 )
-		 && ( libcstring_system_string_compare(
+		 && ( system_string_compare(
 		       filename,
-		       _LIBCSTRING_SYSTEM_STRING( "-" ),
+		       _SYSTEM_STRING( "-" ),
 		       1 ) == 0 ) )
 		{
 			export_handle->use_stdout = 1;
@@ -810,9 +820,9 @@ int export_handle_open_output(
 
 				return( -1 );
 			}
-			filenames[ 0 ] = (libcstring_system_character_t *) filename;
+			filenames[ 0 ] = (system_character_t *) filename;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			if( libsmraw_handle_open_wide(
 			     export_handle->raw_output_handle,
 			     filenames,
@@ -832,7 +842,7 @@ int export_handle_open_output(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_OPEN_FAILED,
-				 "%s: unable to open file: %" PRIs_LIBCSTRING_SYSTEM ".",
+				 "%s: unable to open file: %" PRIs_SYSTEM ".",
 				 function,
 				 filename );
 
@@ -1311,10 +1321,17 @@ ssize_t export_handle_write_buffer(
 	{
 		if( export_handle->use_stdout != 0 )
 		{
-			write_count = libcsystem_file_io_write(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+			write_count = _write(
 			               1,
 				       storage_media_buffer->raw_buffer,
 				       write_size );
+#else
+			write_count = write(
+			               1,
+				       storage_media_buffer->raw_buffer,
+				       write_size );
+#endif
 		}
 		else
 		{
@@ -1941,8 +1958,8 @@ int export_handle_get_output_chunk_size(
  */
 int export_handle_prompt_for_string(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
-     libcstring_system_character_t **internal_string,
+     const system_character_t *request_string,
+     system_character_t **internal_string,
      size_t *internal_string_size,
      libcerror_error_t **error )
 {
@@ -1992,7 +2009,7 @@ int export_handle_prompt_for_string(
 	}
 	*internal_string_size = EXPORT_HANDLE_STRING_SIZE;
 
-	*internal_string = libcstring_system_string_allocate(
+	*internal_string = system_string_allocate(
 	                    *internal_string_size );
 
 	if( *internal_string == NULL )
@@ -2058,10 +2075,10 @@ on_error:
  */
 int export_handle_prompt_for_compression_method(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "export_handle_prompt_for_compression_method";
 	uint8_t compression_methods_amount                   = 0;
 	int result                                           = 0;
@@ -2077,14 +2094,18 @@ int export_handle_prompt_for_compression_method(
 
 		return( -1 );
 	}
+/* experimental version only
 	if( export_handle->ewf_format != LIBEWF_FORMAT_V2_ENCASE7 )
+*/
 	{
 		compression_methods_amount = 1;
 	}
+/* experimental version only
 	else
 	{
 		compression_methods_amount = EWFINPUT_COMPRESSION_METHODS_AMOUNT;
 	}
+*/
 	result = ewfinput_get_fixed_string_variable(
 	          export_handle->notify_stream,
 	          export_handle->input_buffer,
@@ -2134,10 +2155,10 @@ int export_handle_prompt_for_compression_method(
  */
 int export_handle_prompt_for_compression_level(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "export_handle_prompt_for_compression_level";
 	int result                                           = 0;
 
@@ -2202,32 +2223,32 @@ int export_handle_prompt_for_compression_level(
  */
 int export_handle_prompt_for_output_format(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "export_handle_prompt_for_output_format";
 	size_t fixed_string_variable_length                  = 0;
 	int result                                           = 0;
 
-	libcstring_system_character_t *format_types[ 17 ] = \
-	{ _LIBCSTRING_SYSTEM_STRING( "raw" ),
-	  _LIBCSTRING_SYSTEM_STRING( "files" ),
-	  _LIBCSTRING_SYSTEM_STRING( "ewf" ),
-	  _LIBCSTRING_SYSTEM_STRING( "smart" ),
-	  _LIBCSTRING_SYSTEM_STRING( "ftk" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase1" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase2" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase3" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase4" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase5" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase6" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase7" ),
-	  _LIBCSTRING_SYSTEM_STRING( "encase7-v2" ),
-	  _LIBCSTRING_SYSTEM_STRING( "linen5" ),
-	  _LIBCSTRING_SYSTEM_STRING( "linen6" ),
-	  _LIBCSTRING_SYSTEM_STRING( "linen7" ),
-	  _LIBCSTRING_SYSTEM_STRING( "ewfx" ) };
+	system_character_t *format_types[ 17 ] = \
+	{ _SYSTEM_STRING( "raw" ),
+	  _SYSTEM_STRING( "files" ),
+	  _SYSTEM_STRING( "ewf" ),
+	  _SYSTEM_STRING( "smart" ),
+	  _SYSTEM_STRING( "ftk" ),
+	  _SYSTEM_STRING( "encase1" ),
+	  _SYSTEM_STRING( "encase2" ),
+	  _SYSTEM_STRING( "encase3" ),
+	  _SYSTEM_STRING( "encase4" ),
+	  _SYSTEM_STRING( "encase5" ),
+	  _SYSTEM_STRING( "encase6" ),
+	  _SYSTEM_STRING( "encase7" ),
+	  _SYSTEM_STRING( "encase7-v2" ),
+	  _SYSTEM_STRING( "linen5" ),
+	  _SYSTEM_STRING( "linen6" ),
+	  _SYSTEM_STRING( "linen7" ),
+	  _SYSTEM_STRING( "ewfx" ) };
 
 	if( export_handle == NULL )
 	{
@@ -2266,14 +2287,14 @@ int export_handle_prompt_for_output_format(
 	{
 		result = 0;
 
-		fixed_string_variable_length = libcstring_system_string_length(
+		fixed_string_variable_length = system_string_length(
 		                                fixed_string_variable );
 
 		if( fixed_string_variable_length == 3 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     fixed_string_variable,
-			     _LIBCSTRING_SYSTEM_STRING( "raw" ),
+			     _SYSTEM_STRING( "raw" ),
 			     3 ) == 0 )
 			{
 				export_handle->output_format = EXPORT_HANDLE_OUTPUT_FORMAT_RAW;
@@ -2282,9 +2303,9 @@ int export_handle_prompt_for_output_format(
 		}
 		else if( fixed_string_variable_length == 5 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     fixed_string_variable,
-			     _LIBCSTRING_SYSTEM_STRING( "files" ),
+			     _SYSTEM_STRING( "files" ),
 			     5 ) == 0 )
 			{
 				export_handle->output_format = EXPORT_HANDLE_OUTPUT_FORMAT_FILES;
@@ -2320,10 +2341,10 @@ int export_handle_prompt_for_output_format(
  */
 int export_handle_prompt_for_sectors_per_chunk(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "export_handle_prompt_for_sectors_per_chunk";
 	int result                                           = 0;
 
@@ -2387,7 +2408,7 @@ int export_handle_prompt_for_sectors_per_chunk(
  */
 int export_handle_prompt_for_maximum_segment_size(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function        = "export_handle_prompt_for_maximum_segment_size";
@@ -2455,7 +2476,7 @@ int export_handle_prompt_for_maximum_segment_size(
  */
 int export_handle_prompt_for_export_offset(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function        = "export_handle_prompt_for_export_offset";
@@ -2505,7 +2526,7 @@ int export_handle_prompt_for_export_offset(
  */
 int export_handle_prompt_for_export_size(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function        = "export_handle_prompt_for_export_size";
@@ -2569,8 +2590,8 @@ int export_handle_prompt_for_export_size(
  */
 int export_handle_set_string(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
-     libcstring_system_character_t **internal_string,
+     const system_character_t *string,
+     system_character_t **internal_string,
      size_t *internal_string_size,
      libcerror_error_t **error )
 {
@@ -2629,12 +2650,12 @@ int export_handle_set_string(
 		*internal_string      = NULL;
 		*internal_string_size = 0;
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( string_length > 0 )
 	{
-		*internal_string = libcstring_system_string_allocate(
+		*internal_string = system_string_allocate(
 		                    string_length + 1 );
 
 		if( *internal_string == NULL )
@@ -2648,7 +2669,7 @@ int export_handle_set_string(
 
 			goto on_error;
 		}
-		if( libcstring_system_string_copy(
+		if( system_string_copy(
 		     *internal_string,
 		     string,
 		     string_length ) == NULL )
@@ -2686,10 +2707,10 @@ on_error:
  */
 int export_handle_set_compression_values(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *string_segment    = NULL;
+	system_character_t *string_segment    = NULL;
 	static char *function                            = "export_handle_set_compression_values";
 	size_t string_segment_size                       = 0;
 	size_t string_length                             = 0;
@@ -2697,7 +2718,7 @@ int export_handle_set_compression_values(
 	int result                                       = 0;
 	int segment_index                                = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	libcsplit_wide_split_string_t *string_elements   = NULL;
 #else
 	libcsplit_narrow_split_string_t *string_elements = NULL;
@@ -2714,10 +2735,10 @@ int export_handle_set_compression_values(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_string_split(
 	     string,
 	     string_length + 1,
@@ -2742,7 +2763,7 @@ int export_handle_set_compression_values(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_get_number_of_segments(
 	     string_elements,
 	     &number_of_segments,
@@ -2777,7 +2798,7 @@ int export_handle_set_compression_values(
 	}
 	if( number_of_segments == 2 )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcsplit_wide_split_string_get_segment_by_index(
 		     string_elements,
 		     segment_index,
@@ -2831,7 +2852,9 @@ int export_handle_set_compression_values(
 
 			goto on_error;
 		}
+/* experimental version only
 		if( export_handle->ewf_format != LIBEWF_FORMAT_V2_ENCASE7 )
+*/
 		{
 			if( export_handle->compression_method != LIBEWF_COMPRESSION_METHOD_DEFLATE )
 			{
@@ -2842,7 +2865,7 @@ int export_handle_set_compression_values(
 		}
 		segment_index++;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_get_segment_by_index(
 	     string_elements,
 	     segment_index,
@@ -2897,7 +2920,7 @@ int export_handle_set_compression_values(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_free(
 	     &string_elements,
 	     error ) != 1 )
@@ -2921,7 +2944,7 @@ int export_handle_set_compression_values(
 on_error:
 	if( string_elements != NULL )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		libcsplit_wide_split_string_free(
 		 &string_elements,
 		 NULL );
@@ -2940,7 +2963,7 @@ on_error:
  */
 int export_handle_set_output_format(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_output_format";
@@ -2958,14 +2981,14 @@ int export_handle_set_output_format(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( string_length == 3 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "raw" ),
+		     _SYSTEM_STRING( "raw" ),
 		     3 ) == 0 )
 		{
 			export_handle->output_format = EXPORT_HANDLE_OUTPUT_FORMAT_RAW;
@@ -2974,9 +2997,9 @@ int export_handle_set_output_format(
 	}
 	else if( string_length == 5 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "files" ),
+		     _SYSTEM_STRING( "files" ),
 		     5 ) == 0 )
 		{
 			export_handle->output_format = EXPORT_HANDLE_OUTPUT_FORMAT_FILES;
@@ -3010,7 +3033,7 @@ int export_handle_set_output_format(
  */
 int export_handle_set_sectors_per_chunk(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_sectors_per_chunk";
@@ -3051,7 +3074,7 @@ int export_handle_set_sectors_per_chunk(
  */
 int export_handle_set_maximum_segment_size(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_maximum_segment_size";
@@ -3069,7 +3092,7 @@ int export_handle_set_maximum_segment_size(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	result = byte_size_string_convert(
@@ -3123,7 +3146,7 @@ int export_handle_set_maximum_segment_size(
  */
 int export_handle_set_export_offset(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_export_offset";
@@ -3152,12 +3175,12 @@ int export_handle_set_export_offset(
 
 		return( -1 );
 	}
-	if( string[ 0 ] != (libcstring_system_character_t) '-' )
+	if( string[ 0 ] != (system_character_t) '-' )
 	{
-		string_length = libcstring_system_string_length(
+		string_length = system_string_length(
 				 string );
 
-		if( libcsystem_string_decimal_copy_to_64_bit(
+		if( ewftools_system_string_decimal_copy_to_64_bit(
 		     string,
 		     string_length + 1,
 		     &( export_handle->export_offset ),
@@ -3182,7 +3205,7 @@ int export_handle_set_export_offset(
  */
 int export_handle_set_export_size(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_export_size";
@@ -3211,12 +3234,12 @@ int export_handle_set_export_size(
 
 		return( -1 );
 	}
-	if( string[ 0 ] != (libcstring_system_character_t) '-' )
+	if( string[ 0 ] != (system_character_t) '-' )
 	{
-		string_length = libcstring_system_string_length(
+		string_length = system_string_length(
 				 string );
 
-		if( libcsystem_string_decimal_copy_to_64_bit(
+		if( ewftools_system_string_decimal_copy_to_64_bit(
 		     string,
 		     string_length + 1,
 		     &( export_handle->export_size ),
@@ -3241,7 +3264,7 @@ int export_handle_set_export_size(
  */
 int export_handle_set_header_codepage(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_header_codepage";
@@ -3282,7 +3305,7 @@ int export_handle_set_header_codepage(
  */
 int export_handle_set_process_buffer_size(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function  = "export_handle_set_process_buffer_size";
@@ -3301,7 +3324,7 @@ int export_handle_set_process_buffer_size(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	result = byte_size_string_convert(
@@ -3342,10 +3365,10 @@ int export_handle_set_process_buffer_size(
  */
 int export_handle_set_additional_digest_types(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *string_segment    = NULL;
+	system_character_t *string_segment    = NULL;
 	static char *function                            = "export_handle_set_additional_digest_types";
 	size_t string_length                             = 0;
 	size_t string_segment_size                       = 0;
@@ -3355,7 +3378,7 @@ int export_handle_set_additional_digest_types(
 	int result                                       = 0;
 	int segment_index                                = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	libcsplit_wide_split_string_t *string_elements   = NULL;
 #else
 	libcsplit_narrow_split_string_t *string_elements = NULL;
@@ -3372,10 +3395,10 @@ int export_handle_set_additional_digest_types(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_string_split(
 	     string,
 	     string_length + 1,
@@ -3400,7 +3423,7 @@ int export_handle_set_additional_digest_types(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_get_number_of_segments(
 	     string_elements,
 	     &number_of_segments,
@@ -3425,7 +3448,7 @@ int export_handle_set_additional_digest_types(
 	     segment_index < number_of_segments;
 	     segment_index++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcsplit_wide_split_string_get_segment_by_index(
 		     string_elements,
 		     segment_index,
@@ -3465,16 +3488,16 @@ int export_handle_set_additional_digest_types(
 		}
 		if( string_segment_size == 5 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha1" ),
+			     _SYSTEM_STRING( "sha1" ),
 			     4 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA1" ),
+			          _SYSTEM_STRING( "SHA1" ),
 			          4 ) == 0 )
 			{
 				calculate_sha1 = 1;
@@ -3482,30 +3505,30 @@ int export_handle_set_additional_digest_types(
 		}
 		else if( string_segment_size == 6 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha-1" ),
+			     _SYSTEM_STRING( "sha-1" ),
 			     5 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "sha_1" ),
+			          _SYSTEM_STRING( "sha_1" ),
 			          5 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA-1" ),
+			          _SYSTEM_STRING( "SHA-1" ),
 			          5 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA_1" ),
+			          _SYSTEM_STRING( "SHA_1" ),
 			          5 ) == 0 )
 			{
 				calculate_sha1 = 1;
@@ -3513,16 +3536,16 @@ int export_handle_set_additional_digest_types(
 		}
 		else if( string_segment_size == 7 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha256" ),
+			     _SYSTEM_STRING( "sha256" ),
 			     6 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA256" ),
+			          _SYSTEM_STRING( "SHA256" ),
 			          6 ) == 0 )
 			{
 				calculate_sha256 = 1;
@@ -3530,30 +3553,30 @@ int export_handle_set_additional_digest_types(
 		}
 		else if( string_segment_size == 8 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha-256" ),
+			     _SYSTEM_STRING( "sha-256" ),
 			     7 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "sha_256" ),
+			          _SYSTEM_STRING( "sha_256" ),
 			          7 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA-256" ),
+			          _SYSTEM_STRING( "SHA-256" ),
 			          7 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA_256" ),
+			          _SYSTEM_STRING( "SHA_256" ),
 			          7 ) == 0 )
 			{
 				calculate_sha256 = 1;
@@ -3563,7 +3586,7 @@ int export_handle_set_additional_digest_types(
 	if( ( calculate_sha1 != 0 )
 	 && ( export_handle->calculate_sha1 == 0 ) )
 	{
-		export_handle->calculated_sha1_hash_string = libcstring_system_string_allocate(
+		export_handle->calculated_sha1_hash_string = system_string_allocate(
 		                                              41 );
 
 		if( export_handle->calculated_sha1_hash_string == NULL )
@@ -3582,7 +3605,7 @@ int export_handle_set_additional_digest_types(
 	if( ( calculate_sha256 != 0 )
 	 && ( export_handle->calculate_sha256 == 0 ) )
 	{
-		export_handle->calculated_sha256_hash_string = libcstring_system_string_allocate(
+		export_handle->calculated_sha256_hash_string = system_string_allocate(
 		                                                65 );
 
 		if( export_handle->calculated_sha256_hash_string == NULL )
@@ -3598,7 +3621,7 @@ int export_handle_set_additional_digest_types(
 		}
 		export_handle->calculate_sha256 = 1;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_free(
 	     &string_elements,
 	     error ) != 1 )
@@ -3622,7 +3645,7 @@ int export_handle_set_additional_digest_types(
 on_error:
 	if( string_elements != NULL )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		libcsplit_wide_split_string_free(
 		 &string_elements,
 		 NULL );
@@ -3640,9 +3663,9 @@ on_error:
  */
 int export_handle_set_output_values(
      export_handle_t *export_handle,
-     libcstring_system_character_t *acquiry_operating_system,
-     libcstring_system_character_t *acquiry_software,
-     libcstring_system_character_t *acquiry_software_version,
+     system_character_t *acquiry_operating_system,
+     system_character_t *acquiry_software,
+     system_character_t *acquiry_software_version,
      uint8_t zero_chunk_on_error,
      uint8_t copy_input_values,
      libcerror_error_t **error )
@@ -3727,10 +3750,10 @@ int export_handle_set_output_values(
 		 */
 		if( acquiry_operating_system != NULL )
 		{
-			value_string_length = libcstring_system_string_length(
+			value_string_length = system_string_length(
 			                       acquiry_operating_system );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libewf_handle_set_utf16_header_value(
 			          export_handle->ewf_output_handle,
 			          (uint8_t *) "acquiry_operating_system",
@@ -3759,10 +3782,10 @@ int export_handle_set_output_values(
 				return( -1 );
 			}
 		}
-		value_string_length = libcstring_system_string_length(
+		value_string_length = system_string_length(
 				       acquiry_software );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_handle_set_utf16_header_value(
 			  export_handle->ewf_output_handle,
 			  (uint8_t *) "acquiry_software",
@@ -3790,10 +3813,10 @@ int export_handle_set_output_values(
 
 			return( -1 );
 		}
-		value_string_length = libcstring_system_string_length(
+		value_string_length = system_string_length(
 				       acquiry_software_version );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_handle_set_utf16_header_value(
 			  export_handle->ewf_output_handle,
 			  (uint8_t *) "acquiry_software_version",
@@ -3901,6 +3924,7 @@ int export_handle_set_output_values(
 		}
 		if( copy_input_values != 0 )
 		{
+/* experimental version only
 			if( libewf_handle_get_compression_method(
 			     export_handle->input_handle,
 			     &( export_handle->compression_method ),
@@ -3915,6 +3939,7 @@ int export_handle_set_output_values(
 
 				return( -1 );
 			}
+*/
 			if( libewf_handle_get_compression_values(
 			     export_handle->input_handle,
 			     &( export_handle->compression_level ),
@@ -3931,6 +3956,7 @@ int export_handle_set_output_values(
 				return( -1 );
 			}
 		}
+/* experimental version only
 		if( export_handle->ewf_format != LIBEWF_FORMAT_V2_ENCASE7 )
 		{
 			if( export_handle->compression_method != LIBEWF_COMPRESSION_METHOD_DEFLATE )
@@ -3952,6 +3978,7 @@ int export_handle_set_output_values(
 
 			return( -1 );
 		}
+*/
 		if( libewf_handle_set_compression_values(
 		     export_handle->ewf_output_handle,
 		     export_handle->compression_level,
@@ -4115,7 +4142,7 @@ int export_handle_set_hash_value(
      export_handle_t *export_handle,
      char *hash_value_identifier,
      size_t hash_value_identifier_length,
-     libcstring_system_character_t *hash_value,
+     system_character_t *hash_value,
      size_t hash_value_length,
      libcerror_error_t **error )
 {
@@ -4135,7 +4162,7 @@ int export_handle_set_hash_value(
 	}
 	if( export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_EWF )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_handle_set_utf16_hash_value(
 		          export_handle->ewf_output_handle,
 		          (uint8_t *) hash_value_identifier,
@@ -4168,7 +4195,7 @@ int export_handle_set_hash_value(
 	else if( ( export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_RAW )
 	      && ( export_handle->use_stdout == 0 ) )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libsmraw_handle_set_utf16_integrity_hash_value(
 		          export_handle->raw_output_handle,
 		          (uint8_t *) hash_value_identifier,
@@ -4615,9 +4642,9 @@ int export_handle_export_input(
         }
 	if( process_status_initialize(
 	     &process_status,
-	     _LIBCSTRING_SYSTEM_STRING( "Export" ),
-	     _LIBCSTRING_SYSTEM_STRING( "exported" ),
-	     _LIBCSTRING_SYSTEM_STRING( "Written" ),
+	     _SYSTEM_STRING( "Export" ),
+	     _SYSTEM_STRING( "exported" ),
+	     _SYSTEM_STRING( "Written" ),
 	     stderr,
 	     print_status_information,
 	     error ) != 1 )
@@ -5078,17 +5105,19 @@ on_error:
  */
 int export_handle_export_single_files(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      uint8_t print_status_information,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libewf_file_entry_t *file_entry  = NULL;
-	process_status_t *process_status = NULL;
-	static char *function            = "export_handle_export_single_files";
-	size_t export_path_size          = 0;
-	int result                       = 0;
-	int status                       = PROCESS_STATUS_COMPLETED;
+	libewf_file_entry_t *file_entry    = NULL;
+	process_status_t *process_status   = NULL;
+	system_character_t *sanitized_name = NULL;
+	static char *function              = "export_handle_export_single_files";
+	size_t export_path_length          = 0;
+	size_t sanitized_name_size         = 0;
+	int result                         = 0;
+	int status                         = PROCESS_STATUS_COMPLETED;
 
 	if( export_handle == NULL )
 	{
@@ -5112,18 +5141,22 @@ int export_handle_export_single_files(
 
 		return( -1 );
 	}
-	export_path_size = 1 + libcstring_system_string_length(
-	                        export_handle->target_path );
+	export_path_length = system_string_length(
+	                      export_handle->target_path );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcpath_path_sanitize_wide(
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcpath_path_get_sanitized_path_wide(
 	     export_handle->target_path,
-	     &export_path_size,
+	     export_path_length,
+	     &sanitized_name,
+	     &sanitized_name_size,
 	     error ) != 1 )
 #else
-	if( libcpath_path_sanitize(
+	if( libcpath_path_get_sanitized_path(
 	     export_handle->target_path,
-	     &export_path_size,
+	     export_path_length,
+	     &sanitized_name,
+	     &sanitized_name_size,
 	     error ) != 1 )
 #endif
 	{
@@ -5154,9 +5187,9 @@ int export_handle_export_single_files(
 	}
 	if( process_status_initialize(
 	     &process_status,
-	     _LIBCSTRING_SYSTEM_STRING( "Export" ),
-	     _LIBCSTRING_SYSTEM_STRING( "exported" ),
-	     _LIBCSTRING_SYSTEM_STRING( "Written" ),
+	     _SYSTEM_STRING( "Export" ),
+	     _SYSTEM_STRING( "exported" ),
+	     _SYSTEM_STRING( "Written" ),
 	     stderr,
 	     print_status_information,
 	     error ) != 1 )
@@ -5183,13 +5216,13 @@ int export_handle_export_single_files(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcpath_path_make_directory_wide(
-	     export_handle->target_path,
+	     sanitized_name,
 	     error ) != 1 )
 #else
 	if( libcpath_path_make_directory(
-	     export_handle->target_path,
+	     sanitized_name,
 	     error ) != 1 )
 #endif
 	{
@@ -5197,23 +5230,23 @@ int export_handle_export_single_files(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to create directory: %" PRIs_LIBCSTRING_SYSTEM "",
+		 "%s: unable to create directory: %" PRIs_SYSTEM "",
 		 function,
-		 export_handle->target_path );
+		 sanitized_name );
 
 		goto on_error;
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-	 export_handle->target_path );
+	 "Created directory: %" PRIs_SYSTEM ".\n",
+	 sanitized_name );
 
 	result = export_handle_export_file_entry(
 	          export_handle,
 	          file_entry,
-	          export_handle->target_path,
-	          export_path_size,
-	          export_path_size - 1,
+	          sanitized_name,
+	          sanitized_name_size,
+	          sanitized_name_size - 1,
 	          log_handle,
 	          error );
 
@@ -5228,6 +5261,11 @@ int export_handle_export_single_files(
 
 		goto on_error;
 	}
+	memory_free(
+	 sanitized_name );
+
+	sanitized_name = NULL;
+
 	if( export_handle->abort != 0 )
 	{
 		status = PROCESS_STATUS_ABORTED;
@@ -5293,6 +5331,11 @@ on_error:
 		 &file_entry,
 		 NULL );
 	}
+	if( sanitized_name != NULL )
+	{
+		memory_free(
+		 sanitized_name );
+	}
 	return( -1 );
 }
 
@@ -5302,16 +5345,18 @@ on_error:
 int export_handle_export_file_entry(
      export_handle_t *export_handle,
      libewf_file_entry_t *file_entry,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_size,
      size_t file_entry_path_index,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *name        = NULL;
-	libcstring_system_character_t *target_path = NULL;
+	system_character_t *name        = NULL;
+	system_character_t *target_path = NULL;
+	system_character_t *sanitized_name         = NULL;
 	static char *function                      = "export_handle_export_file_entry";
 	size_t name_size                           = 0;
+	size_t sanitized_name_size                 = 0;
 	size_t target_path_size                    = 0;
 	uint8_t file_entry_type                    = 0;
 	int result                                 = 0;
@@ -5353,7 +5398,7 @@ int export_handle_export_file_entry(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libewf_file_entry_get_utf16_name_size(
 	          file_entry,
 	          &name_size,
@@ -5377,7 +5422,7 @@ int export_handle_export_file_entry(
 	}
 	if( name_size > 1 )
 	{
-		name = libcstring_system_string_allocate(
+		name = system_string_allocate(
 		        name_size );
 
 		if( name == NULL )
@@ -5391,7 +5436,7 @@ int export_handle_export_file_entry(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_file_entry_get_utf16_name(
 		          file_entry,
 		          (uint16_t *) name,
@@ -5415,15 +5460,19 @@ int export_handle_export_file_entry(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libcpath_path_sanitize_filename_wide(
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libcpath_path_get_sanitized_filename_wide(
 		     name,
-		     &name_size,
+		     name_size - 1,
+		     &sanitized_name,
+		     &sanitized_name_size,
 		     error ) != 1 )
 #else
-		if( libcpath_path_sanitize_filename(
+		if( libcpath_path_get_sanitized_filename(
 		     name,
-		     &name_size,
+		     name_size - 1,
+		     &sanitized_name,
+		     &sanitized_name_size,
 		     error ) != 1 )
 #endif
 		{
@@ -5436,14 +5485,19 @@ int export_handle_export_file_entry(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		memory_free(
+		 name );
+
+		name = NULL;
+
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcpath_path_join_wide(
 		     &target_path,
 		     &target_path_size,
 		     export_path,
 		     export_path_size - 1,
-		     name,
-		     name_size - 1,
+		     sanitized_name,
+		     sanitized_name_size - 1,
 		     error ) != 1 )
 #else
 		if( libcpath_path_join(
@@ -5451,8 +5505,8 @@ int export_handle_export_file_entry(
 		     &target_path_size,
 		     export_path,
 		     export_path_size - 1,
-		     name,
-		     name_size - 1,
+		     sanitized_name,
+		     sanitized_name_size - 1,
 		     error ) != 1 )
 #endif
 		{
@@ -5466,9 +5520,9 @@ int export_handle_export_file_entry(
 			goto on_error;
 		}
 		memory_free(
-		 name );
+		 sanitized_name );
 
-		name = NULL;
+		sanitized_name = NULL;
 
 		if( target_path == NULL )
 		{
@@ -5481,7 +5535,7 @@ int export_handle_export_file_entry(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcfile_file_exists_wide(
 			  target_path,
 			  error );
@@ -5496,7 +5550,7 @@ int export_handle_export_file_entry(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_GENERIC,
-			 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+			 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 			 function,
 			 target_path );
 
@@ -5525,7 +5579,7 @@ int export_handle_export_file_entry(
 			 */
 			fprintf(
 			 export_handle->notify_stream,
-			 "Single file: %" PRIs_LIBCSTRING_SYSTEM "\n",
+			 "Single file: %" PRIs_SYSTEM "\n",
 			 &( target_path[ file_entry_path_index ] ) );
 
 			return_value = export_handle_export_file_entry_data(
@@ -5564,7 +5618,7 @@ int export_handle_export_file_entry(
 		}
 		else if( file_entry_type == LIBEWF_FILE_ENTRY_TYPE_DIRECTORY )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			if( libcpath_path_make_directory_wide(
 			     target_path,
 			     error ) != 1 )
@@ -5578,7 +5632,7 @@ int export_handle_export_file_entry(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to create directory: %" PRIs_LIBCSTRING_SYSTEM "",
+				 "%s: unable to create directory: %" PRIs_SYSTEM "",
 				 function,
 				 target_path );
 
@@ -5586,7 +5640,7 @@ int export_handle_export_file_entry(
 			}
 			log_handle_printf(
 			 log_handle,
-			 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+			 "Created directory: %" PRIs_SYSTEM ".\n",
 			 target_path );
 		}
 	}
@@ -5596,7 +5650,7 @@ int export_handle_export_file_entry(
 		 log_handle,
 		 "Skipping file entry without a name.\n" );
 
-		target_path      = (libcstring_system_character_t *) export_path;
+		target_path      = (system_character_t *) export_path;
 		target_path_size = export_path_size;
 	}
 	if( file_entry_type == LIBEWF_FILE_ENTRY_TYPE_DIRECTORY )
@@ -5640,6 +5694,11 @@ on_error:
 		memory_free(
 		 target_path );
 	}
+	if( sanitized_name != NULL )
+	{
+		memory_free(
+		 sanitized_name );
+	}
 	if( name != NULL )
 	{
 		memory_free(
@@ -5654,7 +5713,7 @@ on_error:
 int export_handle_export_file_entry_data(
      export_handle_t *export_handle,
      libewf_file_entry_t *file_entry,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      libcerror_error_t **error )
 {
 	libcfile_file_t *file         = NULL;
@@ -5735,7 +5794,7 @@ int export_handle_export_file_entry_data(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcfile_file_open_wide(
 	     file,
 	     export_path,
@@ -5753,7 +5812,7 @@ int export_handle_export_file_entry_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 "%s: unable to open file: %" PRIs_SYSTEM ".",
 		 function,
 		 export_path );
 
@@ -5926,7 +5985,7 @@ on_error:
 int export_handle_export_file_entry_sub_file_entries(
      export_handle_t *export_handle,
      libewf_file_entry_t *file_entry,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_size,
      size_t file_entry_path_index,
      log_handle_t *log_handle,
@@ -6083,7 +6142,7 @@ int export_handle_hash_values_fprint(
 		}
 		fprintf(
 		 stream,
-		 "MD5 hash calculated over data:\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "MD5 hash calculated over data:\t\t%" PRIs_SYSTEM "\n",
 		 export_handle->calculated_md5_hash_string );
 	}
 	if( export_handle->calculate_sha1 != 0 )
@@ -6101,7 +6160,7 @@ int export_handle_hash_values_fprint(
 		}
 		fprintf(
 		 stream,
-		 "SHA1 hash calculated over data:\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "SHA1 hash calculated over data:\t\t%" PRIs_SYSTEM "\n",
 		 export_handle->calculated_sha1_hash_string );
 	}
 	if( export_handle->calculate_sha256 != 0 )
@@ -6119,7 +6178,7 @@ int export_handle_hash_values_fprint(
 		}
 		fprintf(
 		 stream,
-		 "SHA256 hash calculated over data:\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "SHA256 hash calculated over data:\t%" PRIs_SYSTEM "\n",
 		 export_handle->calculated_sha256_hash_string );
 	}
 	return( 1 );
@@ -6133,8 +6192,8 @@ int export_handle_checksum_errors_fprint(
      FILE *stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *filename      = NULL;
-	libcstring_system_character_t *last_filename = NULL;
+	system_character_t *filename      = NULL;
+	system_character_t *last_filename = NULL;
 	static char *function                        = "export_handle_checksum_errors_fprint";
 	size_t filename_size                         = 0;
 	size_t last_filename_size                    = 0;
@@ -6250,7 +6309,7 @@ int export_handle_checksum_errors_fprint(
 
 					goto on_error;
 				}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 				result = libewf_handle_get_filename_size_wide(
 				          export_handle->input_handle,
 				          &filename_size,
@@ -6275,7 +6334,7 @@ int export_handle_checksum_errors_fprint(
 				}
 				else if( result != 0 )
 				{
-					filename = libcstring_system_string_allocate(
+					filename = system_string_allocate(
 					            filename_size );
 
 
@@ -6290,7 +6349,7 @@ int export_handle_checksum_errors_fprint(
 
 						goto on_error;
 					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					if( libewf_handle_get_filename_wide(
 					     export_handle->input_handle,
 					     filename,
@@ -6317,7 +6376,7 @@ int export_handle_checksum_errors_fprint(
 					{
 						fprintf(
 						 stream,
-						 " %s",
+						 " %" PRIs_SYSTEM "",
 						 filename );
 
 						last_filename      = filename;
@@ -6331,7 +6390,7 @@ int export_handle_checksum_errors_fprint(
 					{
 						fprintf(
 						 stream,
-						 ", %s",
+						 ", %" PRIs_SYSTEM "",
 						 filename );
 
 						memory_free(

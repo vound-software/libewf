@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_DEBUG_H )
@@ -27,18 +27,17 @@
 
 #include "libewf_libcerror.h"
 
+#include "ewf_section.h"
+
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-void libewf_debug_print_compression_method(
-      uint16_t compression_method );
-
-void libewf_debug_print_section_type(
-      uint32_t section_type );
-
-void libewf_debug_print_section_data_flags(
-      uint32_t data_flags );
+int libewf_debug_dump_data(
+     const char *header_string,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
 
 int libewf_debug_byte_stream_print(
      const char *header_string,

@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_INTERNAL_HANDLE_H )
@@ -26,16 +26,16 @@
 #include <types.h>
 
 #include "libewf_chunk_data.h"
-#include "libewf_chunk_group.h"
 #include "libewf_chunk_table.h"
 #include "libewf_extern.h"
 #include "libewf_hash_sections.h"
 #include "libewf_libbfio.h"
 #include "libewf_libcdata.h"
 #include "libewf_libcerror.h"
-#include "libewf_libfcache.h"
-#include "libewf_libfdata.h"
 #include "libewf_libfvalue.h"
+#include "libewf_libfcache.h"
+#include "libewf_libmfdata.h"
+#include "libewf_header_sections.h"
 #include "libewf_io_handle.h"
 #include "libewf_media_values.h"
 #include "libewf_read_io_handle.h"
@@ -104,6 +104,18 @@ struct libewf_internal_handle
 	 */
 	int maximum_number_of_open_handles;
 
+	/* The segment files list
+	 */
+	libmfdata_file_list_t *segment_files_list;
+
+	/* The delta segment files list
+	 */
+	libmfdata_file_list_t *delta_segment_files_list;
+
+	/* The segment files cache
+	 */
+	libfcache_cache_t *segment_files_cache;
+
 	/* The segment file table
 	 */
 	libewf_segment_table_t *segment_table;
@@ -112,29 +124,25 @@ struct libewf_internal_handle
 	 */
 	libewf_segment_table_t *delta_segment_table;
 
-	/* The chunk table
+	/* The chunk table (data) list
 	 */
-	libewf_chunk_table_t *chunk_table;
+	libmfdata_list_t *chunk_table_list;
 
-	/* The delta chunks range list
+	/* The chunk table cache
 	 */
-	libfdata_range_list_t *delta_chunks_range_list;
+	libfcache_cache_t *chunk_table_cache;
 
-	/* The chunks cache
+	/* The stored header sections
 	 */
-	libfcache_cache_t *chunks_cache;
+	libewf_header_sections_t *header_sections;
 
-	/* The chunk group
+	/* The stored hash sections
 	 */
-	libewf_chunk_group_t *chunk_group;
+	libewf_hash_sections_t *hash_sections;
 
 	/* The date format for certain header values
 	 */
 	int date_format;
-
-	/* The hash sections
-	 */
-	libewf_hash_sections_t *hash_sections;
 
 	/* The header values
 	 */
@@ -203,23 +211,10 @@ int libewf_handle_open_file_io_pool(
      int access_flags,
      libcerror_error_t **error );
 
-int libewf_handle_open_read_segment_file_section_data(
-     libewf_internal_handle_t *internal_handle,
-     libewf_segment_file_t *segment_file,
-     libbfio_pool_t *file_io_pool,
-     int file_io_pool_entry,
-     libcerror_error_t **error );
-
 int libewf_handle_open_read_segment_files(
      libewf_internal_handle_t *internal_handle,
      libbfio_pool_t *file_io_pool,
-     libcerror_error_t **error );
-
-int libewf_handle_open_read_delta_segment_file_section_data(
-     libewf_internal_handle_t *internal_handle,
-     libewf_segment_file_t *segment_file,
-     libbfio_pool_t *file_io_pool,
-     int file_io_pool_entry,
+     libewf_chunk_table_t *chunk_table,
      libcerror_error_t **error );
 
 int libewf_handle_open_read_delta_segment_files(
@@ -241,7 +236,7 @@ ssize_t libewf_handle_prepare_read_chunk(
          size_t *uncompressed_chunk_buffer_size,
          int8_t is_compressed,
          uint32_t chunk_checksum,
-         int8_t chunk_io_flags,
+         int8_t read_checksum,
          libcerror_error_t **error );
 
 LIBEWF_EXTERN \
@@ -252,7 +247,7 @@ ssize_t libewf_handle_read_chunk(
          int8_t *is_compressed,
          void *checksum_buffer,
          uint32_t *chunk_checksum,
-         int8_t *chunk_io_flags,
+         int8_t *read_checksum,
          libcerror_error_t **error );
 
 LIBEWF_EXTERN \
@@ -263,12 +258,22 @@ ssize_t libewf_handle_read_buffer(
          libcerror_error_t **error );
 
 LIBEWF_EXTERN \
-ssize_t libewf_handle_read_buffer_at_offset(
+ssize_t libewf_handle_read_random(
          libewf_handle_t *handle,
          void *buffer,
          size_t buffer_size,
          off64_t offset,
          libcerror_error_t **error );
+
+
+LIBEWF_EXTERN \
+ssize_t libewf_handle_read_buffer_at_offset(
+    libewf_handle_t* handle,
+    void* buffer,
+    size_t buffer_size,
+    off64_t offset,
+    libcerror_error_t** error);
+
 
 LIBEWF_EXTERN \
 ssize_t libewf_handle_prepare_write_chunk(
@@ -279,7 +284,7 @@ ssize_t libewf_handle_prepare_write_chunk(
          size_t *compressed_chunk_buffer_size,
          int8_t *is_compressed,
          uint32_t *chunk_checksum,
-         int8_t *chunk_io_flags,
+         int8_t *write_checksum,
          libcerror_error_t **error );
 
 LIBEWF_EXTERN \
@@ -291,7 +296,7 @@ ssize_t libewf_handle_write_chunk(
          int8_t is_compressed,
          void *checksum_buffer,
          uint32_t chunk_checksum,
-         int8_t chunk_io_flags,
+         int8_t write_checksum,
          libcerror_error_t **error );
 
 LIBEWF_EXTERN \
@@ -302,7 +307,7 @@ ssize_t libewf_handle_write_buffer(
          libcerror_error_t **error );
 
 LIBEWF_EXTERN \
-ssize_t libewf_handle_write_buffer_at_offset(
+ssize_t libewf_handle_write_random(
          libewf_handle_t *handle,
          const void *buffer,
          size_t buffer_size,
@@ -335,11 +340,6 @@ int libewf_handle_set_maximum_number_of_open_handles(
 
 LIBEWF_EXTERN \
 int libewf_handle_segment_files_corrupted(
-     libewf_handle_t *handle,
-     libcerror_error_t **error );
-
-LIBEWF_EXTERN \
-int libewf_handle_segment_files_encrypted(
      libewf_handle_t *handle,
      libcerror_error_t **error );
 
@@ -485,6 +485,11 @@ int libewf_handle_get_file_io_handle(
      libbfio_handle_t **file_io_handle,
      libcerror_error_t **error );
 
+int libewf_internal_handle_get_write_maximum_number_of_segments(
+     uint8_t ewf_format,
+     uint16_t *maximum_number_of_segments,
+     libcerror_error_t **error );
+
 int libewf_internal_handle_get_media_values(
      libewf_internal_handle_t *internal_handle,
      size64_t *media_size,
@@ -495,6 +500,11 @@ int libewf_internal_handle_set_media_values(
      uint32_t sectors_per_chunk,
      uint32_t bytes_per_sector,
      size64_t media_size,
+     libcerror_error_t **error );
+
+int libewf_internal_handle_set_format(
+     libewf_internal_handle_t *internal_handle,
+     uint8_t format,
      libcerror_error_t **error );
 
 LIBEWF_EXTERN \

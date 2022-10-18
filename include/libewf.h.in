@@ -1,22 +1,22 @@
 /*
  * Library to access the Expert Witness Compression Format (EWF)
  *
- * Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_H )
@@ -120,9 +120,7 @@ int libewf_check_file_signature_file_io_handle(
 #endif
 
 /* Globs the segment files according to the EWF naming schema
- * Make sure the value filenames is referencing, is set to NULL
- *
- * If the format is known the filename should contain the base of the filename
+ * if the format is known the filename should contain the base of the filename
  * otherwise the function will try to determine the format based on the extension
  * Returns 1 if successful or -1 on error
  */
@@ -135,7 +133,7 @@ int libewf_glob(
      int *number_of_filenames,
      libewf_error_t **error );
 
-/* Frees globbed filenames
+/* Frees the globbed filenames
  * Returns 1 if successful or -1 on error
  */
 LIBEWF_EXTERN \
@@ -146,9 +144,7 @@ int libewf_glob_free(
 
 #if defined( LIBEWF_HAVE_WIDE_CHARACTER_TYPE )
 /* Globs the segment files according to the EWF naming schema
- * Make sure the value filenames is referencing, is set to NULL
- *
- * If the format is known the filename should contain the base of the filename
+ * if the format is known the filename should contain the base of the filename
  * otherwise the function will try to determine the format based on the extension
  * Returns 1 if successful or -1 on error
  */
@@ -161,7 +157,7 @@ int libewf_glob_wide(
      int *number_of_filenames,
      libewf_error_t **error );
 
-/* Frees globbed wide filenames
+/* Frees the globbed wide filenames
  * Returns 1 if successful or -1 on error
  */
 LIBEWF_EXTERN \
@@ -249,7 +245,7 @@ int libewf_notify_stream_close(
  * Error functions
  * ------------------------------------------------------------------------- */
 
-/* Frees an error
+/* Frees the error including elements
  */
 LIBEWF_EXTERN \
 void libewf_error_free(
@@ -292,11 +288,11 @@ int libewf_error_backtrace_sprint(
      size_t size );
 
 /* -------------------------------------------------------------------------
- * Handle functions
+ * File/Handle functions
  * ------------------------------------------------------------------------- */
 
-/* Creates a handle
- * Make sure the value handle is referencing, is set to NULL
+/* Initialize the handle
+ * The handle must point to a NULL pointer to be allocated
  * Returns 1 if successful or -1 on error
  */
 LIBEWF_EXTERN \
@@ -304,7 +300,7 @@ int libewf_handle_initialize(
      libewf_handle_t **handle,
      libewf_error_t **error );
 
-/* Frees a handle
+/* Frees the handle including elements
  * Returns 1 if successful or -1 on error
  */
 LIBEWF_EXTERN \
@@ -392,15 +388,14 @@ ssize_t libewf_handle_prepare_read_chunk(
          size_t *uncompressed_chunk_buffer_size,
          int8_t is_compressed,
          uint32_t chunk_checksum,
-         int8_t chunk_io_flags,
+         int8_t read_checksum,
          libewf_error_t **error );
 
 /* Reads a chunk of (media) data from the current offset into a buffer
  * Will read until the requested size is filled or the entire chunk is read
+ * The values read_checksum and chunk_checksum are used for uncompressed chunks only
  * The value chunk_checksum is set to a runtime version of the value in the checksum_buffer
- * and is used for uncompressed chunks only
- * The LIBEWF_CHUNK_IO_FLAG_CHECKSUM_SET chunk_io_flags is set if the checksum was read into checksum_buffer
- * otherwise the checksum is considered part of the data in the chunk buffer
+ * The value read_checksum is set if the checksum has been read into checksum_buffer
  * The value chunk_buffer_size contains the size of the chunk buffer
  * Returns the number of bytes read or -1 on error
  */
@@ -412,7 +407,7 @@ ssize_t libewf_handle_read_chunk(
          int8_t *is_compressed,
          void *checksum_buffer,
          uint32_t *chunk_checksum,
-         int8_t *chunk_io_flags,
+         int8_t *read_checksum,
          libewf_error_t **error );
 
 /* Reads (media) data at the current offset into a buffer
@@ -429,7 +424,7 @@ ssize_t libewf_handle_read_buffer(
  * Returns the number of bytes read or -1 on error
  */
 LIBEWF_EXTERN \
-ssize_t libewf_handle_read_buffer_at_offset(
+ssize_t libewf_handle_read_random(
          libewf_handle_t *handle,
          void *buffer,
          size_t buffer_size,
@@ -439,9 +434,7 @@ ssize_t libewf_handle_read_buffer_at_offset(
 /* Prepares a chunk of (media) data before writing according to the handle settings
  * This function should be used before libewf_handle_write_chunk
  * The chunk_buffer_size should contain the actual chunk size
- * The function sets the is_compressed, chunk_checksum and chunk_io_flags values
- * The LIBEWF_CHUNK_IO_FLAG_CHECKSUM_SET chunk_io_flags is set if the checksum was set in checksum_buffer
- * and needs to be written separately from the chunk data, in case of an uncompressed chunk
+ * The function sets the chunk checksum, is compressed and write checksum values
  * Returns the resulting chunk size or -1 on error
  */
 LIBEWF_EXTERN \
@@ -453,7 +446,7 @@ ssize_t libewf_handle_prepare_write_chunk(
          size_t *compressed_chunk_buffer_size,
          int8_t *is_compressed,
          uint32_t *chunk_checksum,
-         int8_t *chunk_io_flags,
+         int8_t *write_checksum,
          libewf_error_t **error );
 
 /* Writes a chunk of (media) data in EWF format at the current offset
@@ -472,7 +465,7 @@ ssize_t libewf_handle_write_chunk(
          int8_t is_compressed,
          void *checksum_buffer,
          uint32_t chunk_checksum,
-         int8_t chunk_io_flags,
+         int8_t write_checksum,
          libewf_error_t **error );
 
 /* Writes (media) data at the current offset
@@ -493,7 +486,7 @@ ssize_t libewf_handle_write_buffer(
  * Returns the number of input bytes written, 0 when no longer bytes can be written or -1 on error
  */
 LIBEWF_EXTERN \
-ssize_t libewf_handle_write_buffer_at_offset(
+ssize_t libewf_handle_write_random(
          libewf_handle_t *handle,
          const void *buffer,
          size_t buffer_size,
@@ -712,14 +705,6 @@ int libewf_handle_segment_files_corrupted(
      libewf_handle_t *handle,
      libewf_error_t **error );
 
-/* Determine if the segment files are encrypted
- * Returns 1 if encrypted, 0 if not or -1 on error
- */
-LIBEWF_EXTERN \
-int libewf_handle_segment_files_encrypted(
-     libewf_handle_t *handle,
-     libewf_error_t **error );
-
 /* Retrieves the filename size of the (delta) segment file of the current chunk
  * The filename size includes the end of string character
  * Returns 1 if successful, 0 if no such filename or -1 on error
@@ -776,38 +761,8 @@ int libewf_handle_get_file_io_handle(
 #endif
 
 /* -------------------------------------------------------------------------
- * Handle functions - deprecated
+ * File/Handle functions - deprecated
  * ------------------------------------------------------------------------- */
-
-/* Reads (media) data at a specific offset
- * Returns the number of bytes read or -1 on error
- *
- * This function deprecated use libewf_handle_read_buffer_at_offset instead
- */
-LIBEWF_DEPRECATED \
-LIBEWF_EXTERN \
-ssize_t libewf_handle_read_random(
-         libewf_handle_t *handle,
-         void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libewf_error_t **error );
-
-/* Writes (media) data at a specific offset,
- * the necessary settings of the write values must have been made
- * Will initialize write if necessary
- * Returns the number of input bytes written, 0 when no longer bytes can be written or -1 on error
- *
- * This function deprecated use libewf_handle_write_buffer_at_offset instead
- */
-LIBEWF_DEPRECATED \
-LIBEWF_EXTERN \
-ssize_t libewf_handle_write_random(
-         libewf_handle_t *handle,
-         const void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libewf_error_t **error );
 
 /* Sets the maximum amount of (concurrent) open file handles
  * Returns 1 if successful or -1 on error
@@ -969,24 +924,6 @@ int libewf_handle_set_error_granularity(
      uint32_t error_granularity,
      libewf_error_t **error );
 
-/* Retrieves the compression method
- * Returns 1 if successful or -1 on error
- */
-LIBEWF_EXTERN \
-int libewf_handle_get_compression_method(
-     libewf_handle_t *handle,
-     uint16_t *compression_method,
-     libewf_error_t **error );
-
-/* Sets the compression method
- * Returns 1 if successful or -1 on error
- */
-LIBEWF_EXTERN \
-int libewf_handle_set_compression_method(
-     libewf_handle_t *handle,
-     uint16_t compression_method,
-     libewf_error_t **error );
-
 /* Retrieves the compression values
  * Returns 1 if successful or -1 on error
  */
@@ -1081,16 +1018,6 @@ int libewf_handle_set_format(
      uint8_t format,
      libewf_error_t **error );
 
-/* Retrieves the segment file version
- * Returns 1 if successful or -1 on error
- */
-LIBEWF_EXTERN \
-int libewf_handle_get_segment_file_version(
-     libewf_handle_t *handle,
-     uint8_t *major_version,
-     uint8_t *minor_version,
-     libewf_error_t **error );
-
 /* Retrieves the segment file set identifier
  * The identifier is a GUID and is 16 bytes of size
  * Returns 1 if successful or -1 on error
@@ -1129,7 +1056,7 @@ int libewf_handle_get_md5_hash(
 LIBEWF_EXTERN \
 int libewf_handle_set_md5_hash(
      libewf_handle_t *handle,
-     const uint8_t *md5_hash,
+     uint8_t *md5_hash,
      size_t size,
      libewf_error_t **error );
 
@@ -1149,7 +1076,7 @@ int libewf_handle_get_sha1_hash(
 LIBEWF_EXTERN \
 int libewf_handle_set_sha1_hash(
      libewf_handle_t *handle,
-     const uint8_t *sha1_hash,
+     uint8_t *sha1_hash,
      size_t size,
      libewf_error_t **error );
 
@@ -1226,7 +1153,7 @@ int libewf_handle_get_number_of_checksum_errors(
 LIBEWF_EXTERN \
 int libewf_handle_get_checksum_error(
      libewf_handle_t *handle,
-     uint32_t error_index,
+     uint32_t index,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
      libewf_error_t **error );
@@ -2373,26 +2300,6 @@ int libewf_file_entry_get_utf16_hash_value_md5(
      size_t utf16_string_size,
      libewf_error_t **error );
 
-/* Retrieves the UTF-8 encoded SHA1 hash value
- * Returns 1 if successful, 0 if value not present or -1 on error
- */
-LIBEWF_EXTERN \
-int libewf_file_entry_get_utf8_hash_value_sha1(
-     libewf_file_entry_t *file_entry,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     libewf_error_t **error );
-
-/* Retrieves the UTF-16 encoded SHA1 hash value
- * Returns 1 if successful, 0 if value not present or -1 on error
- */
-LIBEWF_EXTERN \
-int libewf_file_entry_get_utf16_hash_value_sha1(
-     libewf_file_entry_t *file_entry,
-     uint16_t *utf16_string,
-     size_t utf16_string_size,
-     libewf_error_t **error );
-
 /* Reads data at the current offset
  * Returns the number of bytes read or -1 on error
  */
@@ -2407,7 +2314,7 @@ ssize_t libewf_file_entry_read_buffer(
  * Returns the number of bytes read or -1 on error
  */
 LIBEWF_EXTERN \
-ssize_t libewf_file_entry_read_buffer_at_offset(
+ssize_t libewf_file_entry_read_random(
          libewf_file_entry_t *file_entry,
          void *buffer,
          size_t buffer_size,
@@ -2501,20 +2408,6 @@ int libewf_file_entry_get_sub_file_entry_by_utf16_path(
 /* -------------------------------------------------------------------------
  * Single file entry functions - deprecated
  * ------------------------------------------------------------------------- */
-
-/* Reads data at a specific offset
- * Returns the number of bytes read or -1 on error
- *
- * This function deprecated use libewf_file_entry_read_buffer_at_offset instead
- */
-LIBEWF_DEPRECATED \
-LIBEWF_EXTERN \
-ssize_t libewf_file_entry_read_random(
-         libewf_file_entry_t *file_entry,
-         void *buffer,
-         size_t buffer_size,
-         off64_t offset,
-         libewf_error_t **error );
 
 /* Retrieves the size of the UTF-8 encoded name
  * The returned size includes the end of string character
@@ -2659,7 +2552,7 @@ LIBEWF_EXTERN ssize_t libewf_raw_read_prepare_buffer(
                        size_t *uncompressed_buffer_size,
                        int8_t is_compressed,
                        uint32_t chunk_checksum,
-                       int8_t chunk_io_flags );
+                       int8_t read_checksum );
 
 /* Reads 'raw' data from the current offset into a buffer
  * size contains the size of the buffer
@@ -2675,7 +2568,7 @@ LIBEWF_EXTERN ssize_t libewf_raw_read_buffer(
                        size_t buffer_size,
                        int8_t *is_compressed,
                        uint32_t *chunk_checksum,
-                       int8_t *chunk_io_flags );
+                       int8_t *read_checksum );
 
 /* Reads data from the current offset into a buffer
  * Returns the amount of bytes read or -1 on error
@@ -2691,7 +2584,7 @@ LIBEWF_EXTERN ssize_t libewf_read_buffer(
 /* Reads (media) data at a specific offset
  * Returns the amount of bytes read or -1 on error
  *
- * This function is deprecated use libewf_handle_read_buffer_at_offset instead
+ * This function is deprecated use libewf_handle_read_random instead
  */
 LIBEWF_DEPRECATED \
 LIBEWF_EXTERN ssize_t libewf_read_random(
@@ -2717,7 +2610,7 @@ LIBEWF_EXTERN ssize_t libewf_raw_write_prepare_buffer(
                        size_t *compressed_buffer_size,
                        int8_t *is_compressed,
                        uint32_t *chunk_checksum,
-                       int8_t *chunk_io_flags );
+                       int8_t *write_checksum );
 
 /* Writes 'raw' data in EWF format at the current offset
  * the necessary settings of the write values must have been made
@@ -2736,7 +2629,7 @@ LIBEWF_EXTERN ssize_t libewf_raw_write_buffer(
                        size_t data_size,
                        int8_t is_compressed,
                        uint32_t chunk_checksum,
-                       int8_t chunk_io_flags );
+                       int8_t write_checksum );
 
 /* Writes data in EWF format at the current offset
  * the necessary settings of the write values must have been made
@@ -2756,7 +2649,7 @@ LIBEWF_EXTERN ssize_t libewf_write_buffer(
  * Will initialize write if necessary
  * Returns the amount of input bytes written, 0 when no longer bytes can be written or -1 on error
  *
- * This function is deprecated use libewf_handle_write_buffer_at_offset instead
+ * This function is deprecated use libewf_handle_write_random instead
  */
 LIBEWF_DEPRECATED \
 LIBEWF_EXTERN ssize_t libewf_write_random(

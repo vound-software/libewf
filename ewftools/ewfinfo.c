@@ -5,41 +5,54 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
-#if defined( HAVE_STDLIB_H ) || defined( WINAPI )
-#include <stdlib.h>
-#endif
+#include <stdio.h>
 
 #if defined( HAVE_SYS_RESOURCE_H )
 #include <sys/resource.h>
 #endif
 
+#if defined( HAVE_STDLIB_H ) || defined( WINAPI )
+#include <stdlib.h>
+#endif
+
+#if defined( HAVE_IO_H ) || defined( WINAPI )
+#include <io.h>
+#endif
+
+#if defined( HAVE_GLOB_H )
+#include <glob.h>
+#endif
+
 #include "byte_size_string.h"
 #include "ewfinput.h"
-#include "ewfoutput.h"
+#include "ewftools_getopt.h"
+#include "ewftools_glob.h"
 #include "ewftools_libcerror.h"
 #include "ewftools_libclocale.h"
 #include "ewftools_libcnotify.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
 #include "ewftools_libewf.h"
+#include "ewftools_output.h"
+#include "ewftools_signal.h"
+#include "ewftools_unused.h"
 #include "guid.h"
 #include "info_handle.h"
 
@@ -83,12 +96,12 @@ void usage_fprint(
 /* Signal handler for ewfinfo
  */
 void ewfinfo_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      ewftools_signal_t signal EWFTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function   = "ewfinfo_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	EWFTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	ewfinfo_abort = 1;
 
@@ -108,8 +121,13 @@ void ewfinfo_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -119,7 +137,7 @@ void ewfinfo_signal_handler(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )
@@ -128,24 +146,24 @@ int main( int argc, char * const argv[] )
 #if defined( HAVE_GETRLIMIT )
 	struct rlimit limit_data;
 #endif
-	libcstring_system_character_t * const *source_filenames = NULL;
+	system_character_t * const *argv_filenames = NULL;
 
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
-	libcsystem_glob_t *glob                                 = NULL;
+#if !defined( HAVE_GLOB_H )
+	ewftools_glob_t *glob                                 = NULL;
 #endif
-	libcerror_error_t *error                                = NULL;
+	libcerror_error_t *error                              = NULL;
 
-	libcstring_system_character_t *option_date_format       = NULL;
-	libcstring_system_character_t *option_header_codepage   = NULL;
-	libcstring_system_character_t *option_output_format     = NULL;
-	libcstring_system_character_t *program                  = _LIBCSTRING_SYSTEM_STRING( "ewfinfo" );
+	system_character_t *option_date_format     = NULL;
+	system_character_t *option_header_codepage = NULL;
+	system_character_t *option_output_format   = NULL;
+	system_character_t *program                = _SYSTEM_STRING( "ewfinfo" );
 
-	libcstring_system_integer_t option                      = 0;
-	uint8_t verbose                                         = 0;
-	char info_option                                        = 'a';
-	int number_of_filenames                                 = 0;
-	int print_header                                        = 1;
-	int result                                              = 0;
+	system_integer_t option                    = 0;
+	uint8_t verbose                                       = 0;
+	char info_option                                      = 'a';
+	int number_of_filenames                               = 0;
+	int print_header                                      = 1;
+	int result                                            = 0;
 
 	libcnotify_stream_set(
 	 stderr,
@@ -163,36 +181,36 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_initialize(
+	if( ewftools_output_initialize(
 	     _IONBF,
 	     &error ) != 1 )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stderr,
 		 program );
 
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
-	while( ( option = libcsystem_getopt(
+	while( ( option = ewftools_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "A:d:ef:himvV" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _SYSTEM_STRING( "A:d:ef:himvV" ) ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
-			case (libcstring_system_integer_t) '?':
+			case (system_integer_t) '?':
 			default:
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
 				fprintf(
 				 stderr,
-				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM "\n",
+				 "Invalid argument: %" PRIs_SYSTEM "\n",
 				 argv[ optind - 1 ] );
 
 				usage_fprint(
@@ -200,26 +218,26 @@ int main( int argc, char * const argv[] )
 
 				goto on_error;
 
-			case (libcstring_system_integer_t) 'A':
+			case (system_integer_t) 'A':
 				option_header_codepage = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'd':
+			case (system_integer_t) 'd':
 				option_date_format = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'e':
+			case (system_integer_t) 'e':
 				if( info_option != 'a' )
 				{
-					ewfoutput_version_fprint(
+					ewftools_output_version_fprint(
 					 stderr,
 					 program );
 
 					fprintf(
 					 stderr,
-					 "Conflicting options: %" PRIc_LIBCSTRING_SYSTEM " and %c\n",
+					 "Conflicting options: %" PRIc_SYSTEM " and %c\n",
 					 option,
 					 info_option );
 
@@ -232,13 +250,13 @@ int main( int argc, char * const argv[] )
 
 				break;
 
-			case (libcstring_system_integer_t) 'f':
+			case (system_integer_t) 'f':
 				option_output_format = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'h':
-				ewfoutput_version_fprint(
+			case (system_integer_t) 'h':
+				ewftools_output_version_fprint(
 				 stdout,
 				 program );
 
@@ -247,16 +265,16 @@ int main( int argc, char * const argv[] )
 
 				return( EXIT_SUCCESS );
 
-			case (libcstring_system_integer_t) 'i':
+			case (system_integer_t) 'i':
 				if( info_option != 'a' )
 				{
-					ewfoutput_version_fprint(
+					ewftools_output_version_fprint(
 					 stderr,
 					 program );
 
 					fprintf(
 					 stderr,
-					 "Conflicting options: %" PRIc_LIBCSTRING_SYSTEM " and %c\n",
+					 "Conflicting options: %" PRIc_SYSTEM " and %c\n",
 					 option,
 					 info_option );
 
@@ -269,16 +287,16 @@ int main( int argc, char * const argv[] )
 
 				break;
 
-			case (libcstring_system_integer_t) 'm':
+			case (system_integer_t) 'm':
 				if( info_option != 'a' )
 				{
-					ewfoutput_version_fprint(
+					ewftools_output_version_fprint(
 					 stderr,
 					 program );
 
 					fprintf(
 					 stderr,
-					 "Conflicting options: %" PRIc_LIBCSTRING_SYSTEM " and %c\n",
+					 "Conflicting options: %" PRIc_SYSTEM " and %c\n",
 					 option,
 					 info_option );
 
@@ -291,17 +309,17 @@ int main( int argc, char * const argv[] )
 
 				break;
 
-			case (libcstring_system_integer_t) 'v':
+			case (system_integer_t) 'v':
 				verbose = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'V':
-				ewfoutput_version_fprint(
+			case (system_integer_t) 'V':
+				ewftools_output_version_fprint(
 				 stdout,
 				 program );
 
-				ewfoutput_copyright_fprint(
+				ewftools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
@@ -309,7 +327,7 @@ int main( int argc, char * const argv[] )
 	}
 	if( optind == argc )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stderr,
 		 program );
 
@@ -337,7 +355,7 @@ int main( int argc, char * const argv[] )
 	     &ewfinfo_info_handle,
 	     &error ) != 1 )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stderr,
 		 program );
 
@@ -356,7 +374,7 @@ int main( int argc, char * const argv[] )
 
 		if( result == -1 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -368,7 +386,7 @@ int main( int argc, char * const argv[] )
 		}
 		else if( result == 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -385,7 +403,7 @@ int main( int argc, char * const argv[] )
 		     ewfinfo_info_handle,
 		     &error ) != 1 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -398,7 +416,7 @@ int main( int argc, char * const argv[] )
 	}
 	else if( ewfinfo_info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_TEXT )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stdout,
 		 program );
 
@@ -416,7 +434,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -432,7 +450,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -454,7 +472,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -470,7 +488,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -481,14 +499,14 @@ int main( int argc, char * const argv[] )
 			 "Unsupported header codepage defaulting to: ascii.\n" );
 		}
 	}
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
-	if( libcsystem_glob_initialize(
+#if !defined( HAVE_GLOB_H )
+	if( ewftools_glob_initialize(
 	     &glob,
 	     &error ) != 1 )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -500,7 +518,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_glob_resolve(
+	if( ewftools_glob_resolve(
 	     glob,
 	     &( argv[ optind ] ),
 	     argc - optind,
@@ -508,7 +526,7 @@ int main( int argc, char * const argv[] )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -520,10 +538,20 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	source_filenames    = glob->result;
-	number_of_filenames = glob->number_of_results;
+	if( ewftools_glob_get_results(
+	     glob,
+	     &number_of_filenames,
+	     (system_character_t ***) &argv_filenames,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to retrieve glob results.\n" );
+
+		goto on_error;
+	}
 #else
-	source_filenames    = &( argv[ optind ] );
+	argv_filenames      = &( argv[ optind ] );
 	number_of_filenames = argc - optind;
 
 #endif
@@ -556,13 +584,13 @@ int main( int argc, char * const argv[] )
 		goto on_error;
 	}
 #endif
-	if( libcsystem_signal_attach(
+	if( ewftools_signal_attach(
 	     ewfinfo_signal_handler,
 	     &error ) != 1 )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -579,7 +607,7 @@ int main( int argc, char * const argv[] )
 	}
 	result = info_handle_open_input(
 	          ewfinfo_info_handle,
-	          source_filenames,
+	          argv_filenames,
 	          number_of_filenames,
 	          &error );
 
@@ -591,7 +619,7 @@ int main( int argc, char * const argv[] )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -603,14 +631,14 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
-	if( libcsystem_glob_free(
+#if !defined( HAVE_GLOB_H )
+	if( ewftools_glob_free(
 	     &glob,
 	     &error ) != 1 )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -632,7 +660,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -657,7 +685,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -678,7 +706,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -699,7 +727,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -720,7 +748,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -745,7 +773,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -767,7 +795,7 @@ int main( int argc, char * const argv[] )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -790,7 +818,7 @@ int main( int argc, char * const argv[] )
 		{
 			if( print_header != 0 )
 			{
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -810,7 +838,7 @@ on_abort:
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -822,12 +850,12 @@ on_abort:
 
 		goto on_error;
 	}
-	if( libcsystem_signal_detach(
+	if( ewftools_signal_detach(
 	     &error ) != 1 )
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -848,7 +876,7 @@ on_abort:
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -864,7 +892,7 @@ on_abort:
 	{
 		if( print_header != 0 )
 		{
-			ewfoutput_version_fprint(
+			ewftools_output_version_fprint(
 			 stderr,
 			 program );
 
@@ -872,7 +900,7 @@ on_abort:
 		}
 		fprintf(
 		 stdout,
-		 "%" PRIs_LIBCSTRING_SYSTEM ": ABORTED\n",
+		 "%" PRIs_SYSTEM ": ABORTED\n",
 		 program );
 
 		return( EXIT_FAILURE );
@@ -893,10 +921,10 @@ on_error:
 		 &ewfinfo_info_handle,
 		 NULL );
 	}
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
+#if !defined( HAVE_GLOB_H )
 	if( glob != NULL )
 	{
-		libcsystem_glob_free(
+		ewftools_glob_free(
 		 &glob,
 		 NULL );
 	}

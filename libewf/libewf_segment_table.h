@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_SEGMENT_TABLE_H )
@@ -25,13 +25,11 @@
 #include <common.h>
 #include <types.h>
 
-#include "libewf_io_handle.h"
 #include "libewf_libbfio.h"
-#include "libewf_libcstring.h"
-#include "libewf_libcstring.h"
-#include "libewf_libfcache.h"
-#include "libewf_libfdata.h"
-#include "libewf_segment_file.h"
+#include "libewf_libcdata.h"
+#include "libewf_libcerror.h"
+#include "libewf_libmfdata.h"
+#include "libewf_media_values.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -43,7 +41,7 @@ struct libewf_segment_table
 {
 	/* The basename
 	 */
-	libcstring_system_character_t *basename;
+	system_character_t *basename;
 
 	/* The basename size
 	 */
@@ -53,17 +51,9 @@ struct libewf_segment_table
 	 */
 	size64_t maximum_segment_size;
 
-	/* The segment files list
+	/* The segment files (handles) array
 	 */
-	libfdata_list_t *segment_files_list;
-
-	/* The number of segments
-	 */
-	uint32_t number_of_segments;
-
-	/* The segment files cache
-	 */
-	libfcache_cache_t *segment_files_cache;
+	libcdata_array_t *segment_files_array;
 
 	/* Flags
 	 */
@@ -72,9 +62,7 @@ struct libewf_segment_table
 
 int libewf_segment_table_initialize(
      libewf_segment_table_t **segment_table,
-     libewf_io_handle_t *io_handle,
      size64_t maximum_segment_size,
-     uint8_t is_delta,
      libcerror_error_t **error );
 
 int libewf_segment_table_free(
@@ -125,67 +113,6 @@ int libewf_segment_table_set_basename_wide(
 int libewf_segment_table_set_maximum_segment_size(
      libewf_segment_table_t *segment_table,
      size64_t maximum_segment_size,
-     libcerror_error_t **error );
-
-int libewf_segment_table_get_number_of_segments(
-     libewf_segment_table_t *segment_table,
-     uint32_t *number_of_segments,
-     libcerror_error_t **error );
-
-int libewf_segment_table_get_segment_by_index(
-     libewf_segment_table_t *segment_table,
-     uint32_t segment_number,
-     int *file_io_pool_entry,
-     size64_t *segment_file_size,
-     libcerror_error_t **error );
-
-int libewf_segment_table_get_segment_at_offset(
-     libewf_segment_table_t *segment_table,
-     off64_t offset,
-     int *file_io_pool_entry,
-     size64_t *segment_file_size,
-     libcerror_error_t **error );
-
-int libewf_segment_table_get_segment_storage_media_size_by_index(
-     libewf_segment_table_t *segment_table,
-     uint32_t segment_number,
-     size64_t *storage_media_size,
-     libcerror_error_t **error );
-
-int libewf_segment_table_set_segment_storage_media_size_by_index(
-     libewf_segment_table_t *segment_table,
-     uint32_t segment_number,
-     size64_t storage_media_size,
-     libcerror_error_t **error );
-
-int libewf_segment_table_get_segment_file_by_index(
-     libewf_segment_table_t *segment_table,
-     uint32_t segment_number,
-     libbfio_pool_t *file_io_pool,
-     libewf_segment_file_t **segment_file,
-     libcerror_error_t **error );
-
-int libewf_segment_table_get_segment_file_at_offset(
-     libewf_segment_table_t *segment_table,
-     off64_t offset,
-     libbfio_pool_t *file_io_pool,
-     uint32_t *segment_number,
-     off64_t *segment_file_data_offset,
-     libewf_segment_file_t **segment_file,
-     libcerror_error_t **error );
-
-int libewf_segment_table_set_segment_file_by_index(
-     libewf_segment_table_t *segment_table,
-     libbfio_pool_t *file_io_pool,
-     uint32_t segment_number,
-     libewf_segment_file_t *segment_file,
-     libcerror_error_t **error );
-
-int libewf_segment_table_append_segment_by_segment_file(
-     libewf_segment_table_t *segment_table,
-     libewf_segment_file_t *segment_file,
-     int file_io_pool_entry,
-     size64_t segment_file_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

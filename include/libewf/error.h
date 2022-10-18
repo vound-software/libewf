@@ -1,22 +1,22 @@
 /*
  * The error code definitions for libewf
  *
- * Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBEWF_ERROR_H )
@@ -39,7 +39,7 @@ enum LIBEWF_ERROR_DOMAINS
 	LIBEWF_ERROR_DOMAIN_INPUT			= (int) 'i',
 	LIBEWF_ERROR_DOMAIN_MEMORY			= (int) 'm',
 	LIBEWF_ERROR_DOMAIN_OUTPUT			= (int) 'o',
-	LIBEWF_ERROR_DOMAIN_RUNTIME			= (int) 'r',
+	LIBEWF_ERROR_DOMAIN_RUNTIME			= (int) 'r'
 };
 
 /* The argument error codes
@@ -208,6 +208,17 @@ enum LIBEWF_MEMORY_ERROR
 	LIBEWF_MEMORY_ERROR_SET_FAILED			= 3
 };
 
+/* The output error codes
+ */
+enum LIBEWF_OUTPUT_ERROR
+{
+	LIBEWF_OUTPUT_ERROR_GENERIC			= 0,
+
+	/* There is insuficient space to write the output
+	 */
+	LIBEWF_OUTPUT_ERROR_INSUFFICIENT_SPACE		= 1
+};
+
 /* The runtime error codes
  * to signify errors regarding runtime processing
  */
@@ -276,16 +287,5 @@ enum LIBEWF_RUNTIME_ERROR
 	LIBEWF_RUNTIME_ERROR_ABORT_REQUESTED		= 15
 };
 
-/* The output error codes
- */
-enum LIBEWF_OUTPUT_ERROR
-{
-	LIBEWF_OUTPUT_ERROR_GENERIC			= 0,
-
-	/* There is insuficient space to write the output
-	 */
-	LIBEWF_OUTPUT_ERROR_INSUFFICIENT_SPACE		= 1
-};
-
-#endif
+#endif /* !defined( _LIBEWF_ERROR_H ) */
 

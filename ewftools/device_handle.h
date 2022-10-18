@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _DEVICE_HANDLE_H )
@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "ewftools_libcerror.h"
-#include "ewftools_libcstring.h"
 #include "ewftools_libodraw.h"
 #include "ewftools_libsmdev.h"
 #include "ewftools_libsmraw.h"
@@ -78,7 +77,7 @@ struct device_handle
 {
 	/* The user input buffer
 	 */
-	libcstring_system_character_t *input_buffer;
+	system_character_t *input_buffer;
 
 	/* The device handle type
 	 */
@@ -86,7 +85,7 @@ struct device_handle
 
 	/* The TOC filename
 	 */
-	libcstring_system_character_t *toc_filename;
+	system_character_t *toc_filename;
 
 	/* The TOC filename size
 	 */
@@ -102,7 +101,7 @@ struct device_handle
 
 	/* libsmraw input handle
 	 */
-	libsmdev_handle_t *smraw_input_handle;
+	libsmraw_handle_t *smraw_input_handle;
 
 	/* The number of error retries
 	 */
@@ -112,7 +111,7 @@ struct device_handle
 	 */
 	uint8_t zero_buffer_on_error;
 
-	/* The nofication output stream
+	/* The notification output stream
 	 */
 	FILE *notify_stream;
 };
@@ -134,25 +133,25 @@ int device_handle_signal_abort(
 
 int device_handle_open_input(
      device_handle_t *device_handle,
-     libcstring_system_character_t * const * filenames,
+     system_character_t * const * filenames,
      int number_of_filenames,
      libcerror_error_t **error );
 
 int device_handle_open_smdev_input(
      device_handle_t *device_handle,
-     libcstring_system_character_t * const * filenames,
+     system_character_t * const * filenames,
      int number_of_filenames,
      libcerror_error_t **error );
 
 int device_handle_open_odraw_input(
      device_handle_t *device_handle,
-     libcstring_system_character_t * const * filenames,
+     system_character_t * const * filenames,
      int number_of_filenames,
      libcerror_error_t **error );
 
 int device_handle_open_smraw_input(
      device_handle_t *device_handle,
-     libcstring_system_character_t * const * filenames,
+     system_character_t * const * filenames,
      int number_of_filenames,
      libcerror_error_t **error );
 
@@ -174,19 +173,19 @@ off64_t device_handle_seek_offset(
 
 int device_handle_prompt_for_string(
      device_handle_t *device_handle,
-     const libcstring_system_character_t *request_string,
-     libcstring_system_character_t **internal_string,
+     const system_character_t *request_string,
+     system_character_t **internal_string,
      size_t *internal_string_size,
      libcerror_error_t **error );
 
 int device_handle_prompt_for_number_of_error_retries(
      device_handle_t *device_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error );
 
 int device_handle_prompt_for_zero_buffer_on_error(
      device_handle_t *device_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error );
 
 int device_handle_get_type(
@@ -213,7 +212,7 @@ int device_handle_get_information_value(
      device_handle_t *device_handle,
      const uint8_t *information_value_identifier,
      size_t information_value_identifier_length,
-     libcstring_system_character_t *information_value,
+     system_character_t *information_value,
      size_t information_value_size,
      libcerror_error_t **error );
 
@@ -244,14 +243,14 @@ int device_handle_get_track(
 
 int device_handle_set_string(
      device_handle_t *device_handle,
-     const libcstring_system_character_t *string,
-     libcstring_system_character_t **internal_string,
+     const system_character_t *string,
+     system_character_t **internal_string,
      size_t *internal_string_size,
      libcerror_error_t **error );
 
 int device_handle_set_number_of_error_retries(
      device_handle_t *device_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int device_handle_set_error_values(

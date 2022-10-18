@@ -2,7 +2,7 @@
 #
 # Expert Witness Compression Format (EWF) library write testing script
 #
-# Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -36,7 +36,13 @@ test_write()
 
 	mkdir ${TMP};
 
-	./${EWF_TEST_WRITE} -B ${MEDIA_SIZE} -c `echo ${COMPRESSION_LEVEL} | ${CUT} -c 1` -S ${MAXIMUM_SEGMENT_SIZE} ${TMP}/write;
+	if test "${OSTYPE}" = "msys";
+	then
+		OUTPUT_FILE="${TMP}\\write";
+	else
+		OUTPUT_FILE="${TMP}/write";
+	fi
+	./${EWF_TEST_WRITE} -B ${MEDIA_SIZE} -c `echo ${COMPRESSION_LEVEL} | ${CUT} -c 1` -S ${MAXIMUM_SEGMENT_SIZE} "${OUTPUT_FILE}";
 
 	RESULT=$?;
 
@@ -61,7 +67,13 @@ test_write_chunk()
 
 	mkdir ${TMP};
 
-	./${EWF_TEST_WRITE_CHUNK} -B ${MEDIA_SIZE} -c `echo ${COMPRESSION_LEVEL} | ${CUT} -c 1` -S ${MAXIMUM_SEGMENT_SIZE} ${TMP}/write;
+	if test "${OSTYPE}" = "msys";
+	then
+		OUTPUT_FILE="${TMP}\\write";
+	else
+		OUTPUT_FILE="${TMP}/write";
+	fi
+	./${EWF_TEST_WRITE_CHUNK} -B ${MEDIA_SIZE} -c `echo ${COMPRESSION_LEVEL} | ${CUT} -c 1` -S ${MAXIMUM_SEGMENT_SIZE} "${OUTPUT_FILE}";
 
 	RESULT=$?;
 

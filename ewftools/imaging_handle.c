@@ -5,23 +5,26 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #if defined( WINAPI )
 #include <rpcdce.h>
@@ -37,10 +40,9 @@
 #include "ewftools_libcerror.h"
 #include "ewftools_libcnotify.h"
 #include "ewftools_libcsplit.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
 #include "ewftools_libewf.h"
 #include "ewftools_libhmac.h"
+#include "ewftools_system_string.h"
 #include "guid.h"
 #include "imaging_handle.h"
 #include "platform.h"
@@ -117,7 +119,7 @@ int imaging_handle_initialize(
 
 		return( -1 );
 	}
-	( *imaging_handle )->input_buffer = libcstring_system_string_allocate(
+	( *imaging_handle )->input_buffer = system_string_allocate(
 	                                     IMAGING_HANDLE_INPUT_BUFFER_SIZE );
 
 	if( ( *imaging_handle )->input_buffer == NULL )
@@ -134,7 +136,7 @@ int imaging_handle_initialize(
 	if( memory_set(
 	     ( *imaging_handle )->input_buffer,
 	     0,
-	     sizeof( libcstring_system_character_t ) * IMAGING_HANDLE_INPUT_BUFFER_SIZE ) == NULL )
+	     sizeof( system_character_t ) * IMAGING_HANDLE_INPUT_BUFFER_SIZE ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -160,7 +162,7 @@ int imaging_handle_initialize(
 	}
 	if( calculate_md5 != 0 )
 	{
-		( *imaging_handle )->calculated_md5_hash_string = libcstring_system_string_allocate(
+		( *imaging_handle )->calculated_md5_hash_string = system_string_allocate(
 								   33 );
 
 		if( ( *imaging_handle )->calculated_md5_hash_string == NULL )
@@ -442,12 +444,12 @@ int imaging_handle_signal_abort(
  */
 int imaging_handle_open_output(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      uint8_t resume,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t **libewf_filenames = NULL;
-	libcstring_system_character_t *filenames[ 1 ]    = { NULL };
+	system_character_t **libewf_filenames = NULL;
+	system_character_t *filenames[ 1 ]    = { NULL };
 	static char *function                            = "imaging_handle_open_output";
 	size_t first_filename_length                     = 0;
 	int access_flags                                 = 0;
@@ -475,15 +477,15 @@ int imaging_handle_open_output(
 
 		return( -1 );
 	}
-	filenames[ 0 ]      = (libcstring_system_character_t *) filename;
+	filenames[ 0 ]      = (system_character_t *) filename;
 	number_of_filenames = 1;
 
 	if( resume != 0 )
 	{
-		first_filename_length = libcstring_system_string_length(
+		first_filename_length = system_string_length(
 		                         filenames[ 0 ] );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_glob_wide(
 		     filenames[ 0 ],
 		     first_filename_length,
@@ -517,7 +519,7 @@ int imaging_handle_open_output(
 		libewf_filenames = filenames;
 		access_flags     = LIBEWF_OPEN_WRITE;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libewf_handle_open_wide(
 	     imaging_handle->output_handle,
 	     libewf_filenames,
@@ -542,7 +544,7 @@ int imaging_handle_open_output(
 
 		if( libewf_filenames != filenames )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			libewf_glob_wide_free(
 			 libewf_filenames,
 			 number_of_filenames,
@@ -558,7 +560,7 @@ int imaging_handle_open_output(
 	}
 	if( libewf_filenames != filenames )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_glob_wide_free(
 		     libewf_filenames,
 		     number_of_filenames,
@@ -588,12 +590,12 @@ int imaging_handle_open_output(
  */
 int imaging_handle_open_secondary_output(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      uint8_t resume,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t **libewf_filenames = NULL;
-	libcstring_system_character_t *filenames[ 1 ]    = { NULL };
+	system_character_t **libewf_filenames = NULL;
+	system_character_t *filenames[ 1 ]    = { NULL };
 	static char *function                            = "imaging_handle_open_secondary_output";
 	size_t first_filename_length                     = 0;
 	int access_flags                                 = 0;
@@ -632,15 +634,15 @@ int imaging_handle_open_secondary_output(
 
 		return( -1 );
 	}
-	filenames[ 0 ]      = (libcstring_system_character_t *) filename;
+	filenames[ 0 ]      = (system_character_t *) filename;
 	number_of_filenames = 1;
 
 	if( resume != 0 )
 	{
-		first_filename_length = libcstring_system_string_length(
+		first_filename_length = system_string_length(
 		                         filenames[ 0 ] );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_glob_wide(
 		     filenames[ 0 ],
 		     first_filename_length,
@@ -687,7 +689,7 @@ int imaging_handle_open_secondary_output(
 
 		if( libewf_filenames != filenames )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			libewf_glob_wide_free(
 			 libewf_filenames,
 			 number_of_filenames,
@@ -701,7 +703,7 @@ int imaging_handle_open_secondary_output(
 		}
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libewf_handle_open_wide(
 	     imaging_handle->secondary_output_handle,
 	     libewf_filenames,
@@ -730,7 +732,7 @@ int imaging_handle_open_secondary_output(
 
 		if( libewf_filenames != filenames )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			libewf_glob_wide_free(
 			 libewf_filenames,
 			 number_of_filenames,
@@ -746,7 +748,7 @@ int imaging_handle_open_secondary_output(
 	}
 	if( libewf_filenames != filenames )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libewf_glob_wide_free(
 		     libewf_filenames,
 		     number_of_filenames,
@@ -899,6 +901,8 @@ ssize_t imaging_handle_prepare_read_buffer(
 	{
 		process_count = (ssize_t) storage_media_buffer->raw_buffer_data_size;
 	}
+	storage_media_buffer->process_count = process_count;
+
 	return( process_count );
 }
 
@@ -1077,6 +1081,8 @@ ssize_t imaging_handle_prepare_write_buffer(
 	{
 		process_count = storage_media_buffer->raw_buffer_data_size;
 	}
+	storage_media_buffer->process_count = process_count;
+
 	return( process_count );
 }
 
@@ -1845,8 +1851,8 @@ int imaging_handle_get_chunk_size(
  */
 int imaging_handle_prompt_for_string(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
-     libcstring_system_character_t **internal_string,
+     const system_character_t *request_string,
+     system_character_t **internal_string,
      size_t *internal_string_size,
      libcerror_error_t **error )
 {
@@ -1896,7 +1902,7 @@ int imaging_handle_prompt_for_string(
 	}
 	*internal_string_size = IMAGING_HANDLE_STRING_SIZE;
 
-	*internal_string = libcstring_system_string_allocate(
+	*internal_string = system_string_allocate(
 	                    *internal_string_size );
 
 	if( *internal_string == NULL )
@@ -1962,10 +1968,10 @@ on_error:
  */
 int imaging_handle_prompt_for_compression_method(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "imaging_handle_prompt_for_compression_method";
 	uint8_t compression_methods_amount                   = 0;
 	int result                                           = 0;
@@ -1981,14 +1987,18 @@ int imaging_handle_prompt_for_compression_method(
 
 		return( -1 );
 	}
+/* experimental version only
 	if( imaging_handle->ewf_format != LIBEWF_FORMAT_V2_ENCASE7 )
+*/
 	{
 		compression_methods_amount = 1;
 	}
+/* experimental version only
 	else
 	{
 		compression_methods_amount = EWFINPUT_COMPRESSION_METHODS_AMOUNT;
 	}
+*/
 	result = ewfinput_get_fixed_string_variable(
 	          imaging_handle->notify_stream,
 	          imaging_handle->input_buffer,
@@ -2038,10 +2048,10 @@ int imaging_handle_prompt_for_compression_method(
  */
 int imaging_handle_prompt_for_compression_level(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "imaging_handle_prompt_for_compression_level";
 	int result                                           = 0;
 
@@ -2106,10 +2116,10 @@ int imaging_handle_prompt_for_compression_level(
  */
 int imaging_handle_prompt_for_format(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "imaging_handle_prompt_for_format";
 	int result                                           = 0;
 
@@ -2173,10 +2183,10 @@ int imaging_handle_prompt_for_format(
  */
 int imaging_handle_prompt_for_media_type(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "imaging_handle_prompt_for_media_type";
 	uint8_t default_value                                = 0;
 	int result                                           = 0;
@@ -2257,10 +2267,10 @@ int imaging_handle_prompt_for_media_type(
  */
 int imaging_handle_prompt_for_media_flags(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "imaging_handle_prompt_for_media_flags";
 	uint8_t default_value                                = 0;
 	int result                                           = 0;
@@ -2334,7 +2344,7 @@ int imaging_handle_prompt_for_media_flags(
  */
 int imaging_handle_prompt_for_bytes_per_sector(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function  = "imaging_handle_prompt_for_bytes_per_sector";
@@ -2386,10 +2396,10 @@ int imaging_handle_prompt_for_bytes_per_sector(
  */
 int imaging_handle_prompt_for_sectors_per_chunk(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *fixed_string_variable = NULL;
+	system_character_t *fixed_string_variable = NULL;
 	static char *function                                = "imaging_handle_prompt_for_sectors_per_chunk";
 	int result                                           = 0;
 
@@ -2453,7 +2463,7 @@ int imaging_handle_prompt_for_sectors_per_chunk(
  */
 int imaging_handle_prompt_for_sector_error_granularity(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function  = "imaging_handle_prompt_for_sector_error_granularity";
@@ -2509,7 +2519,7 @@ int imaging_handle_prompt_for_sector_error_granularity(
  */
 int imaging_handle_prompt_for_maximum_segment_size(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function  = "imaging_handle_prompt_for_maximum_segment_size";
@@ -2529,10 +2539,7 @@ int imaging_handle_prompt_for_maximum_segment_size(
 
 		return( -1 );
 	}
-/* TODO what about linen 7 */
-	if( ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE6 )
-	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE7 )
-	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_ENCASE7 ) )
+	if( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE6 )
 	{
 		maximum_size = EWFCOMMON_MAXIMUM_SEGMENT_FILE_SIZE_64BIT;
        	}
@@ -2576,7 +2583,7 @@ int imaging_handle_prompt_for_maximum_segment_size(
  */
 int imaging_handle_prompt_for_acquiry_offset(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function        = "imaging_handle_prompt_for_acquiry_offset";
@@ -2626,7 +2633,7 @@ int imaging_handle_prompt_for_acquiry_offset(
  */
 int imaging_handle_prompt_for_acquiry_size(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *request_string,
+     const system_character_t *request_string,
      libcerror_error_t **error )
 {
 	static char *function        = "imaging_handle_prompt_for_acquiry_size";
@@ -2925,8 +2932,8 @@ int imaging_handle_get_output_values(
  */
 int imaging_handle_set_string(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
-     libcstring_system_character_t **internal_string,
+     const system_character_t *string,
+     system_character_t **internal_string,
      size_t *internal_string_size,
      libcerror_error_t **error )
 {
@@ -2985,12 +2992,12 @@ int imaging_handle_set_string(
 		*internal_string      = NULL;
 		*internal_string_size = 0;
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( string_length > 0 )
 	{
-		*internal_string = libcstring_system_string_allocate(
+		*internal_string = system_string_allocate(
 		                    string_length + 1 );
 
 		if( *internal_string == NULL )
@@ -3004,7 +3011,7 @@ int imaging_handle_set_string(
 
 			goto on_error;
 		}
-		if( libcstring_system_string_copy(
+		if( system_string_copy(
 		     *internal_string,
 		     string,
 		     string_length ) == NULL )
@@ -3042,10 +3049,10 @@ on_error:
  */
 int imaging_handle_set_compression_values(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *string_segment    = NULL;
+	system_character_t *string_segment    = NULL;
 	static char *function                            = "imaging_handle_set_compression_values";
 	size_t string_segment_size                       = 0;
 	size_t string_length                             = 0;
@@ -3053,7 +3060,7 @@ int imaging_handle_set_compression_values(
 	int result                                       = 0;
 	int segment_index                                = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	libcsplit_wide_split_string_t *string_elements   = NULL;
 #else
 	libcsplit_narrow_split_string_t *string_elements = NULL;
@@ -3070,10 +3077,10 @@ int imaging_handle_set_compression_values(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_string_split(
 	     string,
 	     string_length + 1,
@@ -3098,7 +3105,7 @@ int imaging_handle_set_compression_values(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_get_number_of_segments(
 	     string_elements,
 	     &number_of_segments,
@@ -3133,7 +3140,7 @@ int imaging_handle_set_compression_values(
 	}
 	if( number_of_segments == 2 )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcsplit_wide_split_string_get_segment_by_index(
 		     string_elements,
 		     segment_index,
@@ -3187,7 +3194,9 @@ int imaging_handle_set_compression_values(
 
 			goto on_error;
 		}
+/* experimental version only
 		if( imaging_handle->ewf_format != LIBEWF_FORMAT_V2_ENCASE7 )
+*/
 		{
 			if( imaging_handle->compression_method != LIBEWF_COMPRESSION_METHOD_DEFLATE )
 			{
@@ -3198,7 +3207,7 @@ int imaging_handle_set_compression_values(
 		}
 		segment_index++;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_get_segment_by_index(
 	     string_elements,
 	     segment_index,
@@ -3253,7 +3262,7 @@ int imaging_handle_set_compression_values(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_free(
 	     &string_elements,
 	     error ) != 1 )
@@ -3277,7 +3286,7 @@ int imaging_handle_set_compression_values(
 on_error:
 	if( string_elements != NULL )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		libcsplit_wide_split_string_free(
 		 &string_elements,
 		 NULL );
@@ -3295,7 +3304,7 @@ on_error:
  */
 int imaging_handle_set_format(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_format";
@@ -3336,7 +3345,7 @@ int imaging_handle_set_format(
  */
 int imaging_handle_set_media_type(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_media_type";
@@ -3377,7 +3386,7 @@ int imaging_handle_set_media_type(
  */
 int imaging_handle_set_media_flags(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_media_flags";
@@ -3418,7 +3427,7 @@ int imaging_handle_set_media_flags(
  */
 int imaging_handle_set_bytes_per_sector(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function  = "imaging_handle_set_bytes_per_sector";
@@ -3437,7 +3446,7 @@ int imaging_handle_set_bytes_per_sector(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	result = byte_size_string_convert(
@@ -3476,7 +3485,7 @@ int imaging_handle_set_bytes_per_sector(
  */
 int imaging_handle_set_sectors_per_chunk(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_sectors_per_chunk";
@@ -3517,7 +3526,7 @@ int imaging_handle_set_sectors_per_chunk(
  */
 int imaging_handle_set_sector_error_granularity(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function  = "imaging_handle_set_sector_error_granularity";
@@ -3536,7 +3545,7 @@ int imaging_handle_set_sector_error_granularity(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	result = byte_size_string_convert(
@@ -3575,7 +3584,7 @@ int imaging_handle_set_sector_error_granularity(
  */
 int imaging_handle_set_maximum_segment_size(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_maximum_segment_size";
@@ -3593,7 +3602,7 @@ int imaging_handle_set_maximum_segment_size(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	result = byte_size_string_convert(
@@ -3619,10 +3628,7 @@ int imaging_handle_set_maximum_segment_size(
 		{
 			result = 0;
 		}
-/* TODO what about linen 7 */
-		else if( ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE6 )
-		      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE7 )
-		      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_ENCASE7 ) )
+		else if( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE6 )
 		{
 			if( imaging_handle->maximum_segment_size >= (uint64_t) EWFCOMMON_MAXIMUM_SEGMENT_FILE_SIZE_64BIT )
 			{
@@ -3649,7 +3655,7 @@ int imaging_handle_set_maximum_segment_size(
  */
 int imaging_handle_set_acquiry_offset(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_acquiry_offset";
@@ -3678,12 +3684,12 @@ int imaging_handle_set_acquiry_offset(
 
 		return( -1 );
 	}
-	if( string[ 0 ] != (libcstring_system_character_t) '-' )
+	if( string[ 0 ] != (system_character_t) '-' )
 	{
-		string_length = libcstring_system_string_length(
+		string_length = system_string_length(
 				 string );
 
-		if( libcsystem_string_decimal_copy_to_64_bit(
+		if( ewftools_system_string_decimal_copy_to_64_bit(
 		     string,
 		     string_length + 1,
 		     &( imaging_handle->acquiry_offset ),
@@ -3708,7 +3714,7 @@ int imaging_handle_set_acquiry_offset(
  */
 int imaging_handle_set_acquiry_size(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_acquiry_size";
@@ -3737,12 +3743,12 @@ int imaging_handle_set_acquiry_size(
 
 		return( -1 );
 	}
-	if( string[ 0 ] != (libcstring_system_character_t) '-' )
+	if( string[ 0 ] != (system_character_t) '-' )
 	{
-		string_length = libcstring_system_string_length(
+		string_length = system_string_length(
 				 string );
 
-		if( libcsystem_string_decimal_copy_to_64_bit(
+		if( ewftools_system_string_decimal_copy_to_64_bit(
 		     string,
 		     string_length + 1,
 		     &( imaging_handle->acquiry_size ),
@@ -3767,7 +3773,7 @@ int imaging_handle_set_acquiry_size(
  */
 int imaging_handle_set_header_codepage(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "imaging_handle_set_header_codepage";
@@ -3808,7 +3814,7 @@ int imaging_handle_set_header_codepage(
  */
 int imaging_handle_set_process_buffer_size(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function  = "imaging_handle_set_process_buffer_size";
@@ -3827,7 +3833,7 @@ int imaging_handle_set_process_buffer_size(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	result = byte_size_string_convert(
@@ -3868,10 +3874,10 @@ int imaging_handle_set_process_buffer_size(
  */
 int imaging_handle_set_additional_digest_types(
      imaging_handle_t *imaging_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *string_segment    = NULL;
+	system_character_t *string_segment    = NULL;
 	static char *function                            = "imaging_handle_set_additional_digest_types";
 	size_t string_length                             = 0;
 	size_t string_segment_size                       = 0;
@@ -3881,7 +3887,7 @@ int imaging_handle_set_additional_digest_types(
 	int result                                       = 0;
 	int segment_index                                = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	libcsplit_wide_split_string_t *string_elements   = NULL;
 #else
 	libcsplit_narrow_split_string_t *string_elements = NULL;
@@ -3898,10 +3904,10 @@ int imaging_handle_set_additional_digest_types(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_string_split(
 	     string,
 	     string_length + 1,
@@ -3926,7 +3932,7 @@ int imaging_handle_set_additional_digest_types(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_get_number_of_segments(
 	     string_elements,
 	     &number_of_segments,
@@ -3951,7 +3957,7 @@ int imaging_handle_set_additional_digest_types(
 	     segment_index < number_of_segments;
 	     segment_index++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcsplit_wide_split_string_get_segment_by_index(
 		     string_elements,
 		     segment_index,
@@ -3991,16 +3997,16 @@ int imaging_handle_set_additional_digest_types(
 		}
 		if( string_segment_size == 5 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha1" ),
+			     _SYSTEM_STRING( "sha1" ),
 			     4 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA1" ),
+			          _SYSTEM_STRING( "SHA1" ),
 			          4 ) == 0 )
 			{
 				calculate_sha1 = 1;
@@ -4008,30 +4014,30 @@ int imaging_handle_set_additional_digest_types(
 		}
 		else if( string_segment_size == 6 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha-1" ),
+			     _SYSTEM_STRING( "sha-1" ),
 			     5 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "sha_1" ),
+			          _SYSTEM_STRING( "sha_1" ),
 			          5 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA-1" ),
+			          _SYSTEM_STRING( "SHA-1" ),
 			          5 ) == 0 )
 			{
 				calculate_sha1 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA_1" ),
+			          _SYSTEM_STRING( "SHA_1" ),
 			          5 ) == 0 )
 			{
 				calculate_sha1 = 1;
@@ -4039,16 +4045,16 @@ int imaging_handle_set_additional_digest_types(
 		}
 		else if( string_segment_size == 7 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha256" ),
+			     _SYSTEM_STRING( "sha256" ),
 			     6 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA256" ),
+			          _SYSTEM_STRING( "SHA256" ),
 			          6 ) == 0 )
 			{
 				calculate_sha256 = 1;
@@ -4056,30 +4062,30 @@ int imaging_handle_set_additional_digest_types(
 		}
 		else if( string_segment_size == 8 )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     string_segment,
-			     _LIBCSTRING_SYSTEM_STRING( "sha-256" ),
+			     _SYSTEM_STRING( "sha-256" ),
 			     7 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "sha_256" ),
+			          _SYSTEM_STRING( "sha_256" ),
 			          7 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA-256" ),
+			          _SYSTEM_STRING( "SHA-256" ),
 			          7 ) == 0 )
 			{
 				calculate_sha256 = 1;
 			}
-			else if( libcstring_system_string_compare(
+			else if( system_string_compare(
 			          string_segment,
-			          _LIBCSTRING_SYSTEM_STRING( "SHA_256" ),
+			          _SYSTEM_STRING( "SHA_256" ),
 			          7 ) == 0 )
 			{
 				calculate_sha256 = 1;
@@ -4089,7 +4095,7 @@ int imaging_handle_set_additional_digest_types(
 	if( ( calculate_sha1 != 0 )
 	 && ( imaging_handle->calculate_sha1 == 0 ) )
 	{
-		imaging_handle->calculated_sha1_hash_string = libcstring_system_string_allocate(
+		imaging_handle->calculated_sha1_hash_string = system_string_allocate(
 		                                               41 );
 
 		if( imaging_handle->calculated_sha1_hash_string == NULL )
@@ -4108,7 +4114,7 @@ int imaging_handle_set_additional_digest_types(
 	if( ( calculate_sha256 != 0 )
 	 && ( imaging_handle->calculate_sha256 == 0 ) )
 	{
-		imaging_handle->calculated_sha256_hash_string = libcstring_system_string_allocate(
+		imaging_handle->calculated_sha256_hash_string = system_string_allocate(
 		                                                 65 );
 
 		if( imaging_handle->calculated_sha256_hash_string == NULL )
@@ -4124,7 +4130,7 @@ int imaging_handle_set_additional_digest_types(
 		}
 		imaging_handle->calculate_sha256 = 1;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcsplit_wide_split_string_free(
 	     &string_elements,
 	     error ) != 1 )
@@ -4148,7 +4154,7 @@ int imaging_handle_set_additional_digest_types(
 on_error:
 	if( string_elements != NULL )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		libcsplit_wide_split_string_free(
 		 &string_elements,
 		 NULL );
@@ -4171,13 +4177,13 @@ on_error:
  */
 int imaging_handle_set_output_values(
      imaging_handle_t *imaging_handle,
-     libcstring_system_character_t *acquiry_software,
-     libcstring_system_character_t *acquiry_software_version,
-     libcstring_system_character_t *model,
-     libcstring_system_character_t *serial_number,
+     system_character_t *acquiry_software,
+     system_character_t *acquiry_software_version,
+     system_character_t *model,
+     system_character_t *serial_number,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t acquiry_operating_system[ 32 ];
+	system_character_t acquiry_operating_system[ 32 ];
 
 #if defined( HAVE_GUID_SUPPORT ) || defined( WINAPI )
 	uint8_t guid[ GUID_SIZE ];
@@ -4505,6 +4511,7 @@ int imaging_handle_set_output_values(
 
 		return( -1 );
 	}
+/* experimental version only
 	if( libewf_handle_set_compression_method(
 	     imaging_handle->output_handle,
 	     imaging_handle->compression_method,
@@ -4519,6 +4526,7 @@ int imaging_handle_set_output_values(
 
 		return( -1 );
 	}
+*/
 	if( libewf_handle_set_compression_values(
 	     imaging_handle->output_handle,
 	     imaging_handle->compression_level,
@@ -4669,6 +4677,7 @@ int imaging_handle_set_output_values(
 
 			return( -1 );
 		}
+/* experimental version only
 		if( libewf_handle_set_compression_method(
 		     imaging_handle->secondary_output_handle,
 		     imaging_handle->compression_method,
@@ -4683,6 +4692,7 @@ int imaging_handle_set_output_values(
 
 			return( -1 );
 		}
+*/
 		if( libewf_handle_set_compression_values(
 		     imaging_handle->secondary_output_handle,
 		     imaging_handle->compression_level,
@@ -4744,9 +4754,6 @@ int imaging_handle_set_output_values(
 #if defined( HAVE_GUID_SUPPORT ) || defined( WINAPI )
 	if( ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE5 )
 	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE6 )
-	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_ENCASE7 )
-	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_LINEN7 )
-	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_ENCASE7 )
 	 || ( imaging_handle->ewf_format == LIBEWF_FORMAT_EWFX ) )
 	{
 		guid_type = GUID_TYPE_RANDOM;
@@ -4820,7 +4827,7 @@ int imaging_handle_get_header_value(
      imaging_handle_t *imaging_handle,
      const uint8_t *identifier,
      size_t identifier_size,
-     libcstring_system_character_t **header_value,
+     system_character_t **header_value,
      size_t *header_value_size,
      libcerror_error_t **error )
 {
@@ -4868,7 +4875,7 @@ int imaging_handle_get_header_value(
 		*header_value      = NULL;
 		*header_value_size = 0;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libewf_handle_get_utf16_header_value_size(
 	          imaging_handle->output_handle,
 	          identifier,
@@ -4898,7 +4905,7 @@ int imaging_handle_get_header_value(
 	if( ( result != 0 )
 	 && ( *header_value_size > 0 ) )
 	{
-		*header_value = libcstring_system_string_allocate(
+		*header_value = system_string_allocate(
 		                 *header_value_size );
 
 		if( *header_value == NULL )
@@ -4913,7 +4920,7 @@ int imaging_handle_get_header_value(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_handle_get_utf16_header_value(
 			  imaging_handle->output_handle,
 			  identifier,
@@ -4965,7 +4972,7 @@ int imaging_handle_set_header_value(
      imaging_handle_t *imaging_handle,
      const uint8_t *identifier,
      size_t identifier_length,
-     const libcstring_system_character_t *header_value,
+     const system_character_t *header_value,
      libcerror_error_t **error )
 {
 	static char *function      = "imaging_handle_set_header_value";
@@ -4994,12 +5001,12 @@ int imaging_handle_set_header_value(
 
 		return( -1 );
 	}
-	header_value_length = libcstring_system_string_length(
+	header_value_length = system_string_length(
 	                       header_value );
 
 	if( header_value_length > 0 )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_handle_set_utf16_header_value(
 			  imaging_handle->output_handle,
 			  identifier,
@@ -5030,7 +5037,7 @@ int imaging_handle_set_header_value(
 		}
 		if( imaging_handle->secondary_output_handle != NULL )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libewf_handle_set_utf16_header_value(
 				  imaging_handle->secondary_output_handle,
 				  identifier,
@@ -5071,7 +5078,7 @@ int imaging_handle_set_hash_value(
      imaging_handle_t *imaging_handle,
      char *hash_value_identifier,
      size_t hash_value_identifier_length,
-     libcstring_system_character_t *hash_value,
+     system_character_t *hash_value,
      size_t hash_value_length,
      libcerror_error_t **error )
 {
@@ -5090,7 +5097,7 @@ int imaging_handle_set_hash_value(
 
 		return( -1 );
 	}
-	if( libcsystem_string_size_to_utf8_string(
+	if( ewftools_string_size_to_utf8_string(
 	     hash_value,
 	     hash_value_length + 1,
 	     &utf8_hash_value_size,
@@ -5119,7 +5126,7 @@ int imaging_handle_set_hash_value(
 
 		goto on_error;
 	}
-	if( libcsystem_string_copy_to_utf8_string(
+	if( ewftools_string_copy_to_utf8_string(
 	     hash_value,
 	     hash_value_length + 1,
 	     utf8_hash_value,
@@ -5511,8 +5518,8 @@ int imaging_handle_print_parameters(
      uint8_t resume_acquiry,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t acquiry_size_string[ 16 ];
-	libcstring_system_character_t maximum_segment_size_string[ 16 ];
+	system_character_t acquiry_size_string[ 16 ];
+	system_character_t maximum_segment_size_string[ 16 ];
 
 	static char *function = "imaging_handle_print_parameters";
 	int result            = 0;
@@ -5552,7 +5559,7 @@ int imaging_handle_print_parameters(
 	}
 	fprintf(
 	 imaging_handle->notify_stream,
-	 "Image path and filename:\t\t%" PRIs_LIBCSTRING_SYSTEM "",
+	 "Image path and filename:\t\t%" PRIs_SYSTEM "",
 	 imaging_handle->target_filename );
 
 	if( resume_acquiry == 0 )
@@ -5570,26 +5577,6 @@ int imaging_handle_print_parameters(
 			 imaging_handle->notify_stream,
 			 ".e01" );
 		}
-		else if( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_ENCASE7 )
-		{
-			fprintf(
-			 imaging_handle->notify_stream,
-			 ".Ex01" );
-		}
-		else if( ( imaging_handle->ewf_format == LIBEWF_FORMAT_LOGICAL_ENCASE5 )
-		      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_LOGICAL_ENCASE6 )
-		      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_LOGICAL_ENCASE7 ) )
-		{
-			fprintf(
-			 imaging_handle->notify_stream,
-			 ".L01" );
-		}
-		else if( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_LOGICAL_ENCASE7 )
-		{
-			fprintf(
-			 imaging_handle->notify_stream,
-			 ".Lx01" );
-		}
 		else
 		{
 			fprintf(
@@ -5605,7 +5592,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "Secondary copy:\t\t\t\t%" PRIs_LIBCSTRING_SYSTEM "",
+		 "Secondary copy:\t\t\t\t%" PRIs_SYSTEM "",
 		 imaging_handle->secondary_target_filename );
 
 		if( resume_acquiry == 0 )
@@ -5614,40 +5601,20 @@ int imaging_handle_print_parameters(
 			{
 				fprintf(
 				 imaging_handle->notify_stream,
-				 ".s01" );
+				 "s01" );
 			}
 			else if( ( imaging_handle->ewf_format == LIBEWF_FORMAT_EWF )
 			      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_EWFX ) )
 			{
 				fprintf(
 				 imaging_handle->notify_stream,
-				 ".e01" );
-			}
-			else if( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_ENCASE7 )
-			{
-				fprintf(
-				 imaging_handle->notify_stream,
-				 ".Ex01" );
-			}
-			else if( ( imaging_handle->ewf_format == LIBEWF_FORMAT_LOGICAL_ENCASE5 )
-			      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_LOGICAL_ENCASE6 )
-			      || ( imaging_handle->ewf_format == LIBEWF_FORMAT_LOGICAL_ENCASE7 ) )
-			{
-				fprintf(
-				 imaging_handle->notify_stream,
-				 ".L01" );
-			}
-			else if( imaging_handle->ewf_format == LIBEWF_FORMAT_V2_LOGICAL_ENCASE7 )
-			{
-				fprintf(
-				 imaging_handle->notify_stream,
-				 ".Lx01" );
+				 "e01" );
 			}
 			else
 			{
 				fprintf(
 				 imaging_handle->notify_stream,
-				 ".E01" );
+				 "E01" );
 			}
 		}
 		fprintf(
@@ -5662,7 +5629,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "%" PRIs_LIBCSTRING_SYSTEM "",
+		 "%" PRIs_SYSTEM "",
 		 imaging_handle->case_number );
 	}
 	fprintf(
@@ -5677,7 +5644,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "%" PRIs_LIBCSTRING_SYSTEM "",
+		 "%" PRIs_SYSTEM "",
 		 imaging_handle->description );
 	}
 	fprintf(
@@ -5692,7 +5659,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "%" PRIs_LIBCSTRING_SYSTEM "",
+		 "%" PRIs_SYSTEM "",
 		 imaging_handle->evidence_number );
 	}
 	fprintf(
@@ -5707,7 +5674,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "%" PRIs_LIBCSTRING_SYSTEM "",
+		 "%" PRIs_SYSTEM "",
 		 imaging_handle->examiner_name );
 	}
 	fprintf(
@@ -5722,7 +5689,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "%" PRIs_LIBCSTRING_SYSTEM "",
+		 "%" PRIs_SYSTEM "",
 		 imaging_handle->notes );
 	}
 	fprintf(
@@ -5829,11 +5796,13 @@ int imaging_handle_print_parameters(
 			 "EnCase 6 (.E01)" );
 			break;
 
+/* experimental version only
 		case LIBEWF_FORMAT_ENCASE7:
 			fprintf(
 			 imaging_handle->notify_stream,
 			 "EnCase 7 (.E01)" );
 			break;
+*/
 
 		case LIBEWF_FORMAT_SMART:
 			fprintf(
@@ -5859,6 +5828,7 @@ int imaging_handle_print_parameters(
 			 "linen 6 (.E01)" );
 			break;
 
+/* experimental version only
 		case LIBEWF_FORMAT_LINEN7:
 			fprintf(
 			 imaging_handle->notify_stream,
@@ -5870,6 +5840,7 @@ int imaging_handle_print_parameters(
 			 imaging_handle->notify_stream,
 			 "EnCase 7 (.Ex01)" );
 			break;
+*/
 
 		case LIBEWF_FORMAT_EWFX:
 			fprintf(
@@ -5885,18 +5856,22 @@ int imaging_handle_print_parameters(
 	 imaging_handle->notify_stream,
 	 "Compression method:\t\t\t" );
 
+/* experimental version only
 	if( imaging_handle->compression_method == LIBEWF_COMPRESSION_METHOD_DEFLATE )
+*/
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
 		 "deflate" );
 	}
+/* experimental version only
 	else if( imaging_handle->compression_method == LIBEWF_COMPRESSION_METHOD_BZIP2 )
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
 		 "bzip2" );
 	}
+*/
 	fprintf(
 	 imaging_handle->notify_stream,
 	 "\n" );
@@ -5972,7 +5947,7 @@ int imaging_handle_print_parameters(
 		{
 			fprintf(
 			 imaging_handle->notify_stream,
-			 "%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)",
+			 "%" PRIs_SYSTEM " (%" PRIu64 " bytes)",
 			 acquiry_size_string,
 			 imaging_handle->acquiry_size );
 		}
@@ -6003,7 +5978,7 @@ int imaging_handle_print_parameters(
 	{
 		fprintf(
 		 imaging_handle->notify_stream,
-		 "%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)",
+		 "%" PRIs_SYSTEM " (%" PRIu64 " bytes)",
 		 maximum_segment_size_string,
 		 imaging_handle->maximum_segment_size );
 	}
@@ -6101,21 +6076,21 @@ int imaging_handle_print_hashes(
 	{
 		fprintf(
 		 stream,
-		 "MD5 hash calculated over data:\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "MD5 hash calculated over data:\t\t%" PRIs_SYSTEM "\n",
 		 imaging_handle->calculated_md5_hash_string );
 	}
 	if( imaging_handle->calculate_sha1 != 0 )
 	{
 		fprintf(
 		 stream,
-		 "SHA1 hash calculated over data:\t\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "SHA1 hash calculated over data:\t\t%" PRIs_SYSTEM "\n",
 		 imaging_handle->calculated_sha1_hash_string );
 	}
 	if( imaging_handle->calculate_sha256 != 0 )
 	{
 		fprintf(
 		 stream,
-		 "SHA256 hash calculated over data:\t%" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "SHA256 hash calculated over data:\t%" PRIs_SYSTEM "\n",
 		 imaging_handle->calculated_sha256_hash_string );
 	}
 	return( 1 );

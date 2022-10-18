@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="ewf.net"
-	ProjectGUID="{C50DB8AE-DF73-4F32-8F2C-E58E64426535}"
+	ProjectGUID="{21BAC443-67A7-426B-891B-050C8F2C54CE}"
 	RootNamespace="ewf.net"
 	TargetFrameworkVersion="131072"
 	>

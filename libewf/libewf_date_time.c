@@ -5,23 +5,25 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
 #include <types.h>
+
+#include "libewf_libcerror.h"
 
 #if defined( TIME_WITH_SYS_TIME )
 #include <sys/time.h>
@@ -33,7 +35,6 @@
 #endif
 
 #include "libewf_date_time.h"
-#include "libewf_libcerror.h"
 
 /* Returns a structured representation of a time using the local timezone, or NULL on error
  */

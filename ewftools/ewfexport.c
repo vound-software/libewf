@@ -5,42 +5,59 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
-#if defined( HAVE_STDLIB_H ) || defined( WINAPI )
-#include <stdlib.h>
-#endif
+#include <stdio.h>
 
 #if defined( HAVE_SYS_RESOURCE_H )
 #include <sys/resource.h>
 #endif
 
+#if defined( HAVE_IO_H ) || defined( WINAPI )
+#include <io.h>
+#endif
+
+#if defined( HAVE_FCNTL_H ) || defined( WINAPI )
+#include <fcntl.h>
+#endif
+
+#if defined( HAVE_STDLIB_H ) || defined( WINAPI )
+#include <stdlib.h>
+#endif
+
+#if defined( HAVE_GLOB_H )
+#include <glob.h>
+#endif
+
 #include "byte_size_string.h"
 #include "ewfcommon.h"
 #include "ewfinput.h"
-#include "ewfoutput.h"
+#include "ewftools_getopt.h"
+#include "ewftools_glob.h"
 #include "ewftools_libcerror.h"
 #include "ewftools_libclocale.h"
 #include "ewftools_libcnotify.h"
-#include "ewftools_libcstring.h"
-#include "ewftools_libcsystem.h"
 #include "ewftools_libewf.h"
+#include "ewftools_output.h"
+#include "ewftools_signal.h"
+#include "ewftools_unused.h"
 #include "export_handle.h"
 #include "log_handle.h"
 #include "platform.h"
@@ -56,10 +73,10 @@ int ewfexport_abort                      = 0;
 void usage_fprint(
       FILE *stream )
 {
-	libcstring_system_character_t default_segment_file_size_string[ 16 ];
-	libcstring_system_character_t minimum_segment_file_size_string[ 16 ];
-	libcstring_system_character_t maximum_32bit_segment_file_size_string[ 16 ];
-	libcstring_system_character_t maximum_64bit_segment_file_size_string[ 16 ];
+	system_character_t default_segment_file_size_string[ 16 ];
+	system_character_t minimum_segment_file_size_string[ 16 ];
+	system_character_t maximum_32bit_segment_file_size_string[ 16 ];
+	system_character_t maximum_64bit_segment_file_size_string[ 16 ];
 
 	int result = 0;
 
@@ -144,9 +161,9 @@ void usage_fprint(
 
 	if( result == 1 )
 	{
-		fprintf( stream, "\t-S:        specify the segment file size in bytes (default is %" PRIs_LIBCSTRING_SYSTEM ")\n"
-		                 "\t           (minimum is %" PRIs_LIBCSTRING_SYSTEM ", maximum is %" PRIs_LIBCSTRING_SYSTEM " for raw, encase6\n"
-		                 "\t           and encase7 format and %" PRIs_LIBCSTRING_SYSTEM " for other formats)\n"
+		fprintf( stream, "\t-S:        specify the segment file size in bytes (default is %" PRIs_SYSTEM ")\n"
+		                 "\t           (minimum is %" PRIs_SYSTEM ", maximum is %" PRIs_SYSTEM " for raw, encase6\n"
+		                 "\t           and encase7 format and %" PRIs_SYSTEM " for other formats)\n"
 		                 "\t           (not used for files format)\n",
 		 default_segment_file_size_string,
 		 minimum_segment_file_size_string,
@@ -179,12 +196,12 @@ void usage_fprint(
 /* Signal handler for ewfexport
  */
 void ewfexport_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      ewftools_signal_t signal EWFTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function   = "ewfexport_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	EWFTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	ewfexport_abort = 1;
 
@@ -206,8 +223,13 @@ void ewfexport_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -217,7 +239,7 @@ void ewfexport_signal_handler(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )
@@ -226,34 +248,34 @@ int main( int argc, char * const argv[] )
 #if defined( HAVE_GETRLIMIT )
 	struct rlimit limit_data;
 #endif
-	libcstring_system_character_t acquiry_operating_system[ 32 ];
+	system_character_t acquiry_operating_system[ 32 ];
 
-	libcstring_system_character_t * const *source_filenames       = NULL;
+	system_character_t * const *argv_filenames         = NULL;
 
-	libcerror_error_t *error                                       = NULL;
+	libcerror_error_t *error                                      = NULL;
 
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
-	libcsystem_glob_t *glob                                        = NULL;
+#if !defined( HAVE_GLOB_H )
+	ewftools_glob_t *glob                                         = NULL;
 #endif
 
-	libcstring_system_character_t *acquiry_software_version       = NULL;
-	libcstring_system_character_t *log_filename                   = NULL;
-	libcstring_system_character_t *option_additional_digest_types = NULL;
-	libcstring_system_character_t *option_compression_values      = NULL;
-	libcstring_system_character_t *option_format                  = NULL;
-	libcstring_system_character_t *option_header_codepage         = NULL;
-	libcstring_system_character_t *option_maximum_segment_size    = NULL;
-	libcstring_system_character_t *option_offset                  = NULL;
-	libcstring_system_character_t *option_process_buffer_size     = NULL;
-	libcstring_system_character_t *option_sectors_per_chunk       = NULL;
-	libcstring_system_character_t *option_size                    = NULL;
-	libcstring_system_character_t *option_target_path             = NULL;
-	libcstring_system_character_t *program                        = _LIBCSTRING_SYSTEM_STRING( "ewfexport" );
-	libcstring_system_character_t *request_string                 = NULL;
+	system_character_t *acquiry_software_version       = NULL;
+	system_character_t *log_filename                   = NULL;
+	system_character_t *option_additional_digest_types = NULL;
+	system_character_t *option_compression_values      = NULL;
+	system_character_t *option_format                  = NULL;
+	system_character_t *option_header_codepage         = NULL;
+	system_character_t *option_maximum_segment_size    = NULL;
+	system_character_t *option_offset                  = NULL;
+	system_character_t *option_process_buffer_size     = NULL;
+	system_character_t *option_sectors_per_chunk       = NULL;
+	system_character_t *option_size                    = NULL;
+	system_character_t *option_target_path             = NULL;
+	system_character_t *program                        = _SYSTEM_STRING( "ewfexport" );
+	system_character_t *request_string                 = NULL;
 
 	log_handle_t *log_handle                                      = NULL;
 
-	libcstring_system_integer_t option                            = 0;
+	system_integer_t option                            = 0;
 	uint8_t calculate_md5                                         = 1;
 	uint8_t print_status_information                              = 1;
 	uint8_t swap_byte_pairs                                       = 0;
@@ -280,17 +302,17 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_initialize(
+	if( ewftools_output_initialize(
 	     _IONBF,
 	     &error ) != 1 )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stderr,
 		 program );
 
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -307,7 +329,7 @@ int main( int argc, char * const argv[] )
 	     _O_BINARY ) == -1 )
 #endif
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stderr,
 		 program );
 
@@ -318,22 +340,22 @@ int main( int argc, char * const argv[] )
 		goto on_error;
 	}
 #endif
-	while( ( option = libcsystem_getopt(
+	while( ( option = ewftools_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "A:b:B:c:d:f:hl:o:p:qsS:t:uvVwx" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _SYSTEM_STRING( "A:b:B:c:d:f:hl:o:p:qsS:t:uvVwx" ) ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
-			case (libcstring_system_integer_t) '?':
+			case (system_integer_t) '?':
 			default:
-				ewfoutput_version_fprint(
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
 				fprintf(
 				 stderr,
-				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+				 "Invalid argument: %" PRIs_SYSTEM ".\n",
 				 argv[ optind - 1 ] );
 
 				usage_fprint(
@@ -341,38 +363,38 @@ int main( int argc, char * const argv[] )
 
 				goto on_error;
 
-			case (libcstring_system_integer_t) 'A':
+			case (system_integer_t) 'A':
 				option_header_codepage = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'b':
+			case (system_integer_t) 'b':
 				option_sectors_per_chunk = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'B':
+			case (system_integer_t) 'B':
 				option_size = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'c':
+			case (system_integer_t) 'c':
 				option_compression_values = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'd':
+			case (system_integer_t) 'd':
 				option_additional_digest_types = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'f':
+			case (system_integer_t) 'f':
 				option_format = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'h':
-				ewfoutput_version_fprint(
+			case (system_integer_t) 'h':
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
@@ -381,67 +403,67 @@ int main( int argc, char * const argv[] )
 
 				return( EXIT_SUCCESS );
 
-			case (libcstring_system_integer_t) 'l':
+			case (system_integer_t) 'l':
 				log_filename = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'o':
+			case (system_integer_t) 'o':
 				option_offset = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'p':
+			case (system_integer_t) 'p':
 				option_process_buffer_size = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'q':
+			case (system_integer_t) 'q':
 				print_status_information = 0;
 
 				break;
 
-			case (libcstring_system_integer_t) 's':
+			case (system_integer_t) 's':
 				swap_byte_pairs = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'S':
+			case (system_integer_t) 'S':
 				option_maximum_segment_size = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 't':
+			case (system_integer_t) 't':
 				option_target_path = optarg;
 
 				break;
 
-			case (libcstring_system_integer_t) 'u':
+			case (system_integer_t) 'u':
 				interactive_mode = 0;
 
 				break;
 
-			case (libcstring_system_integer_t) 'v':
+			case (system_integer_t) 'v':
 				verbose = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'V':
-				ewfoutput_version_fprint(
+			case (system_integer_t) 'V':
+				ewftools_output_version_fprint(
 				 stderr,
 				 program );
 
-				ewfoutput_copyright_fprint(
+				ewftools_output_copyright_fprint(
 				 stderr );
 
 				return( EXIT_SUCCESS );
 
-			case (libcstring_system_integer_t) 'w':
+			case (system_integer_t) 'w':
 				zero_chunk_on_error = 1;
 
 				break;
 
-			case (libcstring_system_integer_t) 'x':
+			case (system_integer_t) 'x':
 				use_chunk_data_functions = 1;
 
 				break;
@@ -449,7 +471,7 @@ int main( int argc, char * const argv[] )
 	}
 	if( optind == argc )
 	{
-		ewfoutput_version_fprint(
+		ewftools_output_version_fprint(
 		 stderr,
 		 program );
 
@@ -462,7 +484,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	ewfoutput_version_fprint(
+	ewftools_output_version_fprint(
 	 stderr,
 	 program );
 
@@ -477,8 +499,8 @@ int main( int argc, char * const argv[] )
 	 NULL );
 #endif
 
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
-	if( libcsystem_glob_initialize(
+#if !defined( HAVE_GLOB_H )
+	if( ewftools_glob_initialize(
 	     &glob,
 	     &error ) != 1 )
 	{
@@ -488,7 +510,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_glob_resolve(
+	if( ewftools_glob_resolve(
 	     glob,
 	     &( argv[ optind ] ),
 	     argc - optind,
@@ -500,10 +522,20 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	source_filenames    = glob->result;
-	number_of_filenames = glob->number_of_results;
+	if( ewftools_glob_get_results(
+	     glob,
+	     &number_of_filenames,
+	     (system_character_t ***) &argv_filenames,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to retrieve glob results.\n" );
+
+		goto on_error;
+	}
 #else
-	source_filenames    = &( argv[ optind ] );
+	argv_filenames      = &( argv[ optind ] );
 	number_of_filenames = argc - optind;
 #endif
 
@@ -548,7 +580,7 @@ int main( int argc, char * const argv[] )
 		goto on_error;
 	}
 #endif
-	if( libcsystem_signal_attach(
+	if( ewftools_signal_attach(
 	     ewfexport_signal_handler,
 	     &error ) != 1 )
 	{
@@ -563,7 +595,7 @@ int main( int argc, char * const argv[] )
 	}
 	result = export_handle_open_input(
 	          ewfexport_export_handle,
-	          source_filenames,
+	          argv_filenames,
 	          number_of_filenames,
 	          &error );
 
@@ -579,8 +611,8 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
-	if( libcsystem_glob_free(
+#if !defined( HAVE_GLOB_H )
+	if( ewftools_glob_free(
 	     &glob,
 	     &error ) != 1 )
 	{
@@ -635,7 +667,7 @@ int main( int argc, char * const argv[] )
 		 */
 		if( export_handle_set_string(
 		     ewfexport_export_handle,
-		     _LIBCSTRING_SYSTEM_STRING( "export" ),
+		     _SYSTEM_STRING( "export" ),
 		     &( ewfexport_export_handle->target_path ),
 		     &( ewfexport_export_handle->target_path_size ),
 		     &error ) != 1 )
@@ -836,7 +868,7 @@ int main( int argc, char * const argv[] )
 	 */
 	if( interactive_mode != 0 )
 	{
-		if( libcsystem_signal_detach(
+		if( ewftools_signal_detach(
 		     &error ) != 1 )
 		{
 			fprintf(
@@ -856,7 +888,7 @@ int main( int argc, char * const argv[] )
 		{
 			result = export_handle_prompt_for_output_format(
 				  ewfexport_export_handle,
-			          _LIBCSTRING_SYSTEM_STRING( "Export to format" ),
+			          _SYSTEM_STRING( "Export to format" ),
 				  &error );
 
 			if( result == -1 )
@@ -872,15 +904,15 @@ int main( int argc, char * const argv[] )
 		{
 			if( ewfexport_export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_EWF )
 			{
-				request_string = _LIBCSTRING_SYSTEM_STRING( "Target path and filename without extension" );
+				request_string = _SYSTEM_STRING( "Target path and filename without extension" );
 			}
 			else if( ewfexport_export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_FILES )
 			{
-				request_string = _LIBCSTRING_SYSTEM_STRING( "Target path" );
+				request_string = _SYSTEM_STRING( "Target path" );
 			}
 			else if( ewfexport_export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_RAW )
 			{
-				request_string = _LIBCSTRING_SYSTEM_STRING( "Target path and filename without extension or - for stdout" );
+				request_string = _SYSTEM_STRING( "Target path and filename without extension or - for stdout" );
 			}
 		}
 		if( request_string != NULL )
@@ -917,7 +949,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = export_handle_prompt_for_compression_method(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Compression method" ),
+				          _SYSTEM_STRING( "Compression method" ),
 					  &error );
 
 				if( result == -1 )
@@ -930,7 +962,7 @@ int main( int argc, char * const argv[] )
 				}
 				result = export_handle_prompt_for_compression_level(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Compression level" ),
+				          _SYSTEM_STRING( "Compression level" ),
 					  &error );
 
 				if( result == -1 )
@@ -946,7 +978,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = export_handle_prompt_for_maximum_segment_size(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Evidence segment file size in bytes" ),
+				          _SYSTEM_STRING( "Evidence segment file size in bytes" ),
 					  &error );
 
 				if( result == -1 )
@@ -975,7 +1007,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = export_handle_prompt_for_sectors_per_chunk(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "The number of sectors to read at once" ),
+				          _SYSTEM_STRING( "The number of sectors to read at once" ),
 					  &error );
 
 				if( result == -1 )
@@ -991,7 +1023,7 @@ int main( int argc, char * const argv[] )
 		else if( ewfexport_export_handle->output_format == EXPORT_HANDLE_OUTPUT_FORMAT_RAW )
 		{
 			if( ( ewfexport_export_handle->target_path != NULL )
-			 && ( ( ewfexport_export_handle->target_path )[ 0 ] == (libcstring_system_character_t) '-' )
+			 && ( ( ewfexport_export_handle->target_path )[ 0 ] == (system_character_t) '-' )
 			 && ( ( ewfexport_export_handle->target_path )[ 1 ] == 0 ) )
 			{
 				/* No need for segment files when exporting to stdout */
@@ -1000,7 +1032,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = export_handle_prompt_for_maximum_segment_size(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Evidence segment file size in bytes (0 is unlimited)" ),
+				          _SYSTEM_STRING( "Evidence segment file size in bytes (0 is unlimited)" ),
 					  &error );
 
 				if( result == -1 )
@@ -1030,7 +1062,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = export_handle_prompt_for_export_offset(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Start export at offset" ),
+				          _SYSTEM_STRING( "Start export at offset" ),
 					  &error );
 
 				if( result == -1 )
@@ -1050,7 +1082,7 @@ int main( int argc, char * const argv[] )
 			{
 				result = export_handle_prompt_for_export_size(
 					  ewfexport_export_handle,
-				          _LIBCSTRING_SYSTEM_STRING( "Number of bytes to export" ),
+				          _SYSTEM_STRING( "Number of bytes to export" ),
 					  &error );
 
 				if( result == -1 )
@@ -1067,7 +1099,7 @@ int main( int argc, char * const argv[] )
 				}
 			}
 		}
-		if( libcsystem_signal_attach(
+		if( ewftools_signal_attach(
 		     ewfexport_signal_handler,
 		     &error ) != 1 )
 		{
@@ -1125,7 +1157,7 @@ int main( int argc, char * const argv[] )
 		{
 			fprintf(
 			 stderr,
-			 "Unable to open log file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+			 "Unable to open log file: %" PRIs_SYSTEM ".\n",
 			 log_filename );
 
 			goto on_error;
@@ -1181,7 +1213,7 @@ int main( int argc, char * const argv[] )
 
 			acquiry_operating_system[ 0 ] = 0;
 		}
-		acquiry_software_version = _LIBCSTRING_SYSTEM_STRING( LIBEWF_VERSION_STRING );
+		acquiry_software_version = _SYSTEM_STRING( LIBEWF_VERSION_STRING );
 
 		if( export_handle_set_output_values(
 		     ewfexport_export_handle,
@@ -1225,7 +1257,7 @@ int main( int argc, char * const argv[] )
 		{
 			fprintf(
 			 stderr,
-			 "Unable to close log file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+			 "Unable to close log file: %" PRIs_SYSTEM ".\n",
 			 log_filename );
 
 			goto on_error;
@@ -1252,7 +1284,7 @@ on_abort:
 
 		goto on_error;
 	}
-	if( libcsystem_signal_detach(
+	if( ewftools_signal_detach(
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -1278,7 +1310,7 @@ on_abort:
 	{
 		fprintf(
 		 stdout,
-		 "%" PRIs_LIBCSTRING_SYSTEM ": ABORTED\n",
+		 "%" PRIs_SYSTEM ": ABORTED\n",
 		 program );
 
 		return( EXIT_FAILURE );
@@ -1287,14 +1319,14 @@ on_abort:
 	{
 		fprintf(
 		 stdout,
-		 "%" PRIs_LIBCSTRING_SYSTEM ": FAILURE\n",
+		 "%" PRIs_SYSTEM ": FAILURE\n",
 		 program );
 
 		return( EXIT_FAILURE );
 	}
 	fprintf(
 	 stdout,
-	 "%" PRIs_LIBCSTRING_SYSTEM ": SUCCESS\n",
+	 "%" PRIs_SYSTEM ": SUCCESS\n",
 	 program );
 
 	return( EXIT_SUCCESS );
@@ -1325,10 +1357,10 @@ on_error:
 		 &ewfexport_export_handle,
 		 NULL );
 	}
-#if !defined( LIBCSYSTEM_HAVE_GLOB )
+#if !defined( HAVE_GLOB_H )
 	if( glob != NULL )
 	{
-		libcsystem_glob_free(
+		ewftools_glob_free(
 		 &glob,
 		 NULL );
 	}

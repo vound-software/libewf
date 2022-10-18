@@ -5,22 +5,24 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
+#include <narrow_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #if defined( HAVE_STDLIB_H )
 #include <stdlib.h>
@@ -30,11 +32,10 @@
 #include "pyewf_error.h"
 #include "pyewf_file_entries.h"
 #include "pyewf_file_entry.h"
-#include "pyewf_handle.h"
 #include "pyewf_integer.h"
 #include "pyewf_libcerror.h"
-#include "pyewf_libcstring.h"
 #include "pyewf_libewf.h"
+#include "pyewf_metadata.h"
 #include "pyewf_python.h"
 #include "pyewf_unused.h"
 
@@ -49,15 +50,8 @@ PyMethodDef pyewf_file_entry_object_methods[] = {
 	  "\n"
 	  "Reads a buffer of file entry data." },
 
-	{ "read_buffer_at_offset",
-	  (PyCFunction) pyewf_file_entry_read_buffer_at_offset,
-	  METH_VARARGS | METH_KEYWORDS,
-	  "read_buffer_at_offset(size, offset) -> String\n"
-	  "\n"
-	  "Reads a buffer of file entry data at a specific offset." },
-
 	{ "read_random",
-	  (PyCFunction) pyewf_file_entry_read_buffer_at_offset,
+	  (PyCFunction) pyewf_file_entry_read_random,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "read_random(size, offset) -> String\n"
 	  "\n"
@@ -179,13 +173,6 @@ PyMethodDef pyewf_file_entry_object_methods[] = {
 	  "\n"
 	  "Retrieves the MD5 hash of the file entry data." },
 
-	{ "get_hash_value_sha1",
-	  (PyCFunction) pyewf_file_entry_get_hash_value_sha1,
-	  METH_NOARGS,
-	  "get_hash_value_sha1() -> Unicode string or None\n"
-	  "\n"
-	  "Retrieves the SHA1 hash of the file entry data." },
-
 	/* Functions to access the sub file entries */
 
 	{ "get_number_of_sub_file_entries",
@@ -198,7 +185,7 @@ PyMethodDef pyewf_file_entry_object_methods[] = {
 	{ "get_sub_file_entry",
 	  (PyCFunction) pyewf_file_entry_get_sub_file_entry,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_sub_file_entry(sub_file_entry_index) -> Object\n"
+	  "get_sub_file_entry() -> Object\n"
 	  "\n"
 	  "Retrieves a specific sub file entry." },
 
@@ -250,22 +237,10 @@ PyGetSetDef pyewf_file_entry_object_get_set_definitions[] = {
 	  "The MD5 hash of the file entry data.",
 	  NULL },
 
-	{ "sha1_hash_value",
-	  (getter) pyewf_file_entry_get_hash_value_sha1,
-	  (setter) 0,
-	  "The SHA1 hash of the file entry data.",
-	  NULL },
-
 	{ "number_of_sub_file_entries",
 	  (getter) pyewf_file_entry_get_number_of_sub_file_entries,
 	  (setter) 0,
 	  "The number of sub file entries.",
-	  NULL },
-
-	{ "sub_file_entries",
-	  (getter) pyewf_file_entry_get_sub_file_entries,
-	  (setter) 0,
-	  "The sub file entries",
 	  NULL },
 
 	/* Sentinel */
@@ -273,10 +248,8 @@ PyGetSetDef pyewf_file_entry_object_get_set_definitions[] = {
 };
 
 PyTypeObject pyewf_file_entry_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyewf.file_entry",
 	/* tp_basicsize */
@@ -313,7 +286,7 @@ PyTypeObject pyewf_file_entry_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-	/* tp_flags */
+        /* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyewf file entry object (wraps libewf_file_entry_t)",
@@ -457,9 +430,10 @@ int pyewf_file_entry_init(
 void pyewf_file_entry_free(
       pyewf_file_entry_t *pyewf_file_entry )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pyewf_file_entry_free";
-	int result               = 0;
+	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pyewf_file_entry_free";
+	int result                  = 0;
 
 	if( pyewf_file_entry == NULL )
 	{
@@ -470,20 +444,23 @@ void pyewf_file_entry_free(
 
 		return;
 	}
-	if( pyewf_file_entry->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyewf_file_entry );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid file_entry - missing ob_type.",
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyewf_file_entry->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid file_entry - invalid ob_type - missing tp_free.",
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -516,12 +493,12 @@ void pyewf_file_entry_free(
 		libcerror_error_free(
 		 &error );
 	}
-	if( pyewf_file_entry->handle_object != NULL )
-	{
-		Py_DecRef(
-		 (PyObject *) pyewf_file_entry->handle_object );
-	}
-	pyewf_file_entry->ob_type->tp_free(
+        if( pyewf_file_entry->handle_object != NULL )
+        {
+                Py_DecRef(
+                 (PyObject *) pyewf_file_entry->handle_object );
+        }
+	ob_type->tp_free(
 	 (PyObject*) pyewf_file_entry );
 }
 
@@ -537,6 +514,7 @@ PyObject *pyewf_file_entry_read_buffer(
 	PyObject *string_object     = NULL;
 	static char *function       = "pyewf_file_entry_read_buffer";
 	static char *keyword_list[] = { "size", NULL };
+	char *buffer                = NULL;
 	ssize_t read_count          = 0;
 	int read_size               = -1;
 
@@ -587,16 +565,26 @@ PyObject *pyewf_file_entry_read_buffer(
 
 		return( NULL );
 	}
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+	                 NULL,
+	                 read_size );
+
+	buffer = PyBytes_AsString(
+	          string_object );
+#else
 	string_object = PyString_FromStringAndSize(
 	                 NULL,
 	                 read_size );
 
+	buffer = PyString_AsString(
+	          string_object );
+#endif
 	Py_BEGIN_ALLOW_THREADS
 
 	read_count = libewf_file_entry_read_buffer(
 	              pyewf_file_entry->file_entry,
-	              PyString_AsString(
-	               string_object ),
+	              buffer,
 	              (size_t) read_size,
 	              &error );
 
@@ -620,9 +608,15 @@ PyObject *pyewf_file_entry_read_buffer(
 	}
 	/* Need to resize the string here in case read_size was not fully read.
 	 */
+#if PY_MAJOR_VERSION >= 3
+	if( _PyBytes_Resize(
+	     &string_object,
+	     (Py_ssize_t) read_count ) != 0 )
+#else
 	if( _PyString_Resize(
 	     &string_object,
 	     (Py_ssize_t) read_count ) != 0 )
+#endif
 	{
 		Py_DecRef(
 		 (PyObject *) string_object );
@@ -635,15 +629,16 @@ PyObject *pyewf_file_entry_read_buffer(
 /* Reads a buffer of file entry data at a specific offset from EWF file(s)
  * Returns a Python object holding the data if successful or NULL on error
  */
-PyObject *pyewf_file_entry_read_buffer_at_offset(
+PyObject *pyewf_file_entry_read_random(
            pyewf_file_entry_t *pyewf_file_entry,
            PyObject *arguments,
            PyObject *keywords )
 {
 	libcerror_error_t *error    = NULL;
 	PyObject *string_object     = NULL;
-	static char *function       = "pyewf_file_entry_read_buffer_at_offset";
+	static char *function       = "pyewf_file_entry_read_random";
 	static char *keyword_list[] = { "size", "offset", NULL };
+	char *buffer                = NULL;
 	off64_t read_offset         = 0;
 	ssize_t read_count          = 0;
 	int read_size               = 0;
@@ -707,16 +702,26 @@ PyObject *pyewf_file_entry_read_buffer_at_offset(
 	}
 	/* Make sure the data fits into a memory buffer
 	 */
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+	                 NULL,
+	                 read_size );
+
+	buffer = PyBytes_AsString(
+	          string_object );
+#else
 	string_object = PyString_FromStringAndSize(
 	                 NULL,
 	                 read_size );
 
+	buffer = PyString_AsString(
+	          string_object );
+#endif
 	Py_BEGIN_ALLOW_THREADS
 
-	read_count = libewf_file_entry_read_buffer_at_offset(
+	read_count = libewf_file_entry_read_random(
 	              pyewf_file_entry->file_entry,
-	              PyString_AsString(
-	               string_object ),
+	              buffer,
 	              (size_t) read_size,
 	              (off64_t) read_offset,
 	              &error );
@@ -741,9 +746,15 @@ PyObject *pyewf_file_entry_read_buffer_at_offset(
 	}
 	/* Need to resize the string here in case read_size was not fully read.
 	 */
+#if PY_MAJOR_VERSION >= 3
+	if( _PyBytes_Resize(
+	     &string_object,
+	     (Py_ssize_t) read_count ) != 0 )
+#else
 	if( _PyString_Resize(
 	     &string_object,
 	     (Py_ssize_t) read_count ) != 0 )
+#endif
 	{
 		Py_DecRef(
 		 (PyObject *) string_object );
@@ -1351,13 +1362,13 @@ PyObject *pyewf_file_entry_get_name(
            pyewf_file_entry_t *pyewf_file_entry,
            PyObject *arguments PYEWF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
-	uint8_t *name            = NULL;
-	static char *function    = "pyewf_file_entry_get_name";
-	size_t name_size         = 0;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	PyObject *string_object   = NULL;
+	const char *errors        = NULL;
+	uint8_t *name             = NULL;
+	static char *function     = "pyewf_file_entry_get_name";
+	size_t name_size          = 0;
+	int result                = 0;
 
 	PYEWF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1465,13 +1476,13 @@ PyObject *pyewf_file_entry_get_hash_value_md5(
            pyewf_file_entry_t *pyewf_file_entry,
            PyObject *arguments PYEWF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
-	uint8_t *hash_value      = NULL;
-	static char *function    = "pyewf_file_entry_get_hash_value_md5";
-	size_t hash_value_size   = 33;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	PyObject *string_object   = NULL;
+	const char *errors        = NULL;
+	uint8_t *hash_value       = NULL;
+	static char *function     = "pyewf_file_entry_get_hash_value_md5";
+	size_t hash_value_size    = 33;
+	int result                = 0;
 
 	PYEWF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1542,90 +1553,6 @@ on_error:
 	return( NULL );
 }
 
-/* Retrieves the SHA1 hash
- * Returns a Python object holding the offset if successful or NULL on error
- */
-PyObject *pyewf_file_entry_get_hash_value_sha1(
-           pyewf_file_entry_t *pyewf_file_entry,
-           PyObject *arguments PYEWF_ATTRIBUTE_UNUSED )
-{
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
-	uint8_t *hash_value      = NULL;
-	static char *function    = "pyewf_file_entry_get_hash_value_sha1";
-	size_t hash_value_size   = 41;
-	int result               = 0;
-
-	PYEWF_UNREFERENCED_PARAMETER( arguments )
-
-	if( pyewf_file_entry == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid file entry.",
-		 function );
-
-		return( NULL );
-	}
-	hash_value = (uint8_t *) PyMem_Malloc(
-	                          sizeof( uint8_t ) * hash_value_size );
-
-	if( hash_value == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to create hash value.",
-		 function );
-
-		goto on_error;
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libewf_file_entry_get_utf8_hash_value_sha1(
-		  pyewf_file_entry->file_entry,
-		  hash_value,
-		  hash_value_size,
-		  &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pyewf_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve hash value SHA1.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
-			 (char *) hash_value,
-			 (Py_ssize_t) hash_value_size - 1,
-			 errors );
-
-	PyMem_Free(
-	 hash_value );
-
-	return( string_object );
-
-on_error:
-	if( hash_value != NULL )
-	{
-		PyMem_Free(
-		 hash_value );
-	}
-	return( NULL );
-}
-
 /* Retrieves the number of sub file entries
  * Returns a Python object if successful or NULL on error
  */
@@ -1634,6 +1561,7 @@ PyObject *pyewf_file_entry_get_number_of_sub_file_entries(
            PyObject *arguments PYEWF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error       = NULL;
+	PyObject *integer_object       = NULL;
 	static char *function          = "pyewf_file_entry_get_number_of_sub_file_entries";
 	int number_of_sub_file_entries = 0;
 	int result                     = 0;
@@ -1671,8 +1599,14 @@ PyObject *pyewf_file_entry_get_number_of_sub_file_entries(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_sub_file_entries ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_sub_file_entries );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_sub_file_entries );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific sub file entry by index
@@ -1764,9 +1698,9 @@ PyObject *pyewf_file_entry_get_sub_file_entry(
 	     "i",
 	     keyword_list,
 	     &sub_file_entry_index ) == 0 )
-	{
+        {
 		return( NULL );
-	}
+        }
 	file_entry_object = pyewf_file_entry_get_sub_file_entry_by_index(
 	                     pyewf_file_entry,
 	                     sub_file_entry_index );

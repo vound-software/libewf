@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _EWF_DATA_H )
@@ -108,7 +108,7 @@ struct ewf_data
 	 */
 	uint8_t smart_logs_start_sector[ 4 ];
 
-	/* Compression level
+	/* Compression level (Encase 5 or later)
 	 * consists of 1 byte
 	 * 0x00 => no compression,
 	 * 0x01 => fast/good compression
@@ -133,11 +133,10 @@ struct ewf_data
 	 */
 	uint8_t unknown5[ 4 ];
 
-	/* The segment file set identifier
-	 * Consists of 16 bytes
-	 * Contains a GUID
+	/* The GUID (Encase 5 or later)
+	 * consists of 16 bytes
 	 */
-	uint8_t set_identifier[ 16 ];
+	uint8_t guid[ 16 ];
 
 	/* Unknown
 	 * consists of 963 bytes
@@ -150,8 +149,9 @@ struct ewf_data
 	 */
 	uint8_t signature[ 5 ];
 
-	/* The section checksum of all (previous) data
+	/* The section checksum of all (previous) volume data
 	 * consists of 4 bytes (32 bits)
+	 * starts with offset 76
 	 */
 	uint8_t checksum[ 4 ];
 };

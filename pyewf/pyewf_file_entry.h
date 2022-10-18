@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _PYEWF_FILE_ENTRY_H )
@@ -69,7 +69,7 @@ PyObject *pyewf_file_entry_read_buffer(
            PyObject *arguments,
            PyObject *keywords );
 
-PyObject *pyewf_file_entry_read_buffer_at_offset(
+PyObject *pyewf_file_entry_read_random(
            pyewf_file_entry_t *pyewf_file_entry,
            PyObject *arguments,
            PyObject *keywords );
@@ -124,10 +124,6 @@ PyObject *pyewf_file_entry_get_name(
            PyObject *arguments );
 
 PyObject *pyewf_file_entry_get_hash_value_md5(
-           pyewf_file_entry_t *pyewf_file_entry,
-           PyObject *arguments );
-
-PyObject *pyewf_file_entry_get_hash_value_sha1(
            pyewf_file_entry_t *pyewf_file_entry,
            PyObject *arguments );
 

@@ -5,36 +5,35 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #include "libewf_definitions.h"
 #include "libewf_hash_values.h"
 #include "libewf_libcerror.h"
 #include "libewf_libcnotify.h"
-#include "libewf_libcstring.h"
 #include "libewf_libfvalue.h"
 #include "libewf_libuna.h"
 
 #include "ewf_definitions.h"
 
-/* Creates hash values
- * Make sure the value hash_values is referencing, is set to NULL
+/* Initializes the hash values
  * Returns 1 if successful or -1 on error
  */
 int libewf_hash_values_initialize(
@@ -503,17 +502,17 @@ int libewf_hash_values_generate_xhash(
 	}
 	xml_head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-	xml_head_length = libcstring_narrow_string_length(
+	xml_head_length = narrow_string_length(
 	                   xml_head );
 
 	xml_xhash_open_tag = "<xhash>\n";
 
-	xml_xhash_open_tag_length = libcstring_narrow_string_length(
+	xml_xhash_open_tag_length = narrow_string_length(
 	                             xml_xhash_open_tag );
 
 	xml_xhash_close_tag = "</xhash>\n\n";
 
-	xml_xhash_close_tag_length = libcstring_narrow_string_length(
+	xml_xhash_close_tag_length = narrow_string_length(
 	                              xml_xhash_close_tag );
 
 	/* Reserve space for the UTF-8 byte order mark and the XML skeleton data
@@ -618,7 +617,7 @@ int libewf_hash_values_generate_xhash(
 	( *xhash )[ xhash_index++ ] = 0xbb;
 	( *xhash )[ xhash_index++ ] = 0xbf;
 
-	if( libcstring_narrow_string_copy(
+	if( narrow_string_copy(
 	     (char *) &( ( *xhash )[ xhash_index ] ),
 	     xml_head,
 	     xml_head_length ) == NULL )
@@ -634,7 +633,7 @@ int libewf_hash_values_generate_xhash(
 	}
 	xhash_index += xml_head_length;
 
-	if( libcstring_narrow_string_copy(
+	if( narrow_string_copy(
 	     (char *) &( ( *xhash )[ xhash_index ] ),
 	     xml_xhash_open_tag,
 	     xml_xhash_open_tag_length ) == NULL )
@@ -724,7 +723,7 @@ int libewf_hash_values_generate_xhash(
 			( *xhash )[ xhash_index++ ] = (uint8_t) '\t';
 			( *xhash )[ xhash_index++ ] = (uint8_t) '<';
 
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *xhash )[ xhash_index ] ),
 			     (char *) identifier,
 			     identifier_size - 1 ) == NULL )
@@ -764,7 +763,7 @@ int libewf_hash_values_generate_xhash(
 			( *xhash )[ xhash_index - 1 ] = (uint8_t) '<';
 			( *xhash )[ xhash_index++   ] = (uint8_t) '/';
 
-			if( libcstring_narrow_string_copy(
+			if( narrow_string_copy(
 			     (char *) &( ( *xhash )[ xhash_index ] ),
 			     (char *) identifier,
 			     identifier_size - 1 ) == NULL )
@@ -785,7 +784,7 @@ int libewf_hash_values_generate_xhash(
 			( *xhash )[ xhash_index++ ] = (uint8_t) '\n';
 		}
 	}
-	if( libcstring_narrow_string_copy(
+	if( narrow_string_copy(
 	     (char *) &( ( *xhash )[ xhash_index ] ),
 	     xml_xhash_close_tag,
 	     xml_xhash_close_tag_length ) == NULL )

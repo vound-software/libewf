@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma managed( push, off )
 #include <common.h>
@@ -524,77 +524,6 @@ int Handle::ReadBuffer( array<System::Byte>^ buffer,
 	return( (int) read_count );
 }
 
-int Handle::ReadBufferAtOffset( array<System::Byte>^ buffer,
-                                int size,
-                                System::Int64 offset )
-{
-	char ewf_error_string[ EWF_NET_ERROR_STRING_SIZE ];
-
-	libewf_error_t *error        = NULL;
-	libewf_handle_t *handle      = NULL;
-	System::String^ error_string = nullptr;
-	System::String^ function     = "Handle::ReadBufferAtOffset";
-	pin_ptr<uint8_t> ewf_buffer  = nullptr;
-	off64_t ewf_offset           = 0;
-	size_t read_count            = 0;
-
-	if( size < 0 )
-	{
-		throw gcnew System::ArgumentException(
-			     "ewf.net " + function + ": invalid size" );
-	}
-	if( size == 0 )
-	{
-		return( 0 );
-	}
-	if( size > buffer->Length )
-	{
-		throw gcnew System::ArgumentException(
-			     "ewf.net " + function + ": buffer too small" );
-	}
-	Marshal::WriteIntPtr(
-	 (IntPtr) &handle,
-	 this->ewf_handle );
-
-	Marshal::WriteInt64(
-	 (IntPtr) &ewf_offset,
-	 offset );
-
-	ewf_buffer = &( buffer[ 0 ] );
-
-	read_count = libewf_handle_read_buffer_at_offset(
-	              handle,
-	              ewf_buffer,
-	              (size_t) size,
-	              ewf_offset,
-	              &error );
-
-	if( read_count == -1 )
-	{
-		error_string = gcnew System::String(
-		                      "ewf.net " + function + ": unable to read buffer at offset from ewf handle." );
-
-		if( libewf_error_backtrace_sprint(
-		     error,
-		     &( ewf_error_string[ 1 ] ),
-		     EWF_NET_ERROR_STRING_SIZE - 1 ) > 0 )
-		{
-			ewf_error_string[ 0 ] = '\n';
-
-			error_string = System::String::Concat(
-			                error_string,
-			                gcnew System::String(
-			                       ewf_error_string ) );
-		}
-		libewf_error_free(
-		 &error );
-
-		throw gcnew System::Exception(
-			     error_string );
-	}
-	return( (int) read_count );
-}
-
 int Handle::ReadRandom( array<System::Byte>^ buffer,
                         int size,
                         System::Int64 offset )
@@ -633,7 +562,7 @@ int Handle::ReadRandom( array<System::Byte>^ buffer,
 
 	ewf_buffer = &( buffer[ 0 ] );
 
-	read_count = libewf_handle_read_buffer_at_offset(
+	read_count = libewf_handle_read_random(
 	              handle,
 	              ewf_buffer,
 	              (size_t) size,
@@ -643,7 +572,7 @@ int Handle::ReadRandom( array<System::Byte>^ buffer,
 	if( read_count == -1 )
 	{
 		error_string = gcnew System::String(
-		                      "ewf.net " + function + ": unable to read buffer at offset from ewf handle." );
+		                      "ewf.net " + function + ": unable to read random from ewf handle." );
 
 		if( libewf_error_backtrace_sprint(
 		     error,
@@ -730,77 +659,6 @@ int Handle::WriteBuffer( array<System::Byte>^ buffer,
 	return( (int) write_count );
 }
 
-int Handle::WriteBufferAtOffset( array<System::Byte>^ buffer,
-                                 int size,
-                                 System::Int64 offset )
-{
-	char ewf_error_string[ EWF_NET_ERROR_STRING_SIZE ];
-
-	libewf_error_t *error             = NULL;
-	libewf_handle_t *handle           = NULL;
-	System::String^ error_string      = nullptr;
-	System::String^ function          = "Handle::WriteBufferAtOffset";
-	pin_ptr<const uint8_t> ewf_buffer = nullptr;
-	off64_t ewf_offset                = 0;
-	size_t write_count                = 0;
-
-	if( size < 0 )
-	{
-		throw gcnew System::ArgumentException(
-			     "ewf.net " + function + ": invalid size" );
-	}
-	if( size == 0 )
-	{
-		return( 0 );
-	}
-	if( size > buffer->Length )
-	{
-		throw gcnew System::ArgumentException(
-			     "ewf.net " + function + ": buffer too small" );
-	}
-	Marshal::WriteIntPtr(
-	 (IntPtr) &handle,
-	 this->ewf_handle );
-
-	Marshal::WriteInt64(
-	 (IntPtr) &ewf_offset,
-	 offset );
-
-	ewf_buffer = &( buffer[ 0 ] );
-
-	write_count = libewf_handle_write_buffer_at_offset(
-	               handle,
-	               ewf_buffer,
-	               (size_t) size,
-	               ewf_offset,
-	               &error );
-
-	if( write_count == -1 )
-	{
-		error_string = gcnew System::String(
-		                      "ewf.net " + function + ": unable to write buffer at offset to ewf handle." );
-
-		if( libewf_error_backtrace_sprint(
-		     error,
-		     &( ewf_error_string[ 1 ] ),
-		     EWF_NET_ERROR_STRING_SIZE - 1 ) > 0 )
-		{
-			ewf_error_string[ 0 ] = '\n';
-
-			error_string = System::String::Concat(
-			                error_string,
-			                gcnew System::String(
-			                       ewf_error_string ) );
-		}
-		libewf_error_free(
-		 &error );
-
-		throw gcnew System::Exception(
-			     error_string );
-	}
-	return( (int) write_count );
-}
-
 int Handle::WriteRandom( array<System::Byte>^ buffer,
                          int size,
                          System::Int64 offset )
@@ -839,7 +697,7 @@ int Handle::WriteRandom( array<System::Byte>^ buffer,
 
 	ewf_buffer = &( buffer[ 0 ] );
 
-	write_count = libewf_handle_write_buffer_at_offset(
+	write_count = libewf_handle_write_random(
 	               handle,
 	               ewf_buffer,
 	               (size_t) size,
@@ -849,7 +707,7 @@ int Handle::WriteRandom( array<System::Byte>^ buffer,
 	if( write_count == -1 )
 	{
 		error_string = gcnew System::String(
-		                      "ewf.net " + function + ": unable to write buffer at offset to ewf handle." );
+		                      "ewf.net " + function + ": unable to write random to ewf handle." );
 
 		if( libewf_error_backtrace_sprint(
 		     error,
@@ -2487,20 +2345,6 @@ System::String^ Handle::GetHeaderValueIdentifier( int index )
 		throw gcnew System::Exception(
 			     error_string );
 	}
-#if SIZEOF_SIZE_T > SIZEOF_INT
-	if( ewf_header_value_identifier_size > (size_t) INT_MAX )
-#else
-	if( ewf_header_value_identifier_size > (size_t) SSIZE_MAX )
-#endif
-	{
-		throw gcnew System::Exception(
-		             "ewf.net " + function + ": invalid header value identifier size value exceeds maximum." );
-	}
-	if( ewf_header_value_identifier_size == 0 )
-	{
-		throw gcnew System::Exception(
-		             "ewf.net " + function + ": invalid header value identifier size value out of bounds." );
-	}
 	ewf_header_value_identifier = (uint8_t *) memory_allocate(
 	                                           sizeof( uint8_t ) * ewf_header_value_identifier_size );
 
@@ -2549,7 +2393,7 @@ System::String^ Handle::GetHeaderValueIdentifier( int index )
 		header_value_identifier = gcnew System::String(
 		                                 (char *) ewf_header_value_identifier,
 		                                 0,
-		                                 (int) ( ewf_header_value_identifier_size - 1 ),
+		                                 ewf_header_value_identifier_size - 1,
 	        	                         encoding );
 	}
 	catch( System::Exception^ exception )
@@ -2857,20 +2701,6 @@ System::String^ Handle::GetHashValueIdentifier( int index )
 		throw gcnew System::Exception(
 			     error_string );
 	}
-#if SIZEOF_SIZE_T > SIZEOF_INT
-	if( ewf_hash_value_identifier_size > (size_t) INT_MAX )
-#else
-	if( ewf_hash_value_identifier_size > (size_t) SSIZE_MAX )
-#endif
-	{
-		throw gcnew System::Exception(
-		             "ewf.net " + function + ": invalid hash value identifier size value exceeds maximum." );
-	}
-	if( ewf_hash_value_identifier_size == 0 )
-	{
-		throw gcnew System::Exception(
-		             "ewf.net " + function + ": invalid hash value identifier size value out of bounds." );
-	}
 	ewf_hash_value_identifier = (uint8_t *) memory_allocate(
 	                                         sizeof( uint8_t ) * ewf_hash_value_identifier_size );
 
@@ -2919,7 +2749,7 @@ System::String^ Handle::GetHashValueIdentifier( int index )
 		hash_value_identifier = gcnew System::String(
 		                               (char *) ewf_hash_value_identifier,
 		                               0,
-		                               (int) ( ewf_hash_value_identifier_size - 1 ),
+		                               ewf_hash_value_identifier_size - 1,
 	        	                       encoding );
 	}
 	catch( System::Exception^ exception )

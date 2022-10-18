@@ -5,28 +5,26 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
 
-#include "libewf_libcerror.h"
 #include "libewf_hash_sections.h"
 
-/* Creates hash sections
- * Make sure the value hash_sections is referencing, is set to NULL
+/* Initialize the hash sections
  * Returns 1 if successful or -1 on error
  */
 int libewf_hash_sections_initialize(
@@ -98,7 +96,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees hash sections
+/* Frees the hash sections including elements
  * Returns 1 if successful or -1 on error
  */
 int libewf_hash_sections_free(

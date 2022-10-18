@@ -5,32 +5,31 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #include "libewf_libcerror.h"
-#include "libewf_libcstring.h"
 #include "libewf_libfvalue.h"
 #include "libewf_libuna.h"
 #include "libewf_single_file_entry.h"
 
-/* Creates a single file entry
- * Make sure the value single_file_entry is referencing, is set to NULL
+/* Initialize the single file entry
  * Returns 1 if successful or -1 on error
  */
 int libewf_single_file_entry_initialize(
@@ -105,7 +104,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees a single file entry
+/* Frees the single file entry including elements
  * Returns 1 if successful or -1 on error
  */
 int libewf_single_file_entry_free(
@@ -635,7 +634,7 @@ int libewf_single_file_entry_get_utf8_name(
 
 			return( -1 );
 		}
-		if( libcstring_narrow_string_copy(
+		if( narrow_string_copy(
 		     (char *) utf8_string,
 		     (char *) single_file_entry->name,
 		     single_file_entry->name_size ) == NULL )

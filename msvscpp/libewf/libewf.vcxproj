@@ -70,7 +70,7 @@
     <TargetName>$(ProjectName)-exp-x86</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(ProjectName)-exp-x64</TargetName>
+    <TargetName>$(ProjectName)-experimental-x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>

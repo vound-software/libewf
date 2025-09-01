@@ -21,16 +21,31 @@
     <ClCompile Include="..\..\libhmac\libhmac_md5.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libhmac\libhmac_md5_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\libhmac\libhmac_sha1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libhmac\libhmac_sha1_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libhmac\libhmac_sha224.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libhmac\libhmac_sha224_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\libhmac\libhmac_sha256.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libhmac\libhmac_sha256_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\libhmac\libhmac_sha512.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libhmac\libhmac_sha512_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libhmac\libhmac_support.c">
@@ -56,16 +71,31 @@
     <ClInclude Include="..\..\libhmac\libhmac_md5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libhmac\libhmac_md5_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\libhmac\libhmac_sha1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libhmac\libhmac_sha1_context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libhmac\libhmac_sha224.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libhmac\libhmac_sha224_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\libhmac\libhmac_sha256.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libhmac\libhmac_sha256_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\libhmac\libhmac_sha512.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libhmac\libhmac_sha512_context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libhmac\libhmac_support.h">

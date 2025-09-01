@@ -60,6 +60,9 @@
     <ClCompile Include="..\..\ewftools\mount_handle.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ewftools\mount_path_string.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\ewftools\platform.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,6 +153,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ewftools\mount_handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ewftools\mount_path_string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ewftools\platform.h">

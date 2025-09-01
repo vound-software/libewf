@@ -51,12 +51,6 @@
     <ClCompile Include="..\..\libfdata\libfdata_support.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\libfdata\libfdata_tree.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\libfdata\libfdata_tree_node.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\libfdata\libfdata_vector.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -114,12 +108,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libfdata\libfdata_support.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libfdata\libfdata_tree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\libfdata\libfdata_tree_node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libfdata\libfdata_types.h">

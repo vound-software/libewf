@@ -30,6 +30,9 @@
     <ClCompile Include="..\..\libewf\libewf_bit_stream.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libewf\libewf_buffer_data_handle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_case_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,6 +58,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_data_chunk.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libewf\libewf_data_stream.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_date_time.c">
@@ -126,6 +132,9 @@
     <ClCompile Include="..\..\libewf\libewf_lef_subject.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\libewf\libewf_line_reader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_ltree_section.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -148,6 +157,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_section.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libewf\libewf_section_data_handle.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_section_descriptor.c">
@@ -187,6 +199,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_table_section.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libewf\libewf_value_reader.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\libewf\libewf_value_table.c">
@@ -242,6 +257,9 @@
     <ClInclude Include="..\..\libewf\libewf_bit_stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libewf\libewf_buffer_data_handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_case_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -270,6 +288,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_data_chunk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libewf\libewf_data_stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_date_time.h">
@@ -386,6 +407,9 @@
     <ClInclude Include="..\..\libewf\libewf_libuna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\libewf\libewf_line_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_ltree_section.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -408,6 +432,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_section.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libewf\libewf_section_data_handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_section_descriptor.h">
@@ -453,6 +480,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_unused.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libewf\libewf_value_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libewf\libewf_value_table.h">

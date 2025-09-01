@@ -29,6 +29,9 @@
     <ClInclude Include="..\..\tests\ewf_test_libewf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\tests\ewf_test_libfdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\tests\ewf_test_libfvalue.h">
       <Filter>Header Files</Filter>
     </ClInclude>

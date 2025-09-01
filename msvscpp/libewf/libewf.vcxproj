@@ -1,28 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="VSDebug|Win32">
       <Configuration>VSDebug</Configuration>
       <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="VSDebug|x64">
-      <Configuration>VSDebug</Configuration>
-      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{41C2387C-9D7F-42B9-9998-3430FBC95AE7}</ProjectGuid>
     <RootNamespace>libewf</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|Win32'" Label="Configuration">
@@ -30,17 +21,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -51,26 +32,16 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>17.0.32203.90</_ProjectFileVersion>
+    <_ProjectFileVersion>17.0.35327.3</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)-exp-x86</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(ProjectName)-experimental-x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
@@ -80,33 +51,17 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\include;..\..\common;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libcsplit;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\..\zlib;..\..\..\bzip2;..\..\libhmac;..\..\libcaes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBCSPLIT;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;ZLIB_DLL;BZ_DLL;HAVE_LOCAL_LIBHMAC;HAVE_LOCAL_LIBCAES;LIBEWF_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\common;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libcsplit;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\..\zlib;..\..\..\bzip2;..\..\libhmac;..\..\libcaes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBCSPLIT;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;ZLIB_DLL;BZ_DLL;HAVE_LOCAL_LIBHMAC;HAVE_LOCAL_LIBCAES;LIBEWF_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <WarningLevel>Level4</WarningLevel>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(TargetName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <RandomizedBaseAddress>true</RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|Win32'">
@@ -131,33 +86,13 @@
       <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='VSDebug|x64'">
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\include;..\..\common;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libcsplit;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\..\zlib;..\..\..\bzip2;..\..\libhmac;..\..\libcaes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBCSPLIT;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;ZLIB_DLL;BZ_DLL;HAVE_LOCAL_LIBHMAC;HAVE_LOCAL_LIBCAES;LIBEWF_DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <SmallerTypeCheck>true</SmallerTypeCheck>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <WarningLevel>Level4</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
-    </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <DataExecutionPrevention>false</DataExecutionPrevention>
-      <ImportLibrary>$(OutDir)$(ProjectName).lib</ImportLibrary>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libewf\libewf.c" />
     <ClCompile Include="..\..\libewf\libewf_access_control_entry.c" />
     <ClCompile Include="..\..\libewf\libewf_analytical_data.c" />
     <ClCompile Include="..\..\libewf\libewf_attribute.c" />
     <ClCompile Include="..\..\libewf\libewf_bit_stream.c" />
+    <ClCompile Include="..\..\libewf\libewf_buffer_data_handle.c" />
     <ClCompile Include="..\..\libewf\libewf_case_data.c" />
     <ClCompile Include="..\..\libewf\libewf_case_data_section.c" />
     <ClCompile Include="..\..\libewf\libewf_checksum.c" />
@@ -167,6 +102,7 @@
     <ClCompile Include="..\..\libewf\libewf_chunk_table.c" />
     <ClCompile Include="..\..\libewf\libewf_compression.c" />
     <ClCompile Include="..\..\libewf\libewf_data_chunk.c" />
+    <ClCompile Include="..\..\libewf\libewf_data_stream.c" />
     <ClCompile Include="..\..\libewf\libewf_date_time.c" />
     <ClCompile Include="..\..\libewf\libewf_date_time_values.c" />
     <ClCompile Include="..\..\libewf\libewf_debug.c" />
@@ -190,6 +126,7 @@
     <ClCompile Include="..\..\libewf\libewf_lef_permission.c" />
     <ClCompile Include="..\..\libewf\libewf_lef_source.c" />
     <ClCompile Include="..\..\libewf\libewf_lef_subject.c" />
+    <ClCompile Include="..\..\libewf\libewf_line_reader.c" />
     <ClCompile Include="..\..\libewf\libewf_ltree_section.c" />
     <ClCompile Include="..\..\libewf\libewf_md5_hash_section.c" />
     <ClCompile Include="..\..\libewf\libewf_media_values.c" />
@@ -198,6 +135,7 @@
     <ClCompile Include="..\..\libewf\libewf_read_io_handle.c" />
     <ClCompile Include="..\..\libewf\libewf_restart_data.c" />
     <ClCompile Include="..\..\libewf\libewf_section.c" />
+    <ClCompile Include="..\..\libewf\libewf_section_data_handle.c" />
     <ClCompile Include="..\..\libewf\libewf_section_descriptor.c" />
     <ClCompile Include="..\..\libewf\libewf_sector_range.c" />
     <ClCompile Include="..\..\libewf\libewf_sector_range_list.c" />
@@ -211,6 +149,7 @@
     <ClCompile Include="..\..\libewf\libewf_source.c" />
     <ClCompile Include="..\..\libewf\libewf_support.c" />
     <ClCompile Include="..\..\libewf\libewf_table_section.c" />
+    <ClCompile Include="..\..\libewf\libewf_value_reader.c" />
     <ClCompile Include="..\..\libewf\libewf_value_table.c" />
     <ClCompile Include="..\..\libewf\libewf_volume_section.c" />
     <ClCompile Include="..\..\libewf\libewf_write_io_handle.c" />
@@ -230,6 +169,7 @@
     <ClInclude Include="..\..\libewf\libewf_analytical_data.h" />
     <ClInclude Include="..\..\libewf\libewf_attribute.h" />
     <ClInclude Include="..\..\libewf\libewf_bit_stream.h" />
+    <ClInclude Include="..\..\libewf\libewf_buffer_data_handle.h" />
     <ClInclude Include="..\..\libewf\libewf_case_data.h" />
     <ClInclude Include="..\..\libewf\libewf_case_data_section.h" />
     <ClInclude Include="..\..\libewf\libewf_checksum.h" />
@@ -240,6 +180,7 @@
     <ClInclude Include="..\..\libewf\libewf_codepage.h" />
     <ClInclude Include="..\..\libewf\libewf_compression.h" />
     <ClInclude Include="..\..\libewf\libewf_data_chunk.h" />
+    <ClInclude Include="..\..\libewf\libewf_data_stream.h" />
     <ClInclude Include="..\..\libewf\libewf_date_time.h" />
     <ClInclude Include="..\..\libewf\libewf_date_time_values.h" />
     <ClInclude Include="..\..\libewf\libewf_debug.h" />
@@ -278,6 +219,7 @@
     <ClInclude Include="..\..\libewf\libewf_libfvalue.h" />
     <ClInclude Include="..\..\libewf\libewf_libhmac.h" />
     <ClInclude Include="..\..\libewf\libewf_libuna.h" />
+    <ClInclude Include="..\..\libewf\libewf_line_reader.h" />
     <ClInclude Include="..\..\libewf\libewf_ltree_section.h" />
     <ClInclude Include="..\..\libewf\libewf_md5_hash_section.h" />
     <ClInclude Include="..\..\libewf\libewf_media_values.h" />
@@ -286,6 +228,7 @@
     <ClInclude Include="..\..\libewf\libewf_read_io_handle.h" />
     <ClInclude Include="..\..\libewf\libewf_restart_data.h" />
     <ClInclude Include="..\..\libewf\libewf_section.h" />
+    <ClInclude Include="..\..\libewf\libewf_section_data_handle.h" />
     <ClInclude Include="..\..\libewf\libewf_section_descriptor.h" />
     <ClInclude Include="..\..\libewf\libewf_sector_range.h" />
     <ClInclude Include="..\..\libewf\libewf_sector_range_list.h" />
@@ -301,6 +244,7 @@
     <ClInclude Include="..\..\libewf\libewf_table_section.h" />
     <ClInclude Include="..\..\libewf\libewf_types.h" />
     <ClInclude Include="..\..\libewf\libewf_unused.h" />
+    <ClInclude Include="..\..\libewf\libewf_value_reader.h" />
     <ClInclude Include="..\..\libewf\libewf_value_table.h" />
     <ClInclude Include="..\..\libewf\libewf_volume_section.h" />
     <ClInclude Include="..\..\libewf\libewf_write_io_handle.h" />

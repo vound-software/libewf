@@ -1,7 +1,7 @@
 /*
  * Header values functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,14 +25,11 @@
 #include <common.h>
 #include <types.h>
 
-#if defined( TIME_WITH_SYS_TIME )
+#if defined( HAVE_SYS_TIME_H )
 #include <sys/time.h>
-#include <time.h>
-#elif defined( HAVE_SYS_TIME_H )
-#include <sys/time.h>
-#else
-#include <time.h>
 #endif
+
+#include <time.h>
 
 #include "libewf_libcerror.h"
 #include "libewf_libfvalue.h"

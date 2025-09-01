@@ -1,7 +1,7 @@
 /*
  * Definitions for libewf
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -230,7 +230,7 @@ enum LIBEWF_FILE_ENTRY_FLAGS
 
 /* The (single) file entry name separator
  */
-#define LIBEWF_SEPARATOR					'\\'
+#define LIBEWF_SEPARATOR					'\x09'
 
 #endif /* !defined( _LIBEWF_DEFINITIONS_H ) */
 

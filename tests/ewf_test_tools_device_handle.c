@@ -1,7 +1,7 @@
 /*
  * Tools device_handle type test program
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -493,7 +493,7 @@ int ewf_test_tools_device_handle_open_input(
 {
 	device_handle_t *device_handle = NULL;
 	libcerror_error_t *error       = NULL;
-	char **filenames               = NULL;
+	system_character_t **filenames = NULL;
 	int result                     = 0;
 
 	/* Initialize test
@@ -601,7 +601,7 @@ int ewf_test_tools_device_handle_open_smdev_input(
 {
 	device_handle_t *device_handle = NULL;
 	libcerror_error_t *error       = NULL;
-	char **filenames               = NULL;
+	system_character_t **filenames = NULL;
 	int result                     = 0;
 
 	/* Initialize test
@@ -749,7 +749,7 @@ int ewf_test_tools_device_handle_open_odraw_input(
 {
 	device_handle_t *device_handle = NULL;
 	libcerror_error_t *error       = NULL;
-	char **filenames               = NULL;
+	system_character_t **filenames = NULL;
 	int result                     = 0;
 
 	/* Initialize test
@@ -897,7 +897,7 @@ int ewf_test_tools_device_handle_open_smraw_input(
 {
 	device_handle_t *device_handle = NULL;
 	libcerror_error_t *error       = NULL;
-	char **filenames               = NULL;
+	system_character_t **filenames = NULL;
 	int result                     = 0;
 
 	/* Initialize test

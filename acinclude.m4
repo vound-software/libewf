@@ -1,6 +1,6 @@
 dnl Checks for required headers and functions
 dnl
-dnl Version: 20200713
+dnl Version: 20230704
 
 dnl Function to determine the host operating system
 AC_DEFUN([AX_LIBEWF_CHECK_HOST_OPERATING_SYSTEM],
@@ -41,17 +41,23 @@ AC_DEFUN([AX_LIBEWF_CHECK_LOCAL],
 
   dnl Check for headers
   dnl Headers included in libewf/libewf_date_time.h
-  AC_HEADER_TIME
+  AC_CHECK_HEADERS([sys/time.h])
 
   dnl Check for functions
-  dnl Date and time functions used in libewf/libewf_date_time.h
-  AC_CHECK_FUNCS([localtime localtime_r mktime])
+  AC_CHECK_FUNCS([localtime localtime_r memmove mktime])
 
   AS_IF(
     [test "x$ac_cv_func_localtime" != xyes && test "x$ac_cv_func_localtime_r" != xyes],
     [AC_MSG_FAILURE(
       [Missing functions: localtime and localtime_r],
       [1])
+  ])
+
+  AS_IF(
+   [test "x$ac_cv_func_memmove" != xyes],
+   [AC_MSG_FAILURE(
+     [Missing function: memmove],
+     [1])
   ])
 
   AS_IF(
@@ -102,9 +108,7 @@ AC_DEFUN([AX_EWFTOOLS_CHECK_LOCAL],
   ])
 
   dnl Headers included in ewftools/ewfmount.c
-  AC_CHECK_HEADERS([errno.h])
-
-  AC_HEADER_TIME
+  AC_CHECK_HEADERS([errno.h sys/time.h])
 
   dnl Functions included in ewftools/mount_file_system.c and ewftools/mount_file_entry.c
   AS_IF(

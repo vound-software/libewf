@@ -5,6 +5,7 @@ MSVSCPP_FILES = \
 	ewf_test_analytical_data/ewf_test_analytical_data.vcproj \
 	ewf_test_attribute/ewf_test_attribute.vcproj \
 	ewf_test_bit_stream/ewf_test_bit_stream.vcproj \
+	ewf_test_buffer_data_handle/ewf_test_buffer_data_handle.vcproj \
 	ewf_test_case_data/ewf_test_case_data.vcproj \
 	ewf_test_case_data_section/ewf_test_case_data_section.vcproj \
 	ewf_test_checksum/ewf_test_checksum.vcproj \
@@ -37,6 +38,7 @@ MSVSCPP_FILES = \
 	ewf_test_lef_permission/ewf_test_lef_permission.vcproj \
 	ewf_test_lef_source/ewf_test_lef_source.vcproj \
 	ewf_test_lef_subject/ewf_test_lef_subject.vcproj \
+	ewf_test_line_reader/ewf_test_line_reader.vcproj \
 	ewf_test_ltree_section/ewf_test_ltree_section.vcproj \
 	ewf_test_md5_hash_section/ewf_test_md5_hash_section.vcproj \
 	ewf_test_media_values/ewf_test_media_values.vcproj \
@@ -44,6 +46,7 @@ MSVSCPP_FILES = \
 	ewf_test_permission_group/ewf_test_permission_group.vcproj \
 	ewf_test_read_io_handle/ewf_test_read_io_handle.vcproj \
 	ewf_test_restart_data/ewf_test_restart_data.vcproj \
+	ewf_test_section_data_handle/ewf_test_section_data_handle.vcproj \
 	ewf_test_section_descriptor/ewf_test_section_descriptor.vcproj \
 	ewf_test_sector_range/ewf_test_sector_range.vcproj \
 	ewf_test_sector_range_list/ewf_test_sector_range_list.vcproj \
@@ -57,6 +60,7 @@ MSVSCPP_FILES = \
 	ewf_test_source/ewf_test_source.vcproj \
 	ewf_test_support/ewf_test_support.vcproj \
 	ewf_test_table_section/ewf_test_table_section.vcproj \
+	ewf_test_tools_bodyfile/ewf_test_tools_bodyfile.vcproj \
 	ewf_test_tools_byte_size_string/ewf_test_tools_byte_size_string.vcproj \
 	ewf_test_tools_device_handle/ewf_test_tools_device_handle.vcproj \
 	ewf_test_tools_digest_hash/ewf_test_tools_digest_hash.vcproj \
@@ -65,13 +69,16 @@ MSVSCPP_FILES = \
 	ewf_test_tools_imaging_handle/ewf_test_tools_imaging_handle.vcproj \
 	ewf_test_tools_info_handle/ewf_test_tools_info_handle.vcproj \
 	ewf_test_tools_log_handle/ewf_test_tools_log_handle.vcproj \
+	ewf_test_tools_mount_path_string/ewf_test_tools_mount_path_string.vcproj \
 	ewf_test_tools_output/ewf_test_tools_output.vcproj \
+	ewf_test_tools_path_string/ewf_test_tools_path_string.vcproj \
 	ewf_test_tools_platform/ewf_test_tools_platform.vcproj \
 	ewf_test_tools_signal/ewf_test_tools_signal.vcproj \
 	ewf_test_tools_storage_media_buffer/ewf_test_tools_storage_media_buffer.vcproj \
 	ewf_test_tools_system_string/ewf_test_tools_system_string.vcproj \
 	ewf_test_tools_verification_handle/ewf_test_tools_verification_handle.vcproj \
 	ewf_test_truncate/ewf_test_truncate.vcproj \
+	ewf_test_value_reader/ewf_test_value_reader.vcproj \
 	ewf_test_value_table/ewf_test_value_table.vcproj \
 	ewf_test_volume_section/ewf_test_volume_section.vcproj \
 	ewf_test_write/ewf_test_write.vcproj \
@@ -114,9 +121,7 @@ MSVSCPP_FILES = \
 EXTRA_DIST = \
 	$(MSVSCPP_FILES)
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	/bin/rm -f Makefile
 

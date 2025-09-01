@@ -1,7 +1,7 @@
 /*
  * Info handle
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -54,6 +54,10 @@ struct info_handle
 	/* The header codepage
 	 */
 	int header_codepage;
+
+	/* The path segment separator
+	 */
+	system_character_t path_segment_separator;
 
 	/* The libewf input handle
 	 */
@@ -115,10 +119,27 @@ int info_handle_set_header_codepage(
      const system_character_t *string,
      libcerror_error_t **error );
 
+int info_handle_set_path_segment_separator(
+     info_handle_t *info_handle,
+     const system_character_t *string,
+     libcerror_error_t **error );
+
+int info_handle_name_value_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *value_string,
+     size_t value_string_length,
+     libcerror_error_t **error );
+
 int info_handle_posix_time_value_fprint(
      info_handle_t *info_handle,
      const char *value_name,
      int64_t value_64bit,
+     libcerror_error_t **error );
+
+int info_handle_bodyfile_name_value_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *value_string,
+     size_t value_string_length,
      libcerror_error_t **error );
 
 int info_handle_section_header_fprint(

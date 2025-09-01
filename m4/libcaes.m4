@@ -1,6 +1,6 @@
 dnl Checks for libcaes required headers and functions
 dnl
-dnl Version: 20220529
+dnl Version: 20240520
 
 dnl Function to detect if libcaes is available
 dnl ac_libcaes_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -10,17 +10,11 @@ AC_DEFUN([AX_LIBCAES_CHECK_LIB],
     [ac_cv_libcaes=no],
     [ac_cv_libcaes=check
     dnl Check if the directory provided as parameter exists
+    dnl For both --with-libcaes which returns "yes" and --with-libcaes= which returns ""
+    dnl treat them as auto-detection.
     AS_IF(
-      [test "x$ac_cv_with_libcaes" != x && test "x$ac_cv_with_libcaes" != xauto-detect],
-      [AS_IF(
-        [test -d "$ac_cv_with_libcaes"],
-        [CFLAGS="$CFLAGS -I${ac_cv_with_libcaes}/include"
-        LDFLAGS="$LDFLAGS -L${ac_cv_with_libcaes}/lib"],
-        [AC_MSG_FAILURE(
-          [no such directory: $ac_cv_with_libcaes],
-          [1])
-        ])
-      ],
+      [test "x$ac_cv_with_libcaes" != x && test "x$ac_cv_with_libcaes" != xauto-detect && test "x$ac_cv_with_libcaes" != xyes],
+      [AX_CHECK_LIB_DIRECTORY_EXISTS([libcaes])],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
@@ -44,79 +38,27 @@ AC_DEFUN([AX_LIBCAES_CHECK_LIB],
       AS_IF(
         [test "x$ac_cv_header_libcaes_h" = xno],
         [ac_cv_libcaes=no],
-        [dnl Check for the individual functions
-        ac_cv_libcaes=yes
+        [ac_cv_libcaes=yes
 
-        AC_CHECK_LIB(
-          caes,
-          libcaes_get_version,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-
-        dnl Context functions
-        AC_CHECK_LIB(
-          caes,
-          libcaes_context_initialize,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_context_free,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_context_set_key,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-
-        dnl Tweaked context functions
-        AC_CHECK_LIB(
-          caes,
-          libcaes_tweaked_context_initialize,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_tweaked_context_free,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_tweaked_context_set_keys,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-
-        dnl Crypt functions
-        AC_CHECK_LIB(
-          caes,
-          libcaes_crypt_cbc,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_crypt_ccm,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_crypt_ecb,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
-        AC_CHECK_LIB(
-          caes,
-          libcaes_crypt_xts,
-          [ac_cv_libcaes_dummy=yes],
-          [ac_cv_libcaes=no])
+        AX_CHECK_LIB_FUNCTIONS(
+          [libcaes],
+          [caes],
+          [[libcaes_get_version],
+           [libcaes_context_initialize],
+           [libcaes_context_free],
+           [libcaes_context_set_key],
+           [libcaes_tweaked_context_initialize],
+           [libcaes_tweaked_context_free],
+           [libcaes_tweaked_context_set_keys],
+           [libcaes_crypt_cbc],
+           [libcaes_crypt_ccm],
+           [libcaes_crypt_ecb],
+           [libcaes_crypt_xts]])
 
         ac_cv_libcaes_LIBADD="-lcaes"])
       ])
-    AS_IF(
-      [test "x$ac_cv_with_libcaes" != x && test "x$ac_cv_with_libcaes" != xauto-detect && test "x$ac_cv_libcaes" != xyes],
-      [AC_MSG_FAILURE(
-        [unable to find supported libcaes in directory: $ac_cv_with_libcaes],
-        [1])
-      ])
+
+    AX_CHECK_LIB_DIRECTORY_MSG_ON_FAILURE([libcaes])
     ])
 
   AS_IF(
@@ -169,7 +111,7 @@ AC_DEFUN([AX_LIBCAES_CHECK_LOCAL],
     [ac_cv_libcaes_aes_xts=local],
     [ac_cv_libcaes_aes_xts=$ac_cv_libcrypto_aes_xts])
 
-  ac_cv_libcaes_CPPFLAGS="-I../libcaes";
+  ac_cv_libcaes_CPPFLAGS="-I../libcaes -I\$(top_srcdir)/libcaes";
   ac_cv_libcaes_LIBADD="../libcaes/libcaes.la";
 
   ac_cv_libcaes=local

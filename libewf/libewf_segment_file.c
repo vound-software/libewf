@@ -1,7 +1,7 @@
 /*
  * Segment file reading/writing functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,14 +24,11 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( TIME_WITH_SYS_TIME )
+#if defined( HAVE_SYS_TIME_H )
 #include <sys/time.h>
-#include <time.h>
-#elif defined( HAVE_SYS_TIME_H )
-#include <sys/time.h>
-#else
-#include <time.h>
 #endif
+
+#include <time.h>
 
 #include "libewf_case_data.h"
 #include "libewf_chunk_data.h"
@@ -51,6 +48,7 @@
 #include "libewf_libfdata.h"
 #include "libewf_libfguid.h"
 #include "libewf_libfvalue.h"
+#include "libewf_libuna.h"
 #include "libewf_md5_hash_section.h"
 #include "libewf_section.h"
 #include "libewf_section_descriptor.h"
@@ -1695,7 +1693,7 @@ ssize_t libewf_segment_file_read_table2_section(
 	{
 		segment_file->flags |= LIBEWF_SEGMENT_FILE_FLAG_IS_CORRUPTED;
 
-		table_section->number_of_entries = chunk_group_number_of_entries;
+		table_section->number_of_entries = (uint32_t) chunk_group_number_of_entries;
 	}
 	else if( number_of_entries_mismatch != 0 )
 	{
@@ -1704,7 +1702,7 @@ ssize_t libewf_segment_file_read_table2_section(
 		{
 			/* If the number of entries in the table section are not 0 prefer the table section
 			 */
-			table_section->number_of_entries = chunk_group_number_of_entries;
+			table_section->number_of_entries = (uint32_t) chunk_group_number_of_entries;
 		}
 		else
 		{
@@ -2567,6 +2565,7 @@ ssize_t libewf_segment_file_write_header2_section(
 		     "Header2",
 		     header_sections->header2,
 		     header_sections->header2_size,
+		     LIBUNA_ENDIAN_LITTLE,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -4235,7 +4234,7 @@ ssize_t libewf_segment_file_write_chunk_data(
          libewf_segment_file_t *segment_file,
          libbfio_pool_t *file_io_pool,
          int file_io_pool_entry,
-         uint64_t chunk_index,
+         uint64_t chunk_index LIBEWF_ATTRIBUTE_UNUSED,
          libewf_chunk_data_t *chunk_data,
          libcerror_error_t **error )
 {
@@ -4247,6 +4246,8 @@ ssize_t libewf_segment_file_write_chunk_data(
 	uint32_t chunk_checksum   = 0;
 	int result                = 0;
 #endif
+
+	LIBEWF_UNREFERENCED_PARAMETER( chunk_index )
 
 	if( segment_file == NULL )
 	{
@@ -4403,7 +4404,8 @@ ssize_t libewf_segment_file_write_chunk_data(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	write_count = libewf_chunk_data_write(
 	               chunk_data,
 	               file_io_pool,
@@ -6538,7 +6540,7 @@ int libewf_segment_file_read_element_data(
 
 				goto on_error;
 			}
-			result = libewf_section_get_data_offset(
+			result = libewf_section_descriptor_get_data_offset(
 			          section_descriptor,
 			          segment_file->major_version,
 			          &section_data_offset,

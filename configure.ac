@@ -2,13 +2,14 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libewf],
- [20220831],
+ [20240827],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
  [include/libewf.h.in])
 
 AM_INIT_AUTOMAKE([gnu 1.6 tar-ustar])
+AM_EXTRA_RECURSIVE_TARGETS([sources splint])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -160,7 +161,7 @@ dnl Check if libewf Python bindings (pyewf) required headers and functions are a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pyewf/pyewf_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -249,8 +250,6 @@ AC_CONFIG_FILES([libhmac/Makefile])
 AC_CONFIG_FILES([libcaes/Makefile])
 AC_CONFIG_FILES([libewf/Makefile])
 AC_CONFIG_FILES([pyewf/Makefile])
-AC_CONFIG_FILES([pyewf-python2/Makefile])
-AC_CONFIG_FILES([pyewf-python3/Makefile])
 AC_CONFIG_FILES([ewf.net/Makefile])
 AC_CONFIG_FILES([libodraw/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
@@ -275,6 +274,7 @@ AC_CONFIG_FILES([libewf/libewf.rc])
 AC_CONFIG_FILES([ewf.net/ewf.net.rc])
 AC_CONFIG_FILES([libewf.pc])
 AC_CONFIG_FILES([libewf.spec])
+AC_CONFIG_FILES([setup.cfg])
 dnl Generate a source configuration file
 AC_CONFIG_HEADERS([common/config.h])
 

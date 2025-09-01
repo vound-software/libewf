@@ -3,6 +3,7 @@ name: build_shared
 on:
   push:
     branches: [main]
+permissions: read-all
 jobs:
   build_shared_ubuntu:
     runs-on: ubuntu-22.04
@@ -11,15 +12,12 @@ jobs:
         include:
         - architecture: 'x64'
           compiler: 'gcc'
-          configure_options: ''
-        - architecture: 'x64'
-          compiler: 'gcc'
           configure_options: '--enable-wide-character-type'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install build dependencies
       run: |
-        sudo apt-get -y install autoconf automake autopoint build-essential byacc flex git libfuse-dev libssl-dev libtool pkg-config zlib1g-dev
+        sudo apt-get -y install autoconf automake autopoint build-essential git libfuse3-dev libssl-dev libtool pkg-config zlib1g-dev
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi

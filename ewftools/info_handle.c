@@ -1,7 +1,7 @@
 /*
  * Info handle
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -31,15 +31,19 @@
 #include <sys/utsname.h>
 #endif
 
+#include "bodyfile.h"
 #include "byte_size_string.h"
 #include "digest_hash.h"
 #include "ewfinput.h"
 #include "ewftools_libcerror.h"
+#include "ewftools_libcpath.h"
 #include "ewftools_libcsplit.h"
 #include "ewftools_libewf.h"
 #include "ewftools_libfdatetime.h"
+#include "ewftools_libuna.h"
 #include "guid.h"
 #include "info_handle.h"
+#include "path_string.h"
 #include "platform.h"
 
 #define INFO_HANDLE_VALUE_SIZE			512
@@ -124,10 +128,11 @@ int info_handle_initialize(
 
 		goto on_error;
 	}
-	( *info_handle )->output_format   = INFO_HANDLE_OUTPUT_FORMAT_TEXT;
-	( *info_handle )->date_format     = LIBEWF_DATE_FORMAT_CTIME;
-	( *info_handle )->header_codepage = LIBEWF_CODEPAGE_ASCII;
-	( *info_handle )->notify_stream   = INFO_HANDLE_NOTIFY_STREAM;
+	( *info_handle )->output_format          = INFO_HANDLE_OUTPUT_FORMAT_TEXT;
+	( *info_handle )->date_format            = LIBEWF_DATE_FORMAT_CTIME;
+	( *info_handle )->header_codepage        = LIBEWF_CODEPAGE_ASCII;
+	( *info_handle )->path_segment_separator = '/';
+	( *info_handle )->notify_stream          = INFO_HANDLE_NOTIFY_STREAM;
 
 	return( 1 );
 
@@ -290,7 +295,7 @@ int info_handle_set_bodyfile(
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	info_handle->bodyfile_stream = file_stream_open_wide(
 	                                filename,
-	                                "wb" );
+	                                L"wb" );
 #else
 	info_handle->bodyfile_stream = file_stream_open(
 	                                filename,
@@ -776,6 +781,137 @@ int info_handle_set_header_codepage(
 	return( result );
 }
 
+/* Sets the path segment separator
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_set_path_segment_separator(
+     info_handle_t *info_handle,
+     const system_character_t *string,
+     libcerror_error_t **error )
+{
+	static char *function = "info_handle_set_path_segment_separator";
+	size_t string_length  = 0;
+	int result            = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	string_length = system_string_length(
+	                 string );
+
+	if( string_length == 1 )
+	{
+		if( system_string_compare(
+		     string,
+		     _SYSTEM_STRING( "/" ),
+		     1 ) == 0 )
+		{
+			info_handle->path_segment_separator = '/';
+
+			result = 1;
+		}
+		else if( system_string_compare(
+		          string,
+		          _SYSTEM_STRING( "\\" ),
+		          1 ) == 0 )
+		{
+			info_handle->path_segment_separator = '\\';
+
+			result = 1;
+		}
+	}
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine path segment separator.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Prints a file entry or data stream name
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_name_value_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *value_string,
+     size_t value_string_length,
+     libcerror_error_t **error )
+{
+	system_character_t *escaped_value_string = NULL;
+	static char *function                    = "info_handle_name_value_fprint";
+	size_t escaped_value_string_size         = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( path_string_copy_from_file_entry_path(
+	     &escaped_value_string,
+	     &escaped_value_string_size,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy path from file entry path.",
+		 function );
+
+		goto on_error;
+	}
+	if( escaped_value_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing escaped value string.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->notify_stream,
+	 "%" PRIs_SYSTEM "",
+	 escaped_value_string );
+
+	memory_free(
+	 escaped_value_string );
+
+	return( 1 );
+
+on_error:
+	if( escaped_value_string != NULL )
+	{
+		memory_free(
+		 escaped_value_string );
+	}
+	return( -1 );
+}
+
 /* Prints a POSIX value
  * Returns 1 if successful or -1 on error
  */
@@ -893,6 +1029,76 @@ on_error:
 		libfdatetime_posix_time_free(
 		 &posix_time,
 		 NULL );
+	}
+	return( -1 );
+}
+
+/* Prints a file entry or data stream name to a bodyfile
+ * Returns 1 if successful or -1 on error
+ */
+int info_handle_bodyfile_name_value_fprint(
+     info_handle_t *info_handle,
+     const system_character_t *value_string,
+     size_t value_string_length,
+     libcerror_error_t **error )
+{
+	system_character_t *escaped_value_string = NULL;
+	static char *function                    = "info_handle_bodyfile_name_value_fprint";
+	size_t escaped_value_string_size         = 0;
+
+	if( info_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid info handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( bodyfile_path_string_copy_from_file_entry_path(
+	     &escaped_value_string,
+	     &escaped_value_string_size,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy path from file entry path.",
+		 function );
+
+		goto on_error;
+	}
+	if( escaped_value_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing escaped value string.",
+		 function );
+
+		goto on_error;
+	}
+	fprintf(
+	 info_handle->bodyfile_stream,
+	 "%" PRIs_SYSTEM "",
+	 escaped_value_string );
+
+	memory_free(
+	 escaped_value_string );
+
+	return( 1 );
+
+on_error:
+	if( escaped_value_string != NULL )
+	{
+		memory_free(
+		 escaped_value_string );
 	}
 	return( -1 );
 }
@@ -3271,17 +3477,17 @@ int info_handle_hash_values_fprint(
 {
 	char hash_value_identifier[ INFO_HANDLE_VALUE_IDENTIFIER_SIZE ];
 
-	static char *function                      = "info_handle_hash_values_fprint";
-	size_t hash_value_identifier_size          = INFO_HANDLE_VALUE_IDENTIFIER_SIZE;
-	uint32_t hash_value_iterator               = 0;
-	uint32_t number_of_values                  = 0;
-	uint8_t print_section_header               = 1;
-	int result                                 = 1;
+	static char *function             = "info_handle_hash_values_fprint";
+	size_t hash_value_identifier_size = INFO_HANDLE_VALUE_IDENTIFIER_SIZE;
+	uint32_t hash_value_iterator      = 0;
+	uint32_t number_of_values         = 0;
+	uint8_t print_section_header      = 1;
+	int result                        = 1;
 
 #if defined( USE_LIBEWF_GET_MD5_HASH )
 	digest_hash_t md5_hash[ DIGEST_HASH_SIZE_MD5 ];
 
-	system_character_t *stored_md5_hash_string = NULL;
+	char *stored_md5_hash_string      = NULL;
 #endif
 
 	if( info_handle == NULL )
@@ -3315,7 +3521,7 @@ int info_handle_hash_values_fprint(
 	}
 	else if( result == 1 )
 	{
-		stored_md5_hash_string = system_string_allocate(
+		stored_md5_hash_string = narrow_string_allocate(
 		                          DIGEST_HASH_STRING_SIZE_MD5 );
 
 		if( stored_md5_hash_string == NULL )
@@ -3374,20 +3580,23 @@ int info_handle_hash_values_fprint(
 		{
 			fprintf(
 			 info_handle->notify_stream,
-			 "\t\t<hashdigest type=\"md5\" coding=\"base16\">%" PRIs_SYSTEM "</hashdigest>\n",
+			 "\t\t<hashdigest type=\"md5\" coding=\"base16\">%s</hashdigest>\n",
 			 stored_md5_hash_string );
 		}
 		else if( info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_TEXT )
 		{
 			fprintf(
 			 info_handle->notify_stream,
-			 "\tMD5:\t\t\t%" PRIs_SYSTEM "\n",
+			 "\tMD5:\t\t\t%s\n",
 			 stored_md5_hash_string );
 		}
 		memory_free(
 		 stored_md5_hash_string );
+
+		stored_md5_hash_string = NULL;
 	}
-#endif
+#endif /* defined( USE_LIBEWF_GET_MD5_HASH ) */
+
 	if( libewf_handle_get_number_of_hash_values(
 	     info_handle->input_handle,
 	     &number_of_values,
@@ -4626,35 +4835,39 @@ int info_handle_attribute_value_fprint(
 			goto on_error;
 		}
 	}
-	if( info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_DFXML )
+	if( ( name_string != NULL )
+	 && ( value_string != NULL ) )
 	{
-		fprintf(
-		 info_handle->notify_stream,
-		 "\t\t\t\t<attribute name=\"%" PRIs_SYSTEM "\">%" PRIs_SYSTEM "</attribute>\n",
-		 name_string,
-		 value_string );
-	}
-	else if( info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_TEXT )
-	{
-		fprintf(
-		 info_handle->notify_stream,
-		 "\t\t%s",
-		 name_string );
-
-		do
+		if( info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_DFXML )
 		{
 			fprintf(
 			 info_handle->notify_stream,
-			 "\t" );
-
-			name_string_size += 8;
+			 "\t\t\t\t<attribute name=\"%" PRIs_SYSTEM "\">%" PRIs_SYSTEM "</attribute>\n",
+			 name_string,
+			 value_string );
 		}
-		while( name_string_size <= 24 );
+		else if( info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_TEXT )
+		{
+			fprintf(
+			 info_handle->notify_stream,
+			 "\t\t%" PRIs_SYSTEM "",
+			 name_string );
 
-		fprintf(
-		 info_handle->notify_stream,
-		 ": %" PRIs_SYSTEM "\n",
-		 value_string );
+			do
+			{
+				fprintf(
+				 info_handle->notify_stream,
+				 "\t" );
+
+				name_string_size += 8;
+			}
+			while( name_string_size <= 24 );
+
+			fprintf(
+			 info_handle->notify_stream,
+			 ": %" PRIs_SYSTEM "\n",
+			 value_string );
+		}
 	}
 	if( value_string != NULL )
 	{
@@ -5797,7 +6010,7 @@ int info_handle_file_entry_value_fprint(
      const system_character_t *path,
      libcerror_error_t **error )
 {
-	char file_mode_string[ 11 ]                         = { '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', 0 };
+	char file_mode_string[ 11 ]                         = { '-', 'r', 'w', 'x', 'r', 'w', 'x', 'r', 'w', 'x', 0 };
 
 	libewf_access_control_entry_t *access_control_entry = NULL;
 	libewf_attribute_t *attribute                       = NULL;
@@ -5807,15 +6020,17 @@ int info_handle_file_entry_value_fprint(
 	static char *function                               = "info_handle_file_entry_value_fprint";
 	size64_t size                                       = 0;
 	size_t file_entry_name_size                         = 0;
+	size_t path_length                                  = 0;
 	size_t value_string_size                            = 0;
 	uint64_t file_identifier                            = 0;
-	uint32_t group_identifier                           = 0;
-	uint32_t owner_identifier                           = 0;
 	int64_t access_time                                 = 0;
 	int64_t creation_time                               = 0;
 	int64_t deletion_time                               = 0;
 	int64_t entry_modification_time                     = 0;
 	int64_t modification_time                           = 0;
+	uint32_t file_entry_flags                           = 0;
+	uint32_t group_identifier                           = 0;
+	uint32_t owner_identifier                           = 0;
 	int access_control_entry_index                      = 0;
 	int attribute_index                                 = 0;
 	int number_of_access_control_entries                = 0;
@@ -5832,6 +6047,11 @@ int info_handle_file_entry_value_fprint(
 		 function );
 
 		return( -1 );
+	}
+	if( path != NULL )
+	{
+		path_length = system_string_length(
+		               path );
 	}
 	if( libewf_file_entry_get_identifier(
 	     file_entry,
@@ -5983,6 +6203,35 @@ int info_handle_file_entry_value_fprint(
 	}
 	if( info_handle->bodyfile_stream != NULL )
 	{
+		if( libewf_file_entry_get_flags(
+		     file_entry,
+		     &file_entry_flags,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve flags.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( file_entry_flags & 0x00000010UL ) != 0 ) 
+		{
+			file_mode_string[ 0 ] = 'l';
+		}
+		else if( ( file_entry_flags & 0x02000000UL ) != 0 ) 
+		{
+			file_mode_string[ 0 ] = 'd';
+		}
+		if( ( ( file_entry_flags & 0x00000001UL ) != 0 )
+		 || ( ( file_entry_flags & 0x00000004UL ) != 0 ) )
+		{
+			file_mode_string[ 2 ] = '-';
+			file_mode_string[ 5 ] = '-';
+			file_mode_string[ 8 ] = '-';
+		}
 		/* Colums in a Sleuthkit 3.x and later bodyfile
 		 * MD5|name|inode|mode_as_string|UID|GID|size|atime|mtime|ctime|crtime
 		 */
@@ -5992,20 +6241,41 @@ int info_handle_file_entry_value_fprint(
 
 		if( path != NULL )
 		{
-			fprintf(
-			 info_handle->bodyfile_stream,
-			 "%" PRIs_SYSTEM "",
-			 path );
+			if( info_handle_bodyfile_name_value_fprint(
+			     info_handle,
+			     path,
+			     path_length,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print path string.",
+				 function );
+
+				goto on_error;
+			}
 		}
 		if( file_entry_name != NULL )
 		{
-			fprintf(
-			 info_handle->bodyfile_stream,
-			 "%" PRIs_SYSTEM "",
-			 file_entry_name );
+			if( info_handle_bodyfile_name_value_fprint(
+			     info_handle,
+			     file_entry_name,
+			     file_entry_name_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print file entry name string.",
+				 function );
+
+				goto on_error;
+			}
 		}
 /* TODO print data stream name */
-/* TODO determine mode as string */
 /* TODO determine owner and group */
 /* TODO determine Sleuthkit metadata address https://wiki.sleuthkit.org/index.php?title=Metadata_Address */
 
@@ -6035,17 +6305,39 @@ int info_handle_file_entry_value_fprint(
 			 info_handle->notify_stream,
 			 "\tName\t\t\t\t: " );
 
-			if( path != NULL )
+			if( info_handle_name_value_fprint(
+			     info_handle,
+			     path,
+			     path_length,
+			     error ) != 1 )
 			{
-				fprintf(
-				 info_handle->notify_stream,
-				 "%" PRIs_SYSTEM "",
-				 path );
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print path string.",
+				 function );
+
+				goto on_error;
+			}
+			if( info_handle_name_value_fprint(
+			     info_handle,
+			     file_entry_name,
+			     file_entry_name_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print file entry name string.",
+				 function );
+
+				goto on_error;
 			}
 			fprintf(
 			 info_handle->notify_stream,
-			 "%" PRIs_SYSTEM "\n",
-			 file_entry_name );
+			 "\n" );
 		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libewf_file_entry_get_utf16_short_name_size(
@@ -6112,8 +6404,26 @@ int info_handle_file_entry_value_fprint(
 			}
 			fprintf(
 			 info_handle->notify_stream,
-			 "\tShort name\t\t\t: %" PRIs_SYSTEM "\n",
-			 value_string );
+			 "\tShort name\t\t\t: " );
+
+			if( info_handle_name_value_fprint(
+			     info_handle,
+			     value_string,
+			     value_string_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print short name string.",
+				 function );
+
+				goto on_error;
+			}
+			fprintf(
+			 info_handle->notify_stream,
+			 "\n" );
 
 			memory_free(
 			 value_string );
@@ -6647,16 +6957,36 @@ int info_handle_logical_files_hierarchy_fprint_file_entry(
 				 info_handle->notify_stream,
 				 " name=\"" );
 			}
-			fprintf(
-			 info_handle->notify_stream,
-			 "%" PRIs_SYSTEM "",
-			 path );
+			if( info_handle_name_value_fprint(
+			     info_handle,
+			     path,
+			     path_length,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print path string.",
+				 function );
 
-			fprintf(
-			 info_handle->notify_stream,
-			 "%" PRIs_SYSTEM "",
-			 file_entry_name );
+				goto on_error;
+			}
+			if( info_handle_name_value_fprint(
+			     info_handle,
+			     file_entry_name,
+			     file_entry_name_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print file entry name string.",
+				 function );
 
+				goto on_error;
+			}
 			if( info_handle->output_format == INFO_HANDLE_OUTPUT_FORMAT_TEXT )
 			{
 				fprintf(
@@ -6743,7 +7073,7 @@ int info_handle_logical_files_hierarchy_fprint_file_entry(
 
 				goto on_error;
 			}
-			sub_path[ sub_path_size - 2 ] = (system_character_t) LIBEWF_SEPARATOR;
+			sub_path[ sub_path_size - 2 ] = (system_character_t) info_handle->path_segment_separator;
 		}
 		sub_path[ sub_path_size - 1 ] = (system_character_t) 0;
 
@@ -6853,11 +7183,14 @@ int info_handle_file_entry_fprint_by_path(
      const system_character_t *path,
      libcerror_error_t **error )
 {
-	libewf_file_entry_t *file_entry = NULL;
-	static char *function           = "info_handle_file_entry_fprint_by_path";
-	size_t path_index               = 0;
-	size_t path_length              = 0;
-	int result                      = 0;
+	libewf_file_entry_t *file_entry         = NULL;
+	system_character_t *ewf_file_entry_path = NULL;
+	static char *function                   = "info_handle_file_entry_fprint_by_path";
+	size_t ewf_file_entry_path_length       = 0;
+	size_t ewf_file_entry_path_size         = 0;
+	size_t path_index                       = 0;
+	size_t path_length                      = 0;
+	int result                              = 0;
 
 	if( info_handle == NULL )
 	{
@@ -6888,23 +7221,54 @@ int info_handle_file_entry_fprint_by_path(
 	     path_index > 0;
 	     path_index-- )
 	{
-		if( path[ path_index ] == (system_character_t) LIBEWF_SEPARATOR )
+		if( path[ path_index ] == (system_character_t) info_handle->path_segment_separator )
 		{
 			break;
 		}
 	}
+	if( path_string_copy_to_file_entry_path(
+	     path,
+	     path_length,
+	     info_handle->path_segment_separator,
+	     &ewf_file_entry_path,
+	     &ewf_file_entry_path_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy path to file entry path.",
+		 function );
+
+		goto on_error;
+	}
+	if( ewf_file_entry_path == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing file entry path.",
+		 function );
+
+		goto on_error;
+	}
+	ewf_file_entry_path_length = system_string_length(
+	                              ewf_file_entry_path );
+
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libewf_handle_get_file_entry_by_utf16_path(
 	          info_handle->input_handle,
-	          (uint16_t *) path,
-	          path_length,
+	          (uint16_t *) ewf_file_entry_path,
+	          ewf_file_entry_path_length,
 	          &file_entry,
 	          error );
 #else
 	result = libewf_handle_get_file_entry_by_utf8_path(
 	          info_handle->input_handle,
-	          (uint8_t *) path,
-	          path_length,
+	          (uint8_t *) ewf_file_entry_path,
+	          ewf_file_entry_path_length,
 	          &file_entry,
 	          error );
 #endif
@@ -6930,6 +7294,11 @@ int info_handle_file_entry_fprint_by_path(
 
 		goto on_error;
 	}
+	memory_free(
+	 ewf_file_entry_path );
+
+	ewf_file_entry_path = NULL;
+
 	if( info_handle_section_header_fprint(
 	     info_handle,
 	     "single_file",
@@ -6996,6 +7365,11 @@ on_error:
 		 &file_entry,
 		 NULL );
 	}
+	if( ewf_file_entry_path != NULL )
+	{
+		memory_free(
+		 ewf_file_entry_path );
+	}
 	return( -1 );
 }
 
@@ -7006,6 +7380,8 @@ int info_handle_logical_files_hierarchy_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
+	system_character_t root_path[ 2 ];
+
 	libewf_file_entry_t *file_entry = NULL;
 	static char *function           = "info_handle_logical_files_hierarchy_fprint";
 	int result                      = 0;
@@ -7054,11 +7430,14 @@ int info_handle_logical_files_hierarchy_fprint(
 
 			goto on_error;
 		}
+		root_path[ 0 ] = info_handle->path_segment_separator;
+		root_path[ 1 ] = 0;
+
 		if( info_handle_logical_files_hierarchy_fprint_file_entry(
 		     info_handle,
 		     file_entry,
-		     _SYSTEM_STRING( "" ),
-		     1,
+		     root_path,
+		     2,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

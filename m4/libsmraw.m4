@@ -1,6 +1,6 @@
 dnl Checks for libsmraw required headers and functions
 dnl
-dnl Version: 20200726
+dnl Version: 20240520
 
 dnl Function to detect if libsmraw is available
 dnl ac_libsmraw_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -10,17 +10,11 @@ AC_DEFUN([AX_LIBSMRAW_CHECK_LOCAL],
     [ac_cv_libsmraw=no],
     [ac_cv_libsmraw=check
     dnl Check if the directory provided as parameter exists
+    dnl For both --with-libsmraw which returns "yes" and --with-libsmraw= which returns ""
+    dnl treat them as auto-detection.
     AS_IF(
-      [test "x$ac_cv_with_libsmraw" != x && test "x$ac_cv_with_libsmraw" != xauto-detect],
-      [AS_IF(
-        [test -d "$ac_cv_with_libsmraw"],
-        [CFLAGS="$CFLAGS -I${ac_cv_with_libsmraw}/include"
-        LDFLAGS="$LDFLAGS -L${ac_cv_with_libsmraw}/lib"],
-        [AC_MSG_FAILURE(
-          [no such directory: $ac_cv_with_libsmraw],
-          [1])
-        ])
-      ],
+      [test "x$ac_cv_with_libsmraw" != x && test "x$ac_cv_with_libsmraw" != xauto-detect && test "x$ac_cv_with_libsmraw" != xyes],
+      [AX_CHECK_LIB_DIRECTORY_EXISTS([libsmraw])],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
@@ -44,56 +38,28 @@ AC_DEFUN([AX_LIBSMRAW_CHECK_LOCAL],
       AS_IF(
         [test "x$ac_cv_header_libsmraw_h" = xno],
         [ac_cv_libsmraw=no],
-        [dnl Check for the individual functions
-        ac_cv_libsmraw=yes
+        [ac_cv_libsmraw=yes
 
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_get_version,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-
-        dnl Handle functions
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_initialize,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_free,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_signal_abort,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_open,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_close,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_read_buffer,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_seek_offset,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_write_buffer,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
+        AX_CHECK_LIB_FUNCTIONS(
+          [libsmraw],
+          [smraw],
+          [[libsmraw_get_version],
+           [libsmraw_handle_initialize],
+           [libsmraw_handle_free],
+           [libsmraw_handle_signal_abort],
+           [libsmraw_handle_open],
+           [libsmraw_handle_close],
+           [libsmraw_handle_read_buffer],
+           [libsmraw_handle_seek_offset],
+           [libsmraw_handle_write_buffer],
+           [libsmraw_handle_get_media_size],
+           [libsmraw_handle_get_bytes_per_sector],
+           [libsmraw_handle_get_utf8_information_value],
+           [libsmraw_handle_get_utf16_information_value],
+           [libsmraw_handle_set_maximum_segment_size],
+           [libsmraw_handle_set_media_size],
+           [libsmraw_handle_set_utf8_integrity_hash_value],
+           [libsmraw_handle_set_utf16_integrity_hash_value]])
 
         AS_IF(
           [test "x$ac_cv_enable_wide_character_type" != xno],
@@ -104,56 +70,10 @@ AC_DEFUN([AX_LIBSMRAW_CHECK_LOCAL],
             [ac_cv_libsmraw=no])
           ])
 
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_get_media_size,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_get_bytes_per_sector,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_get_utf8_information_value
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_get_utf16_information_value
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_set_maximum_segment_size,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_set_media_size,
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_set_utf8_integrity_hash_value
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-        AC_CHECK_LIB(
-          smraw,
-          libsmraw_handle_set_utf16_integrity_hash_value
-          [ac_cv_libsmraw_dummy=yes],
-          [ac_cv_libsmraw=no])
-
         ac_cv_libsmraw_LIBADD="-lsmraw"])
       ])
-    AS_IF(
-      [test "x$ac_cv_with_libsmraw" != x && test "x$ac_cv_with_libsmraw" != xauto-detect && test "x$ac_cv_libsmraw" != xyes],
-      [AC_MSG_FAILURE(
-        [unable to find supported libsmraw in directory: $ac_cv_with_libsmraw],
-        [1])
-      ])
+
+    AX_CHECK_LIB_DIRECTORY_MSG_ON_FAILURE([libsmraw])
     ])
 
   AS_IF(
@@ -196,7 +116,7 @@ AC_DEFUN([AX_LIBSMRAW_CHECK_ENABLE],
      [HAVE_LOCAL_LIBSMRAW],
      [1])
 
-   ac_cv_libsmraw_CPPFLAGS="-I../libsmraw";
+   ac_cv_libsmraw_CPPFLAGS="-I../libsmraw -I\$(top_srcdir)/libsmraw";
    ac_cv_libsmraw_LIBADD="../libsmraw/libsmraw.la";
 
    ac_cv_libsmraw=local

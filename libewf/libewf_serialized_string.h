@@ -1,7 +1,7 @@
 /*
  * Serialized (file object) string functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -42,6 +42,11 @@ struct libewf_serialized_string
 	/* The data size
 	 */
 	size_t data_size;
+
+/* TODO remove after refactor */
+	/* The data type
+	 */
+	int data_type;
 };
 
 int libewf_serialized_string_initialize(
@@ -61,12 +66,14 @@ int libewf_serialized_string_read_data(
      libewf_serialized_string_t *serialized_string,
      const uint8_t *data,
      size_t data_size,
+     int data_type,
      libcerror_error_t **error );
 
 int libewf_serialized_string_read_hexadecimal_data(
      libewf_serialized_string_t *serialized_string,
      const uint8_t *data,
      size_t data_size,
+     int data_type,
      libcerror_error_t **error );
 
 int libewf_serialized_string_get_utf8_string_size(
@@ -89,18 +96,6 @@ int libewf_serialized_string_get_utf16_string(
      libewf_serialized_string_t *serialized_string,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     libcerror_error_t **error );
-
-int libewf_serialized_string_compare_with_utf8_string(
-     libewf_serialized_string_t *serialized_string,
-     const uint8_t *utf8_string,
-     size_t utf8_string_length,
-     libcerror_error_t **error );
-
-int libewf_serialized_string_compare_with_utf16_string(
-     libewf_serialized_string_t *serialized_string,
-     const uint16_t *utf16_string,
-     size_t utf16_string_length,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

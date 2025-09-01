@@ -1,7 +1,7 @@
 /*
  * Low level writing functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,14 +25,11 @@
 #include <common.h>
 #include <types.h>
 
-#if defined( TIME_WITH_SYS_TIME )
+#if defined( HAVE_SYS_TIME_H )
 #include <sys/time.h>
-#include <time.h>
-#elif defined( HAVE_SYS_TIME_H )
-#include <sys/time.h>
-#else
-#include <time.h>
 #endif
+
+#include <time.h>
 
 #include "libewf_chunk_data.h"
 #include "libewf_chunk_group.h"
@@ -175,6 +172,10 @@ struct libewf_write_io_handle
         /* The current segment file
          */
         libewf_segment_file_t *current_segment_file;
+
+        /* The managed segment file
+         */
+        libewf_segment_file_t *managed_segment_file;
 
         /* The number of chunks written of the current segment file
          */

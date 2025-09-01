@@ -1,6 +1,6 @@
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -42,6 +42,7 @@ libewf_la_SOURCES = \
 	libewf_analytical_data.c libewf_analytical_data.h \
 	libewf_attribute.c libewf_attribute.h \
 	libewf_bit_stream.c libewf_bit_stream.h \
+	libewf_buffer_data_handle.c libewf_buffer_data_handle.h \
 	libewf_case_data.c libewf_case_data.h \
 	libewf_case_data_section.c libewf_case_data_section.h \
 	libewf_checksum.c libewf_checksum.h \
@@ -52,6 +53,7 @@ libewf_la_SOURCES = \
 	libewf_codepage.h \
 	libewf_compression.c libewf_compression.h \
 	libewf_data_chunk.c libewf_data_chunk.h \
+	libewf_data_stream.c libewf_data_stream.h \
 	libewf_date_time.c libewf_date_time.h \
 	libewf_date_time_values.c libewf_date_time_values.h \
 	libewf_debug.c libewf_debug.h \
@@ -90,6 +92,7 @@ libewf_la_SOURCES = \
 	libewf_lef_permission.c libewf_lef_permission.h \
 	libewf_lef_source.c libewf_lef_source.h \
 	libewf_lef_subject.c libewf_lef_subject.h \
+	libewf_line_reader.c libewf_line_reader.h \
 	libewf_ltree_section.c libewf_ltree_section.h \
 	libewf_md5_hash_section.c libewf_md5_hash_section.h \
 	libewf_media_values.c libewf_media_values.h \
@@ -98,6 +101,7 @@ libewf_la_SOURCES = \
 	libewf_read_io_handle.c libewf_read_io_handle.h \
 	libewf_restart_data.c libewf_restart_data.h \
 	libewf_section.c libewf_section.h \
+	libewf_section_data_handle.c libewf_section_data_handle.h \
 	libewf_section_descriptor.c libewf_section_descriptor.h \
 	libewf_sector_range.c libewf_sector_range.h \
 	libewf_sector_range_list.c libewf_sector_range_list.h \
@@ -113,6 +117,7 @@ libewf_la_SOURCES = \
 	libewf_table_section.c libewf_table_section.h \
 	libewf_types.h \
 	libewf_unused.h \
+	libewf_value_reader.c libewf_value_reader.h \
 	libewf_value_table.c libewf_value_table.h \
 	libewf_volume_section.c libewf_volume_section.h \
 	libewf_write_io_handle.c libewf_write_io_handle.h
@@ -148,15 +153,15 @@ EXTRA_DIST = \
 	libewf.rc \
 	libewf.rc.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libewf_definitions.h \
+	libewf.rc \
+	Makefile \
 	Makefile.in
 
-distclean: clean
-	/bin/rm -f libewf_definitions.h
-	/bin/rm -f libewf.rc
-	/bin/rm -f Makefile
+sources-local: $(BUILT_SOURCES)
 
-splint:
+splint-local:
 	@echo "Running splint on libewf ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libewf_la_SOURCES)
 

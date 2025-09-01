@@ -1,6 +1,6 @@
 dnl Checks for libcrypto required headers and functions
 dnl
-dnl Version: 20220531
+dnl Version: 20240308
 
 dnl Function to detect whether openssl/evp.h can be used in combination with zlib.h
 AC_DEFUN([AX_LIBCRYPTO_CHECK_OPENSSL_EVP_ZLIB_COMPATIBILE],
@@ -28,7 +28,8 @@ AC_DEFUN([AX_LIBCRYPTO_CHECK_XTS_DUPLICATE_KEYS_SUPPORT],
     LIBS="$LIBS $ac_cv_libcrypto_LIBADD"
     AC_RUN_IFELSE(
       [AC_LANG_PROGRAM(
-        [[#include <openssl/err.h>
+        [[#include <stdlib.h>
+#include <openssl/err.h>
 #include <openssl/evp.h>]],
         [[unsigned char key[ 16 ] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 int result = 0;
@@ -49,7 +50,9 @@ EVP_CIPHER_CTX_cleanup( &ctx );
 EVP_CIPHER_CTX_free( ctx );
 #endif
 
-return( result == 1 ); ]] )],
+if( result != 1 ) return( EXIT_FAILURE );
+
+return( EXIT_SUCCESS ); ]] )],
       [ac_cv_openssl_xts_duplicate_keys=yes],
       [ac_cv_openssl_xts_duplicate_keys=no])
     LIBS="$ac_cv_libcrypto_backup_LIBS"
@@ -620,8 +623,10 @@ AC_DEFUN([AX_LIBCRYPTO_CHECK_LIB],
     [test "x$ac_cv_enable_shared_libs" = xno || test "x$ac_cv_with_openssl" = xno],
     [ac_cv_libcrypto=no],
     [dnl Check if the directory provided as parameter exists
+    dnl For both --with-openssl which returns "yes" and --with-openssl= which returns ""
+    dnl treat them as auto-detection.
     AS_IF(
-      [test "x$ac_cv_with_openssl" != x && test "x$ac_cv_with_openssl" != xauto-detect],
+      [test "x$ac_cv_with_openssl" != x && test "x$ac_cv_with_openssl" != xauto-detect && test "x$ac_cv_with_openssl" != xyes],
       [AS_IF(
         [test -d "$ac_cv_with_openssl"],
         [CFLAGS="$CFLAGS -I${ac_cv_with_openssl}/include"
@@ -681,13 +686,18 @@ AC_DEFUN([AX_LIBCRYPTO_CHECK_LIB],
         [1],
         [Define to 1 if you have the 'crypto' library (-lcrypto).])
 
-      ac_cv_libcrypto_LIBADD="-lcrypto"
+      ac_cv_libcrypto_CPPFLAGS="$openssl_CFLAGS"
+      ac_cv_libcrypto_LIBADD="$openssl_LIBS"
+
+      AS_IF(
+        [test "x$ac_cv_libcrypto_LIBADD" = x],
+        [ac_cv_libcrypto_LIBADD="-lcrypto"])
 
       dnl On Cygwin also link zlib since libcrypto relies on it
       AS_CASE(
         [$host],
         [*cygwin*],
-        [ac_cv_libcrypto_LIBADD="-lcrypto -lz"])
+        [ac_cv_libcrypto_LIBADD="$ac_cv_libcrypto_LIBADD -lz"])
 
       dnl Enforce the dynamic loader library to be included if available
       AC_CHECK_LIB(

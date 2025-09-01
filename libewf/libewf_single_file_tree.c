@@ -1,7 +1,7 @@
 /*
  * Single file tree functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -131,20 +131,8 @@ int libewf_single_file_tree_get_sub_node_by_utf8_name(
 
 			return( -1 );
 		}
-		if( safe_sub_lef_file_entry == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing sub file entry: %d.",
-			 function,
-			 sub_node_index );
-
-			return( -1 );
-		}
-		compare_result = libewf_serialized_string_compare_with_utf8_string(
-		                  safe_sub_lef_file_entry->name,
+		compare_result = libewf_lef_file_entry_compare_name_with_utf8_string(
+		                  safe_sub_lef_file_entry,
 		                  utf8_string,
 		                  utf8_string_length,
 		                  error );
@@ -155,8 +143,9 @@ int libewf_single_file_tree_get_sub_node_by_utf8_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to compare name with UTF-8 string.",
-			 function );
+			 "%s: unable to compare sub file entry: %d name with UTF-8 string.",
+			 function,
+			 sub_node_index );
 
 			return( -1 );
 		}
@@ -291,20 +280,8 @@ int libewf_single_file_tree_get_sub_node_by_utf16_name(
 
 			return( -1 );
 		}
-		if( safe_sub_lef_file_entry == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing sub file entry: %d.",
-			 function,
-			 sub_node_index );
-
-			return( -1 );
-		}
-		compare_result = libewf_serialized_string_compare_with_utf16_string(
-		                  safe_sub_lef_file_entry->name,
+		compare_result = libewf_lef_file_entry_compare_name_with_utf16_string(
+		                  safe_sub_lef_file_entry,
 		                  utf16_string,
 		                  utf16_string_length,
 		                  error );
@@ -315,8 +292,9 @@ int libewf_single_file_tree_get_sub_node_by_utf16_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to compare UTF-16 string.",
-			 function );
+			 "%s: unable to compare sub file entry: %d name with UTF-16 string.",
+			 function,
+			 sub_node_index );
 
 			return( -1 );
 		}

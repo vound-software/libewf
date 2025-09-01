@@ -1,7 +1,7 @@
 /*
  * Library support functions test program
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1914,7 +1914,7 @@ int ewf_test_glob_wide_get_segment_filename(
 	libcerror_error_free(
 	 &error );
 
-	segment_filename = (char *) 0x12345678UL;
+	segment_filename = (wchar_t *) 0x12345678UL;
 
 	result = libewf_glob_wide_get_segment_filename(
 	          L"test.E01",
@@ -2185,7 +2185,7 @@ int ewf_test_glob_wide(
 	libcerror_error_free(
 	 &error );
 
-	filenames = (char **) 0x12345678UL;
+	filenames = (wchar_t **) 0x12345678UL;
 
 	result = libewf_glob_wide(
 	          wide_source,

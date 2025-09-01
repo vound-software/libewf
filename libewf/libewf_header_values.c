@@ -1,7 +1,7 @@
 /*
  * Header values functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,14 +25,11 @@
 #include <types.h>
 
 
-#if defined( TIME_WITH_SYS_TIME )
+#if defined( HAVE_SYS_TIME_H )
 #include <sys/time.h>
-#include <time.h>
-#elif defined( HAVE_SYS_TIME_H )
-#include <sys/time.h>
-#else
-#include <time.h>
 #endif
+
+#include <time.h>
 
 #include "libewf_date_time.h"
 #include "libewf_date_time_values.h"
@@ -1850,6 +1847,13 @@ int libewf_header_values_parse_utf8_header_string(
 
 		goto on_error;
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
 	return( 1 );
 
 on_error:
@@ -1975,10 +1979,18 @@ int libewf_header_values_parse_utf8_header_string_value(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: type: %s with value: %s.\n",
+		 "%s: type: %3s with value\t:",
 		 function,
-		 (char *) type_string,
-		 (char *) value_string );
+		 (char *) type_string );
+
+		if( value_string != NULL )
+		{
+			libcnotify_printf(
+			 " %s",
+			 (char *) value_string );
+		}
+		libcnotify_printf(
+		 "\n" );
 	}
 #endif
 	identifier      = NULL;
@@ -2151,7 +2163,7 @@ int libewf_header_values_parse_utf8_header_string_value(
 					  &date_time_values_string_size,
 					  error );
 			}
-			if( result != 1 )
+			if( result == -1 )
 			{
 				libcerror_error_set(
 				 error,

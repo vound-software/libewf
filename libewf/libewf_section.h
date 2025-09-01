@@ -1,7 +1,7 @@
 /*
  * Section reading/writing functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -46,12 +46,6 @@ extern "C" {
 int libewf_section_test_zero(
      const uint8_t *buffer,
      size_t buffer_size,
-     libcerror_error_t **error );
-
-int libewf_section_get_data_offset(
-     libewf_section_descriptor_t *section_descriptor,
-     uint8_t format_version,
-     off64_t *data_offset,
      libcerror_error_t **error );
 
 ssize_t libewf_section_read_data(

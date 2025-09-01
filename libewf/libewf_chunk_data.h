@@ -1,7 +1,7 @@
 /*
  * Chunk data functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -128,6 +128,10 @@ int libewf_chunk_data_pack_determine_pack_flags(
      libcerror_error_t **error );
 
 int libewf_chunk_data_pack_with_64_bit_pattern_fill(
+     libewf_chunk_data_t *chunk_data,
+     libcerror_error_t **error );
+
+int libewf_chunk_data_unpack_with_64_bit_pattern_fill(
      libewf_chunk_data_t *chunk_data,
      libcerror_error_t **error );
 

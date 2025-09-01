@@ -1,6 +1,6 @@
 dnl Checks for libcdatetime required headers and functions
 dnl
-dnl Version: 20190308
+dnl Version: 20240514
 
 dnl Function to detect if libcdatetime is available
 dnl ac_libcdatetime_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -10,17 +10,11 @@ AC_DEFUN([AX_LIBCDATETIME_CHECK_LIB],
     [ac_cv_libcdatetime=no],
     [ac_cv_libcdatetime=check
     dnl Check if the directory provided as parameter exists
+    dnl For both --with-libcdatetime which returns "yes" and --with-libcdatetime= which returns ""
+    dnl treat them as auto-detection.
     AS_IF(
       [test "x$ac_cv_with_libcdatetime" != x && test "x$ac_cv_with_libcdatetime" != xauto-detect],
-      [AS_IF(
-        [test -d "$ac_cv_with_libcdatetime"],
-        [CFLAGS="$CFLAGS -I${ac_cv_with_libcdatetime}/include"
-        LDFLAGS="$LDFLAGS -L${ac_cv_with_libcdatetime}/lib"],
-        [AC_MSG_FAILURE(
-          [no such directory: $ac_cv_with_libcdatetime],
-          [1])
-        ])
-      ],
+      [AX_CHECK_LIB_DIRECTORY_EXISTS([libcdatetime])],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
@@ -44,185 +38,47 @@ AC_DEFUN([AX_LIBCDATETIME_CHECK_LIB],
       AS_IF(
         [test "x$ac_cv_header_libcdatetime_h" = xno],
         [ac_cv_libcdatetime=no],
-        [dnl Check for the individual functions
-        ac_cv_libcdatetime=yes
+        [ac_cv_libcdatetime=yes
 
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_get_version,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        dnl Time elements functions
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_initialize,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_free,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_copy,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_year,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_day_of_year,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_month,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_day_of_month,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_date_values,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_hours,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_minutes,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_milli_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_micro_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_nano_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_time_values,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_set_current_time_utc,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_set_current_time_localtime,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_delta_in_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_set_from_delta_in_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_get_string_size,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_copy_to_string,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_elements_copy_to_string_with_index,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        dnl Timestamp functions
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_initialize,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_free,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_copy,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_set_current_time,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_get_delta_in_seconds,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_get_string_size,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_copy_to_string,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
-        AC_CHECK_LIB(
-          cdatetime,
-          libcdatetime_timestamp_copy_to_string_with_index,
-          [ac_cv_libcdatetime_dummy=yes],
-          [ac_cv_libcdatetime=no])
+        AX_CHECK_LIB_FUNCTIONS(
+          [libcdatetime],
+          [cdatetime],
+          [[libcdatetime_get_version],
+           [libcdatetime_elements_initialize],
+           [libcdatetime_elements_free],
+           [libcdatetime_elements_copy],
+           [libcdatetime_elements_get_year],
+           [libcdatetime_elements_get_day_of_year],
+           [libcdatetime_elements_get_month],
+           [libcdatetime_elements_get_day_of_month],
+           [libcdatetime_elements_get_date_values],
+           [libcdatetime_elements_get_hours],
+           [libcdatetime_elements_get_minutes],
+           [libcdatetime_elements_get_seconds],
+           [libcdatetime_elements_get_milli_seconds],
+           [libcdatetime_elements_get_micro_seconds],
+           [libcdatetime_elements_get_nano_seconds],
+           [libcdatetime_elements_get_time_values],
+           [libcdatetime_elements_set_current_time_utc],
+           [libcdatetime_elements_set_current_time_localtime],
+           [libcdatetime_elements_get_delta_in_seconds],
+           [libcdatetime_elements_set_from_delta_in_seconds],
+           [libcdatetime_elements_get_string_size],
+           [libcdatetime_elements_copy_to_string],
+           [libcdatetime_elements_copy_to_string_with_index],
+           [libcdatetime_timestamp_initialize],
+           [libcdatetime_timestamp_free],
+           [libcdatetime_timestamp_copy],
+           [libcdatetime_timestamp_set_current_time],
+           [libcdatetime_timestamp_get_delta_in_seconds],
+           [libcdatetime_timestamp_get_string_size],
+           [libcdatetime_timestamp_copy_to_string],
+           [libcdatetime_timestamp_copy_to_string_with_index]])
 
         ac_cv_libcdatetime_LIBADD="-lcdatetime"])
       ])
-    AS_IF(
-      [test "x$ac_cv_with_libcdatetime" != x && test "x$ac_cv_with_libcdatetime" != xauto-detect && test "x$ac_cv_libcdatetime" != xyes],
-      [AC_MSG_FAILURE(
-        [unable to find supported libcdatetime in directory: $ac_cv_with_libcdatetime],
-        [1])
-      ])
+
+    AX_CHECK_LIB_DIRECTORY_MSG_ON_FAILURE([libcdatetime])
     ])
 
   AS_IF(
@@ -332,9 +188,7 @@ dnl Function to detect if libcdatetime dependencies are available
 AC_DEFUN([AX_LIBCDATETIME_CHECK_LOCAL],
   [dnl Headers included in libcdatetime/libcdatetime_elements.c
   dnl and libcdatetime/libcdatetime_timestamp.c
-  AC_CHECK_HEADERS([errno.h])
-
-  AC_HEADER_TIME
+  AC_CHECK_HEADERS([errno.h sys/time.h])
 
   dnl Types used in libcdatetime/libcdatetime_elements.c
   AC_STRUCT_TM
@@ -382,7 +236,7 @@ AC_DEFUN([AX_LIBCDATETIME_CHECK_LOCAL],
       [1])
     ])
 
-  ac_cv_libcdatetime_CPPFLAGS="-I../libcdatetime";
+  ac_cv_libcdatetime_CPPFLAGS="-I../libcdatetime -I\$(top_srcdir)/libcdatetime";
   ac_cv_libcdatetime_LIBADD="../libcdatetime/libcdatetime.la";
 
   ac_cv_libcdatetime=local

@@ -1,7 +1,7 @@
 /*
  * Section descriptor functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -843,6 +843,17 @@ int libewf_section_descriptor_read_data(
 			}
 			else
 			{
+				if( (uint64_t) file_offset > ( (uint64_t) INT64_MAX - section_descriptor->size ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid file offset value out of bounds.",
+					 function );
+
+					return( -1 );
+				}
 				file_offset += (off64_t) section_descriptor->size;
 
 				if( section_descriptor->end_offset != file_offset )
@@ -1267,7 +1278,7 @@ int libewf_section_descriptor_write_data(
 		else if( format_version == 2 )
 		{
 			libcnotify_printf(
-			 "%s: type\t\t\t\t\t: 0x%08" PRIx32 " (",
+			 "%s: type\t\t\t\t: 0x%08" PRIx32 " (",
 			 function,
 			 section_descriptor->type );
 			libewf_debug_print_section_type(
@@ -1276,7 +1287,7 @@ int libewf_section_descriptor_write_data(
 			 ")\n" );
 
 			libcnotify_printf(
-			 "%s: data flags\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: data flags\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 section_descriptor->data_flags );
 			libewf_debug_print_section_data_flags(
@@ -1300,7 +1311,7 @@ int libewf_section_descriptor_write_data(
 			 data_size );
 
 			libcnotify_printf(
-			 "%s: padding size\t\t\t\t: %" PRIu32 "\n",
+			 "%s: padding size\t\t\t: %" PRIu32 "\n",
 			 function,
 			 section_descriptor->padding_size );
 
@@ -1438,5 +1449,53 @@ on_error:
 		 section_descriptor_data );
 	}
 	return( -1 );
+}
+
+/* Retrieves the section data offset
+ * Returns 1 if successful, 0 if the section contains no data or -1 on error
+ */
+int libewf_section_descriptor_get_data_offset(
+     libewf_section_descriptor_t *section_descriptor,
+     uint8_t format_version,
+     off64_t *data_offset,
+     libcerror_error_t **error )
+{
+	static char *function = "libewf_section_descriptor_get_data_offset";
+
+	if( section_descriptor == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid section descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data offset.",
+		 function );
+
+		return( -1 );
+	}
+	if( section_descriptor->data_size == 0 )
+	{
+		return( 0 );
+	}
+	if( format_version == 1 )
+	{
+		*data_offset = section_descriptor->start_offset + sizeof( ewf_section_descriptor_v1_t );
+	}
+	else
+	{
+		*data_offset = section_descriptor->start_offset;
+	}
+	return( 1 );
 }
 

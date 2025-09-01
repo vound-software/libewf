@@ -1,7 +1,7 @@
 /*
  * The internal definitions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -239,7 +239,7 @@ enum LIBEWF_FILE_ENTRY_FLAGS
 
 /* The (single) file entry name separator
  */
-#define LIBEWF_SEPARATOR					'\\'
+#define LIBEWF_SEPARATOR					'\x09'
 
 #endif /* !defined( HAVE_LOCAL_LIBEWF ) */
 
@@ -435,6 +435,13 @@ enum LIBEWF_HASH_VALUES_INDEXES
 	/* Value to indicate the number of hash values
 	 */
 	LIBEWF_HASH_VALUES_DEFAULT_NUMBER
+};
+
+/* TODO remove after refactor */
+enum LIBEWF_VALUE_DATA_TYPES
+{
+	LIBEWF_VALUE_DATA_TYPE_UTF8,
+	LIBEWF_VALUE_DATA_TYPE_UTF16
 };
 
 #endif /* !defined( _LIBEWF_INTERNAL_DEFINITIONS_H ) */

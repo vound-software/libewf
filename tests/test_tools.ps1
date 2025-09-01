@@ -1,12 +1,12 @@
 # Tests tools functions and types.
 #
-# Version: 20200820
+# Version: 20230410
 
 $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$ToolsTests = "byte_size_string device_handle digest_hash export_handle guid imaging_handle info_handle log_handle output platform signal storage_media_buffer system_string verification_handle"
+$ToolsTests = "bodyfile byte_size_string device_handle digest_hash export_handle guid imaging_handle info_handle log_handle mount_path_string output path_string platform signal storage_media_buffer system_string verification_handle"
 $ToolsTestsWithInput = ""
 
 $InputGlob = "*.[Ees]*01"
@@ -41,11 +41,11 @@ Function GetTestExecutablesDirectory
 {
 	$TestExecutablesDirectory = ""
 
-	ForEach (${VSDirectory} in "msvscpp vs2008 vs2010 vs2012 vs2013 vs2015 vs2017 vs2019" -split " ")
+	ForEach (${VSDirectory} in ("msvscpp", "vs2008", "vs2010", "vs2012", "vs2013", "vs2015", "vs2017", "vs2019", "vs2022"))
 	{
-		ForEach (${VSConfiguration} in "Release VSDebug" -split " ")
+		ForEach (${VSConfiguration} in ("Release", "VSDebug"))
 		{
-			ForEach (${VSPlatform} in "Win32 x64" -split " ")
+			ForEach (${VSPlatform} in ("Win32", "x64"))
 			{
 				$TestExecutablesDirectory = "..\${VSDirectory}\${VSConfiguration}\${VSPlatform}"
 

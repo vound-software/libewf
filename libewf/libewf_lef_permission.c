@@ -1,7 +1,7 @@
 /*
  * Logical Evidence File (LEF) permission functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libewf_definitions.h"
 #include "libewf_lef_permission.h"
 #include "libewf_libcerror.h"
 #include "libewf_libcnotify.h"
@@ -474,10 +475,18 @@ int libewf_lef_permission_read_data(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: type: %s with value: %s\n",
+			 "%s: type: %3s with value\t\t\t:",
 			 function,
-			 (char *) type_string,
-			 (char *) value_string );
+			 (char *) type_string );
+
+			if( value_string != NULL )
+			{
+				libcnotify_printf(
+				 " %s",
+				 (char *) value_string );
+			}
+			libcnotify_printf(
+			 "\n" );
 		}
 #endif
 		if( ( value_string == NULL )
@@ -607,6 +616,7 @@ int libewf_lef_permission_read_data(
 				     lef_permission->name,
 				     value_string,
 				     value_string_size - 1,
+				     LIBEWF_VALUE_DATA_TYPE_UTF8,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
@@ -625,6 +635,7 @@ int libewf_lef_permission_read_data(
 				     lef_permission->identifier,
 				     value_string,
 				     value_string_size - 1,
+				     LIBEWF_VALUE_DATA_TYPE_UTF8,
 				     error ) != 1 )
 				{
 					libcerror_error_set(

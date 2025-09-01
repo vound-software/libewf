@@ -1,7 +1,7 @@
 /*
  * Library digest section functions test program
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -108,8 +108,6 @@ int ewf_test_digest_section_read_data(
 	          80,
 	          hash_sections,
 	          &error );
-
-EWF_TEST_FPRINT_ERROR( error );
 
 	EWF_TEST_ASSERT_EQUAL_INT(
 	 "result",

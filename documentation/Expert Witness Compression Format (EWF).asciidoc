@@ -18,9 +18,8 @@ The EWF format was succeeded by the Expert Witness Compression Format version 2
 in EnCase 7 (EWF2-Ex01 and EWF2-Lx01). EnCase 7 also uses a different version
 of EWF-L01 then its predecessors.
 
-This document is intended as a working document for the EWF specification.
-Which should allow existing Open Source forensic tooling to be able to process
-this file type.
+This document is intended as a working document of the data format specification
+for the libewf project.
 
 [preface]
 == Document information
@@ -37,7 +36,7 @@ this file type.
 == License
 
 ....
-Copyright (C) 2006-2020, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2006-2023, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.3 or any later version
 published by the Free Software Foundation; with no Invariant Sections, no
@@ -88,8 +87,7 @@ in the section entitled "GNU Free Documentation License".
 | 0.0.35 | J.B. Metz | December 2006 | Corrected misinterpretation of original specifications, regarding additional table sections.
 | 0.0.36 | J.B. Metz | January 2007 | Added information about EnCase 6.
 | 0.0.37 | J.B. Metz | January 2007 | Added information about linen 6.
-| 0.0.38 | J.B. Metz | January 2007 | Added information about EnCase6/linen6 header. +
-Adjustments regarding media type and media flags.
+| 0.0.38 | J.B. Metz | January 2007 | Added information about EnCase6/linen6 header and adjustments regarding media type and media flags.
 | 0.0.39 | J.B. Metz | January 2007 | Added information about header values.
 | 0.0.40 | J.B. Metz | January 2007 | Added information about EWF-X
 | 0.0.41 | J.B. Metz | August 2007 | Added information about EnCase 6.7 >2Gb segment file support.
@@ -108,18 +106,12 @@ Adjustments regarding media type and media flags.
 | 0.0.54 | J.B. Metz | December 2009 +
 January 2010 | Added information about ltree section.
 | 0.0.55 | J.B. Metz | January 2010 | Update for linen 6.12 and later.
-| 0.0.56 | J.B. Metz | May 2010 | Corrected amount of into number of. +
-Email change
+| 0.0.56 | J.B. Metz | May 2010 | Corrected amount of into number of and email change
 | 0.0.57 | J.B. Metz | September 2010 | Minor changes.
 | 0.0.58 | J.B. Metz | September 2010 | Changed CRC to checksum.
-| 0.0.59 | J.B. Metz | October 2010 | Additional session section information with thanks to M. Nohr +
-Updated some tables to the newer format. +
-Minor changes.
-| 0.0.60 | J.B. Metz | November 2010 | Minor changes and improvements with thanks to G. Voncken. +
-Updated some tables to the newer format.
-| 0.0.61 | J.B. Metz | December 2010 | License version update +
-Additional information about optical discs. +
-Additional information about AD encryption.
+| 0.0.59 | J.B. Metz | October 2010 | Additional session section information with thanks to M. Nohr, updated some tables to the newer format and minor changes.
+| 0.0.60 | J.B. Metz | November 2010 | Minor changes and improvements with thanks to G. Voncken and updated some tables to the newer format.
+| 0.0.61 | J.B. Metz | December 2010 | License version update, additional information about optical discs and AD encryption.
 | 0.0.62 | J.B. Metz | January 2011 | Minor changes
 | 0.0.63 | J.B. Metz | February 2011 | Additional audio tracks information with thanks to M. Nohr
 | 0.0.64 | J.B. Metz | May 2011 | Changes to FTK imager format
@@ -130,20 +122,20 @@ Additional information about AD encryption.
 | 0.0.69 | J.B. Metz | June 2012 | Added information about EnCase 6.19 and 7, EWF-E01 and EWF-L01 format. Email change; text clean up; some corrections and additions.
 | 0.0.70 | J.B. Metz | July 2012 | Changes to match EWF version 2 documentation.
 | 0.0.71 | J.B. Metz | July 2012 | Updates regarding ltree header.
-| 0.0.72 | J.B. Metz | July 2012 | Updates files created by Expert Witness 1.35 (for Windows). +
-Other small corrections.
+| 0.0.72 | J.B. Metz | July 2012 | Updates files created by Expert Witness 1.35 (for Windows) and other small corrections.
 | 0.0.73 | J.B. Metz | August 2012 | Updates regarding ltree header.
 | 0.0.74 | J.B. Metz | August 2012 | Updates regarding incomplete section and corruption scenarios with thanks to B. Johnson for pointing out the dual image scenario.
 | 0.0.75 | J.B. Metz | September 2012 | Additional information regarding L01 map entry.
 | 0.0.76 | J.B. Metz | January 2013 | Corrected some typos, thanks to A. Bridge for pointing these out.
 | 0.0.77 | J.B. Metz | March 2013 | Additional information regarding Logicube created E01 files with thanks to D. Kovar and Digital Assembly LLC.
-| 0.0.78 | J.B. Metz | March 2013 | Improved description of zlib compressed data format (RFC1950) and deflate compression (RFC1951). +
-Updated the information regarding Logicube products and the data section checksum behavior.
+| 0.0.78 | J.B. Metz | March 2013 | Improved description of zlib compressed data format (RFC1950) and deflate compression (RFC1951) and updated the information regarding Logicube products and the data section checksum behavior.
 | 0.0.79 | J.B. Metz | August 2015 | Switched to asciidoc format.
 | 0.0.80 | J.B. Metz | April 2016 | Updates regarding ltree.
 | 0.0.81 | Z. Travis | May 2017 | Details of AD encryption
 | 0.0.82 | J.B. Metz | December 2019 | Formatting changes and additional information regarding L01 files with thanks to K. Stone.
 | 0.0.83 | J.B. Metz | November 2020 | Additional information about corruption scenario.
+| 0.0.84 | J.B. Metz | July 2023 | Additional information about encoding and special characters in ltree names with thanks to J. Dua and P. Livingstone.
+| 0.0.85 | J.B. Metz | July 2023 | Additional information regarding ltree.
 |===
 
 :numbered:
@@ -1794,7 +1786,7 @@ The ltree section consists of:
 
 ==== Ltree header
 
-The ltree header is 6 bytes of size and consists of:
+The ltree header is 48 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
@@ -1809,8 +1801,21 @@ Adler-32 of all the data within the ltree header where the checksum value itself
 
 ==== Ltree data
 
-The ltree data string consists of an UTF-16 little-endian encoded string
-without the UTF-16 endian byte order mark.
+The ltree data string consists of an UTF-16 little-endian encoded string without
+byte order mark. The ltree data is not strict UTF-16 since it allows for unpaired
+surrogates, such as "U+d800" and "U+dc00".
+
+Other observed characteristics where the names in the ltree deviate from
+the original source:
+
+* [U+0001-U+0008] were converted to U+00ba
+* [U+0009, U+000a] were stripped
+* [U+000b, U+000c] were converted to U+0020
+* U+000d was converted to U+0002
+* U+00ba remained the same
+
+Note that this behavior could be related to Encase as well and might not be
+specific for EWF-L01.
 
 The ltree data string contains the following information:
 
@@ -1827,7 +1832,7 @@ See section: <<permissions_category3,Permissions category>>
 | ... | srce | Information about acquisition sources +
 See section: <<sources_category3,Sources category>>
 | ... | | (an empty line)
-|...22 | sub | Information about [yellow-background]*unknown* +
+| ... | sub | Information about [yellow-background]*unknown* +
 See section: <<subjects_category3,Subjects category>>
 | ... | | (an empty line)
 | ... | entry | Information about file entries +
@@ -2258,7 +2263,8 @@ The 1st line of the file entry consists of the following 2 values:
 | 1 | p | Is parent +
 1 => if the entry is a directory +
 (empty) => if the entry is a file
-| 2 | n | Name
+| 2 | n | Name +
+See section: <<file_entry_name,File entry name>> +
 | 3 | id | Identifier +
 Contains an integer identifying the file entry
 | 4 | opr | Flags +
@@ -2361,7 +2367,8 @@ See section: <<short_name,Short name>> +
 | 15 | p | Is parent +
 1 => if the entry is a directory +
 (empty) => if the entry is a file
-| 16 | n | Name
+| 16 | n | Name +
+See section: <<file_entry_name,File entry name>> +
 | 17 | du | Duplicate data offset +
 Relative from the start of the media data
 | 18 | lo | Logical offset +
@@ -2401,6 +2408,19 @@ If the "ha" value contains "00000000000000000000000000000000" this means the
 MD5 hash is not set. The same applies for the "sha" value when it contains
 "0000000000000000000000000000000000000000" the SHA1 has is not set.
 
+====== [[file_entry_name]]File entry name
+
+A file entry name ("n" value):
+
+* can contain path segment separator characters like "\\" and "/"
+* uses the "MIDDLE DOT" Unicode character (U+00b7) as a (NTFS) alternative data stream (ADS) name seperator
+
+[NOTE]
+Note that a regular "MIDDLE DOT" Unicode character will be encoded in the same
+way so no real way to reliably tell the difference.
+
+An empty name has been observed to be represented as "NoName".
+
 ====== [[short_name]]Short name
 
 The short name ("snh") value contains 2 values:
@@ -2409,7 +2429,8 @@ The short name ("snh") value contains 2 values:
 |===
 | Value number | Value | Description
 | 1 | | The number of characters in the short name including the end-of-string character
-| 2 | | The short name string
+| 2 | | The short name string +
+The string does not include the end-of-string character
 |===
 
 For example: "13 FILE10~1.TXT"
@@ -2442,16 +2463,29 @@ The entries of files and directories:
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
+| 0x00000001 | | [yellow-background]*Unknown (Is read-only?)*
+| 0x00000002 | Hidden | Is hidden
+| 0x00000004 | System | Is system
+| 0x00000008 | Archive | Is archive
+| 0x00000010 | Sym Link | Is symbolic link, junction or reparse point
 | | |
-| 0x00000008 | | Archive
+| 0x00000080 | Deleted | Is deleted
 | | |
-| 0x00400000 | | [yellow-background]*Unknown (is file?)*
+| 0x00001000 | Hard Linked | Is hard link
+| 0x00002000 | Stream | Is stream
+| | |
+| 0x00100000 | Internal | Is internal (used in combination with 0x00000006?)
+| | |
+| 0x00200000 | Unallocated Clusters | [yellow-background]*Unknown*
+| 0x00400000 | | [yellow-background]*Unknown*
 | | |
 | 0x01000000 | | [yellow-background]*Unknown*
-| 0x02000000 | | [yellow-background]*Unknown*
+| 0x02000000 | Folder | Is folder
 | 0x04000000 | | Data is sparse +
 See remarks below.
 |===
+
+If 0x00002000 or 0x02000000 are not set the file entry is of type "File".
 
 If the sparse data flag is set:
 

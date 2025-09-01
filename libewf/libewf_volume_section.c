@@ -1,7 +1,7 @@
 /*
  * Volume section functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -104,7 +104,7 @@ int libewf_volume_section_e01_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-	 	 "%s: volume section data:\n",
+		 "%s: volume section data:\n",
 		 function );
 		libcnotify_print_data(
 		 data,

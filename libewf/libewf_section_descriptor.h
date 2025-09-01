@@ -1,7 +1,7 @@
 /*
  * Section descriptor functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -131,6 +131,12 @@ ssize_t libewf_section_descriptor_write_file_io_pool(
          int file_io_pool_entry,
          uint8_t format_version,
          libcerror_error_t **error );
+
+int libewf_section_descriptor_get_data_offset(
+     libewf_section_descriptor_t *section_descriptor,
+     uint8_t format_version,
+     off64_t *data_offset,
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

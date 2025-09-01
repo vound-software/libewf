@@ -1,7 +1,7 @@
 /*
  * Crypographic digest hash
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -34,7 +34,7 @@ extern "C" {
 int digest_hash_copy_to_string(
      const uint8_t *digest_hash,
      size_t digest_hash_size,
-     system_character_t *string,
+     char *string,
      size_t string_size,
      libcerror_error_t **error );
 

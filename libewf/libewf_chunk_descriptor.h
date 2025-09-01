@@ -1,7 +1,7 @@
 /*
  * Chunk descriptor functions
  *
- * Copyright (C) 2006-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -42,6 +42,10 @@ struct libewf_chunk_descriptor
 	/* The (chunk) data size
 	 */
 	size64_t data_size;
+
+	/* The (chunk data) pattern fill
+	 */
+	uint8_t pattern_fill[ 8 ];
 
 	/* The (chunk data) range flags
 	 */

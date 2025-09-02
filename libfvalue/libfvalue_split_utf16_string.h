@@ -1,7 +1,7 @@
 /*
  * Split UTF-16 string functions
  *
- * Copyright (C) 2010-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,6 +28,13 @@
 #include "libfvalue_extern.h"
 #include "libfvalue_libcerror.h"
 #include "libfvalue_types.h"
+
+#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
+
+/* This inclusion is needed otherwise some linkers mess up exporting the UTF-16 string functions.
+ */
+#include "libfvalue_utf16_string.h"
+#endif
 
 #if defined( __cplusplus )
 extern "C" {

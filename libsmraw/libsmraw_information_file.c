@@ -1,7 +1,7 @@
 /*
  * Information file functions
  *
- * Copyright (C) 2010-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -278,11 +278,11 @@ int libsmraw_information_file_open(
 	}
 	if( ( access_flags & LIBSMRAW_ACCESS_FLAG_WRITE ) != 0 )
 	{
-		mode = FILE_STREAM_OPEN_WRITE;
+		mode = (system_character_t *) FILE_STREAM_OPEN_WRITE;
 	}
 	else
 	{
-		mode = FILE_STREAM_OPEN_READ;
+		mode = (system_character_t *) FILE_STREAM_OPEN_READ;
 	}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	information_file->file_stream = file_stream_open_wide(
@@ -537,13 +537,17 @@ int libsmraw_information_file_read_section(
 					}
 					input_string_index++;
 				}
+				if( input_string_index >= 128 )
+				{
+					break;
+				}
 				/* Check if there is a supported value identifier
 				 */
 				if( input_string[ input_string_index ] != '>' )
 				{
 					continue;
 				}
-				/* Make sure the value identifier is terminated by an end of string
+				/* Make sure the value identifier is terminated by an end of string character
 				 */
 				input_string[ input_string_index ] = 0;
 
@@ -564,6 +568,10 @@ int libsmraw_information_file_read_section(
 					value_data_length++;
 
 					input_string_index++;
+				}
+				if( input_string_index >= 128 )
+				{
+					break;
 				}
 				/* Check if there is a supported value
 				 */

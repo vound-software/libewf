@@ -1,7 +1,7 @@
 /*
  * UTF-32 string functions
  *
- * Copyright (C) 2008-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1924,9 +1924,10 @@ int libuna_utf32_string_size_from_utf16_stream(
      libcerror_error_t **error )
 {
 	static char *function                        = "libuna_utf32_string_size_from_utf16_stream";
-	size_t utf16_stream_index                    = 0;
 	libuna_unicode_character_t unicode_character = 0;
+	size_t utf16_stream_index                    = 0;
 	int read_byte_order                          = 0;
+	int result                                   = 0;
 
 	if( utf16_stream == NULL )
 	{
@@ -1999,18 +2000,6 @@ int libuna_utf32_string_size_from_utf16_stream(
 			byte_order = read_byte_order;
 		}
 	}
-	if( ( byte_order != LIBUNA_ENDIAN_BIG )
-	 && ( byte_order != LIBUNA_ENDIAN_LITTLE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported byte order.",
-		 function );
-
-		return( -1 );
-	}
 	while( ( utf16_stream_index + 1 ) < utf16_stream_size )
 	{
 		/* Convert the UTF-16 stream bytes into an Unicode character
@@ -2034,10 +2023,21 @@ int libuna_utf32_string_size_from_utf16_stream(
 		}
 		/* Determine how many UTF-8 character bytes are required
 		 */
-		if( libuna_unicode_character_size_to_utf32(
-		     unicode_character,
-		     utf32_string_size,
-		     error ) != 1 )
+		if( ( byte_order & LIBUNA_UTF16_STREAM_ALLOW_UNPAIRED_SURROGATE ) == 0 )
+		{
+			result = libuna_unicode_character_size_to_utf32(
+			          unicode_character,
+			          utf32_string_size,
+			          error );
+		}
+		else
+		{
+			result = libuna_unicode_character_size_to_ucs4(
+			          unicode_character,
+			          utf32_string_size,
+			          error );
+		}
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -2110,9 +2110,10 @@ int libuna_utf32_string_with_index_copy_from_utf16_stream(
      libcerror_error_t **error )
 {
 	static char *function                        = "libuna_utf32_string_with_index_copy_from_utf16_stream";
-	size_t utf16_stream_index                    = 0;
 	libuna_unicode_character_t unicode_character = 0;
+	size_t utf16_stream_index                    = 0;
 	int read_byte_order                          = 0;
+	int result                                   = 0;
 
 	if( utf32_string == NULL )
 	{
@@ -2202,18 +2203,6 @@ int libuna_utf32_string_with_index_copy_from_utf16_stream(
 			byte_order = read_byte_order;
 		}
 	}
-	if( ( byte_order != LIBUNA_ENDIAN_BIG )
-	 && ( byte_order != LIBUNA_ENDIAN_LITTLE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported byte order.",
-		 function );
-
-		return( -1 );
-	}
 	while( ( utf16_stream_index + 1 ) < utf16_stream_size )
 	{
 		/* Convert the UTF-16 stream bytes into an Unicode character
@@ -2237,12 +2226,25 @@ int libuna_utf32_string_with_index_copy_from_utf16_stream(
 		}
 		/* Convert the Unicode character into UTF-32 character bytes
 		 */
-		if( libuna_unicode_character_copy_to_utf32(
-		     unicode_character,
-		     utf32_string,
-		     utf32_string_size,
-		     utf32_string_index,
-		     error ) != 1 )
+		if( ( byte_order & LIBUNA_UTF16_STREAM_ALLOW_UNPAIRED_SURROGATE ) == 0 )
+		{
+			result = libuna_unicode_character_copy_to_utf32(
+			          unicode_character,
+			          utf32_string,
+			          utf32_string_size,
+			          utf32_string_index,
+			          error );
+		}
+		else
+		{
+			result = libuna_unicode_character_copy_to_ucs4(
+			          unicode_character,
+			          utf32_string,
+			          utf32_string_size,
+			          utf32_string_index,
+			          error );
+		}
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -2292,11 +2294,12 @@ int libuna_utf32_string_compare_with_utf16_stream(
      libcerror_error_t **error )
 {
 	static char *function                                     = "libuna_utf32_string_compare_with_utf16_stream";
+	libuna_unicode_character_t utf16_stream_unicode_character = 0;
+	libuna_unicode_character_t utf32_unicode_character        = 0;
 	size_t utf16_stream_index                                 = 0;
 	size_t utf32_string_index                                 = 0;
-	libuna_unicode_character_t utf32_unicode_character        = 0;
-	libuna_unicode_character_t utf16_stream_unicode_character = 0;
 	int read_byte_order                                       = 0;
+	int result                                                = 0;
 
 	if( utf32_string == NULL )
 	{
@@ -2375,18 +2378,6 @@ int libuna_utf32_string_compare_with_utf16_stream(
 			byte_order = read_byte_order;
 		}
 	}
-	if( ( byte_order != LIBUNA_ENDIAN_BIG )
-	 && ( byte_order != LIBUNA_ENDIAN_LITTLE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported byte order.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( utf32_string_size >= 1 )
 	 && ( utf32_string[ utf32_string_size - 1 ] == 0 ) )
 	{
@@ -2405,12 +2396,25 @@ int libuna_utf32_string_compare_with_utf16_stream(
 	{
 		/* Convert the UTF-32 character bytes into an Unicode character
 		 */
-		if( libuna_unicode_character_copy_from_utf32(
-		     &utf32_unicode_character,
-		     utf32_string,
-		     utf32_string_size,
-		     &utf32_string_index,
-		     error ) != 1 )
+		if( ( byte_order & LIBUNA_UTF16_STREAM_ALLOW_UNPAIRED_SURROGATE ) == 0 )
+		{
+			result = libuna_unicode_character_copy_from_utf32(
+			          &utf32_unicode_character,
+			          utf32_string,
+			          utf32_string_size,
+			          &utf32_string_index,
+			          error );
+		}
+		else
+		{
+			result = libuna_unicode_character_copy_from_ucs4(
+			          &utf32_unicode_character,
+			          utf32_string,
+			          utf32_string_size,
+			          &utf32_string_index,
+			          error );
+		}
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -2551,18 +2555,6 @@ int libuna_utf32_string_size_from_utf32_stream(
 		{
 			byte_order = read_byte_order;
 		}
-	}
-	if( ( byte_order != LIBUNA_ENDIAN_BIG )
-	 && ( byte_order != LIBUNA_ENDIAN_LITTLE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported byte order.",
-		 function );
-
-		return( -1 );
 	}
 	while( ( utf32_stream_index + 1 ) < utf32_stream_size )
 	{
@@ -2759,18 +2751,6 @@ int libuna_utf32_string_with_index_copy_from_utf32_stream(
 			byte_order = read_byte_order;
 		}
 	}
-	if( ( byte_order != LIBUNA_ENDIAN_BIG )
-	 && ( byte_order != LIBUNA_ENDIAN_LITTLE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported byte order.",
-		 function );
-
-		return( -1 );
-	}
 	while( ( utf32_stream_index + 1 ) < utf32_stream_size )
 	{
 		/* Convert the UTF-32 stream bytes into an Unicode character
@@ -2935,18 +2915,6 @@ int libuna_utf32_string_compare_with_utf32_stream(
 		{
 			byte_order = read_byte_order;
 		}
-	}
-	if( ( byte_order != LIBUNA_ENDIAN_BIG )
-	 && ( byte_order != LIBUNA_ENDIAN_LITTLE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported byte order.",
-		 function );
-
-		return( -1 );
 	}
 	if( ( utf32_string_size >= 1 )
 	 && ( utf32_string[ utf32_string_size - 1 ] == 0 ) )

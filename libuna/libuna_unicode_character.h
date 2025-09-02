@@ -1,7 +1,7 @@
 /*
  * Unicode character functions
  *
- * Copyright (C) 2008-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -60,6 +60,50 @@ int libuna_unicode_character_copy_to_byte_stream(
      libcerror_error_t **error );
 
 LIBUNA_EXTERN \
+int libuna_unicode_character_size_to_ucs2(
+     libuna_unicode_character_t unicode_character,
+     size_t *ucs2_character_size,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_copy_from_ucs2(
+     libuna_unicode_character_t *unicode_character,
+     const libuna_utf16_character_t *ucs2_string,
+     size_t ucs2_string_size,
+     size_t *ucs2_string_index,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_copy_to_ucs2(
+     libuna_unicode_character_t unicode_character,
+     libuna_utf16_character_t *ucs2_string,
+     size_t ucs2_string_size,
+     size_t *ucs2_string_index,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_size_to_ucs4(
+     libuna_unicode_character_t unicode_character,
+     size_t *ucs4_character_size,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_copy_from_ucs4(
+     libuna_unicode_character_t *unicode_character,
+     const libuna_utf32_character_t *ucs4_string,
+     size_t ucs4_string_size,
+     size_t *ucs4_string_index,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_copy_to_ucs4(
+     libuna_unicode_character_t unicode_character,
+     libuna_utf32_character_t *ucs4_string,
+     size_t ucs4_string_size,
+     size_t *ucs4_string_index,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
 int libuna_unicode_character_size_to_utf7_stream(
      libuna_unicode_character_t unicode_character,
      size_t *utf7_stream_character_size,
@@ -100,6 +144,28 @@ int libuna_unicode_character_copy_from_utf8(
 
 LIBUNA_EXTERN \
 int libuna_unicode_character_copy_to_utf8(
+     libuna_unicode_character_t unicode_character,
+     libuna_utf8_character_t *utf8_string,
+     size_t utf8_string_size,
+     size_t *utf8_string_index,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_size_to_utf8_rfc2279(
+     libuna_unicode_character_t unicode_character,
+     size_t *utf8_character_size,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_copy_from_utf8_rfc2279(
+     libuna_unicode_character_t *unicode_character,
+     const libuna_utf8_character_t *utf8_string,
+     size_t utf8_string_size,
+     size_t *utf8_string_index,
+     libcerror_error_t **error );
+
+LIBUNA_EXTERN \
+int libuna_unicode_character_copy_to_utf8_rfc2279(
      libuna_unicode_character_t unicode_character,
      libuna_utf8_character_t *utf8_string,
      size_t utf8_string_size,

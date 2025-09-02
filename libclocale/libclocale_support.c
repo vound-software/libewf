@@ -1,7 +1,7 @@
 /*
  * Support functions
  *
- * Copyright (C) 2010-2022, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -22,7 +22,7 @@
 #include <common.h>
 #include <types.h>
 
-#if defined( HAVE_LIBINTL_H )
+#if defined( HAVE_LIBINTL_H ) && defined( ENABLE_NLS )
 #include <libintl.h>
 #endif
 
@@ -68,7 +68,7 @@ int libclocale_initialize(
 
 		return( -1 );
 	}
-#if defined( HAVE_BINDTEXTDOMAIN ) && defined( HAVE_TEXTDOMAIN )
+#if defined( HAVE_BINDTEXTDOMAIN ) && defined( HAVE_TEXTDOMAIN ) && defined( LOCALEDIR )
 	if( bindtextdomain(
 	     domain_name,
 	     LOCALEDIR ) == NULL )
@@ -94,7 +94,7 @@ int libclocale_initialize(
 
 		return( -1 );
 	}
-#endif /* defined( HAVE_BINDTEXTDOMAIN ) && defined( HAVE_TEXTDOMAIN ) */
+#endif /* defined( HAVE_BINDTEXTDOMAIN ) && defined( HAVE_TEXTDOMAIN ) && defined( LOCALEDIR ) */
 
 #if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_locale_get_codepage(

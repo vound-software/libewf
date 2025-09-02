@@ -64,20 +64,20 @@
 
 
 /* Substitute the variable and function names.  */
-#define yyparse         cue_scanner_parse
-#define yylex           cue_scanner_lex
-#define yyerror         cue_scanner_error
-#define yydebug         cue_scanner_debug
-#define yynerrs         cue_scanner_nerrs
-#define yylval          cue_scanner_lval
-#define yychar          cue_scanner_char
+#define yyparse         libodraw_cue_scanner_parse
+#define yylex           libodraw_cue_scanner_lex
+#define yyerror         libodraw_cue_scanner_error
+#define yydebug         libodraw_cue_scanner_debug
+#define yynerrs         libodraw_cue_scanner_nerrs
+#define yylval          libodraw_cue_scanner_lval
+#define yychar          libodraw_cue_scanner_char
 
 /* First part of user prologue.  */
 
 /*
  * CUE parser functions
  *
- * Copyright (C) 2010-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -109,18 +109,18 @@
 #include "libodraw_libcnotify.h"
 #include "libodraw_types.h"
 
-#define YYMALLOC	cue_scanner_alloc
-#define YYREALLOC	cue_scanner_realloc
-#define YYFREE		cue_scanner_free
+#define YYMALLOC	libodraw_cue_scanner_alloc
+#define YYREALLOC	libodraw_cue_scanner_realloc
+#define YYFREE		libodraw_cue_scanner_free
 
 #define YYLEX_PARAM	NULL
 #define YYPARSE_PARAM	parser_state
 
 #if defined( HAVE_DEBUG_OUTPUT )
-#define cue_parser_rule_print( string ) \
-	if( libcnotify_verbose != 0 ) libcnotify_printf( "cue_parser: rule: %s\n", string )
+#define libodraw_cue_parser_rule_print( string ) \
+	if( libcnotify_verbose != 0 ) libcnotify_printf( "libodraw_cue_parser: rule: %s\n", string )
 #else
-#define cue_parser_rule_print( string )
+#define libodraw_cue_parser_rule_print( string )
 #endif
 
 #if !defined( CD_SECS )
@@ -133,14 +133,6 @@
 #define CD_FRAMES		75
 #endif
 
-/* Note that the MSF are relative, so there is no need for the MSF offset correction
- */
-#define cue_parser_copy_relative_msf_to_lba( msf_string, lba ) \
-        lba  = ( ( msf_string[ 0 ] - '0' ) * 10 ) + ( msf_string[ 1 ] - '0' ); \
-        lba *= CD_SECS; \
-        lba += ( ( msf_string[ 3 ] - '0' ) * 10 ) + ( msf_string[ 4 ] - '0' ); \
-        lba *= CD_FRAMES; \
-        lba += ( ( msf_string[ 6 ] - '0' ) * 10 ) + ( msf_string[ 7 ] - '0' );
 
 
 # ifndef YY_CAST
@@ -174,14 +166,14 @@
 
 /* Use api.header.include to #include this header
    instead of duplicating it here.  */
-#ifndef YY_CUE_SCANNER_D_CODE_3_SDKS_AND_LIBS_VOUND_GITHUB_LIBEWF_LIBODRAW_LIBODRAW_CUE_PARSER_H_INCLUDED
-# define YY_CUE_SCANNER_D_CODE_3_SDKS_AND_LIBS_VOUND_GITHUB_LIBEWF_LIBODRAW_LIBODRAW_CUE_PARSER_H_INCLUDED
+#ifndef YY_LIBODRAW_CUE_SCANNER_D_CODE_B_VOUND_GITHUB_LIBEWF_EXP_LIBODRAW_LIBODRAW_CUE_PARSER_H_INCLUDED
+# define YY_LIBODRAW_CUE_SCANNER_D_CODE_B_VOUND_GITHUB_LIBEWF_EXP_LIBODRAW_LIBODRAW_CUE_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int cue_scanner_debug;
+extern int libodraw_cue_scanner_debug;
 #endif
 
 /* Token type.  */
@@ -198,31 +190,43 @@ extern int cue_scanner_debug;
     CUE_MSF = 264,
     CUE_STRING = 265,
     CUE_CATALOG = 266,
-    CUE_CDTEXTFILE = 267,
-    CUE_FLAGS = 268,
-    CUE_FILE = 269,
-    CUE_INDEX = 270,
-    CUE_ISRC = 271,
-    CUE_POSTGAP = 272,
-    CUE_PREGAP = 273,
-    CUE_REMARK = 274,
-    CUE_TRACK = 275,
-    CUE_CDTEXT_ARRANGER = 276,
-    CUE_CDTEXT_COMPOSER = 277,
-    CUE_CDTEXT_DISC_ID = 278,
-    CUE_CDTEXT_GENRE = 279,
-    CUE_CDTEXT_MESSAGE = 280,
-    CUE_CDTEXT_PERFORMER = 281,
-    CUE_CDTEXT_SIZE_INFO = 282,
-    CUE_CDTEXT_SONGWRITER = 283,
-    CUE_CDTEXT_TITLE = 284,
-    CUE_CDTEXT_TOC_INFO1 = 285,
-    CUE_CDTEXT_TOC_INFO2 = 286,
-    CUE_CDTEXT_UPC_EAN = 287,
-    CUE_REMARK_LEAD_OUT = 288,
-    CUE_REMARK_ORIGINAL_MEDIA_TYPE = 289,
-    CUE_REMARK_RUN_OUT = 290,
-    CUE_REMARK_SESSION = 291
+    CUE_CD_DA = 267,
+    CUE_CD_ROM = 268,
+    CUE_CD_ROM_XA = 269,
+    CUE_CD_TEXT = 270,
+    CUE_CDTEXTFILE = 271,
+    CUE_COPY = 272,
+    CUE_DATAFILE = 273,
+    CUE_FLAGS = 274,
+    CUE_FOUR_CHANNEL_AUDIO = 275,
+    CUE_FILE = 276,
+    CUE_INDEX = 277,
+    CUE_ISRC = 278,
+    CUE_NO_COPY = 279,
+    CUE_NO_PRE_EMPHASIS = 280,
+    CUE_POSTGAP = 281,
+    CUE_PRE_EMPHASIS = 282,
+    CUE_PREGAP = 283,
+    CUE_REMARK = 284,
+    CUE_TRACK = 285,
+    CUE_TWO_CHANNEL_AUDIO = 286,
+    CUE_CDTEXT_ARRANGER = 287,
+    CUE_CDTEXT_COMPOSER = 288,
+    CUE_CDTEXT_DISC_ID = 289,
+    CUE_CDTEXT_GENRE = 290,
+    CUE_CDTEXT_MESSAGE = 291,
+    CUE_CDTEXT_PERFORMER = 292,
+    CUE_CDTEXT_SIZE_INFO = 293,
+    CUE_CDTEXT_SONGWRITER = 294,
+    CUE_CDTEXT_TITLE = 295,
+    CUE_CDTEXT_TOC_INFO1 = 296,
+    CUE_CDTEXT_TOC_INFO2 = 297,
+    CUE_CDTEXT_UPC_EAN = 298,
+    CUE_REMARK_LEAD_OUT = 299,
+    CUE_REMARK_ORIGINAL_MEDIA_TYPE = 300,
+    CUE_REMARK_RUN_OUT = 301,
+    CUE_REMARK_SESSION = 302,
+    CUE_UNDEFINED = 303
   };
 #endif
 
@@ -257,18 +261,18 @@ typedef union YYSTYPE YYSTYPE;
 #endif
 
 
-extern YYSTYPE cue_scanner_lval;
+extern YYSTYPE libodraw_cue_scanner_lval;
 
-int cue_scanner_parse (void *parser_state);
+int libodraw_cue_scanner_parse (void *parser_state);
 
-#endif /* !YY_CUE_SCANNER_D_CODE_3_SDKS_AND_LIBS_VOUND_GITHUB_LIBEWF_LIBODRAW_LIBODRAW_CUE_PARSER_H_INCLUDED  */
+#endif /* !YY_LIBODRAW_CUE_SCANNER_D_CODE_B_VOUND_GITHUB_LIBEWF_EXP_LIBODRAW_LIBODRAW_CUE_PARSER_H_INCLUDED  */
 
 /* Second part of user prologue.  */
 
 
-typedef struct cue_parser_state cue_parser_state_t;
+typedef struct libodraw_cue_parser_state libodraw_cue_parser_state_t;
 
-struct cue_parser_state
+struct libodraw_cue_parser_state
 {
 	/* The file
 	 */
@@ -375,49 +379,67 @@ typedef size_t yy_size_t;
 typedef struct yy_buffer_state* YY_BUFFER_STATE;
 
 extern \
-int cue_scanner_suppress_error;
+int libodraw_cue_scanner_suppress_error;
 
 extern \
-int cue_scanner_lex_destroy(
+int libodraw_cue_scanner_lex_destroy(
      void );
 
 extern \
-void *cue_scanner_alloc(
+void *libodraw_cue_scanner_alloc(
        yy_size_t size );
 
 extern \
-void *cue_scanner_realloc(
+void *libodraw_cue_scanner_realloc(
        void *buffer,
        yy_size_t size );
 
 extern \
-void cue_scanner_free(
+void libodraw_cue_scanner_free(
       void *buffer );
 
 extern \
-int cue_scanner_lex(
+int libodraw_cue_scanner_lex(
      void *user_data );
 
 extern \
-void cue_scanner_error(
+void libodraw_cue_scanner_error(
       void *parser_state,
       const char *error_string );
 
 extern \
-YY_BUFFER_STATE cue_scanner__scan_buffer(
+YY_BUFFER_STATE libodraw_cue_scanner__scan_buffer(
                  char *buffer,
                  yy_size_t buffer_size );
 
 extern \
-void cue_scanner__delete_buffer(
+void libodraw_cue_scanner__delete_buffer(
       YY_BUFFER_STATE buffer_state );
 
 extern \
-size_t cue_scanner_buffer_offset;
+size_t libodraw_cue_scanner_buffer_offset;
 
-static char *cue_parser_function = "cue_parser";
+static char *libodraw_cue_parser_function = "libodraw_cue_parser";
 
-int cue_parser_parse_buffer(
+int libodraw_cue_parser_parse_number(
+     const char *token,
+     size_t token_size,
+     int *number,
+     libcerror_error_t **error );
+
+int libodraw_cue_parser_parse_msf(
+     const char *token,
+     size_t token_size,
+     uint64_t *lba,
+     libcerror_error_t **error );
+
+int libodraw_cue_parser_parse_track_type(
+     const char *token,
+     size_t token_size,
+     uint8_t *track_type,
+     libcerror_error_t **error );
+
+int libodraw_cue_parser_parse_buffer(
      libodraw_handle_t *handle,
      const uint8_t *buffer,
      size_t buffer_size,
@@ -523,7 +545,7 @@ typedef int yytype_uint16;
 #define YYSIZEOF(X) YY_CAST (YYPTRDIFF_T, sizeof (X))
 
 /* Stored state numbers (used for stacks). */
-typedef yytype_int8 yy_state_t;
+typedef yytype_uint8 yy_state_t;
 
 /* State numbers in computations.  */
 typedef int yy_state_fast_t;
@@ -726,21 +748,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  42
+#define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   178
+#define YYLAST   260
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  37
+#define YYNTOKENS  49
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  34
+#define YYNNTS  46
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  72
+#define YYNRULES  96
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  114
+#define YYNSTATES  152
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   291
+#define YYMAXUTOK   303
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -781,21 +803,24 @@ static const yytype_int8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   318,   318,   322,   323,   327,   328,   329,   330,   331,
-     335,   336,   340,   344,   345,   349,   350,   351,   355,   356,
-     360,   361,   362,   363,   364,   365,   369,   370,   374,   375,
-     376,   380,   381,   385,   386,   387,   388,   392,   400,   408,
-     409,   410,   411,   412,   413,   414,   415,   416,   417,   418,
-     419,   424,   432,   530,   538,   539,   543,   792,   800,   808,
-     816,   817,   818,   819,   820,   824,   890,   898,   908,   918,
-     983,  1049,  1238
+       0,   343,   343,   344,   348,   349,   353,   354,   355,   356,
+     360,   361,   366,   367,   368,   369,   373,   374,   378,   382,
+     383,   387,   388,   389,   393,   394,   398,   399,   400,   401,
+     402,   403,   407,   408,   412,   413,   414,   418,   419,   424,
+     425,   426,   427,   428,   429,   430,   431,   432,   433,   434,
+     438,   446,   454,   455,   456,   457,   458,   459,   460,   461,
+     462,   463,   464,   465,   470,   478,   486,   494,   502,   599,
+     607,   608,   612,   808,   816,   897,   905,   913,   921,   929,
+     937,   945,   953,   961,   962,   963,   964,   965,   969,  1010,
+    1018,  1028,  1038,  1078,  1116,  1152,  1209
 };
 #endif
 
@@ -807,22 +832,29 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "CUE_END_OF_LINE", "CUE_SEMI_COLON",
   "CUE_2DIGIT", "CUE_CATALOG_NUMBER", "CUE_ISRC_CODE",
   "CUE_KEYWORD_STRING", "CUE_MSF", "CUE_STRING", "CUE_CATALOG",
-  "CUE_CDTEXTFILE", "CUE_FLAGS", "CUE_FILE", "CUE_INDEX", "CUE_ISRC",
-  "CUE_POSTGAP", "CUE_PREGAP", "CUE_REMARK", "CUE_TRACK",
+  "CUE_CD_DA", "CUE_CD_ROM", "CUE_CD_ROM_XA", "CUE_CD_TEXT",
+  "CUE_CDTEXTFILE", "CUE_COPY", "CUE_DATAFILE", "CUE_FLAGS",
+  "CUE_FOUR_CHANNEL_AUDIO", "CUE_FILE", "CUE_INDEX", "CUE_ISRC",
+  "CUE_NO_COPY", "CUE_NO_PRE_EMPHASIS", "CUE_POSTGAP", "CUE_PRE_EMPHASIS",
+  "CUE_PREGAP", "CUE_REMARK", "CUE_TRACK", "CUE_TWO_CHANNEL_AUDIO",
   "CUE_CDTEXT_ARRANGER", "CUE_CDTEXT_COMPOSER", "CUE_CDTEXT_DISC_ID",
   "CUE_CDTEXT_GENRE", "CUE_CDTEXT_MESSAGE", "CUE_CDTEXT_PERFORMER",
   "CUE_CDTEXT_SIZE_INFO", "CUE_CDTEXT_SONGWRITER", "CUE_CDTEXT_TITLE",
   "CUE_CDTEXT_TOC_INFO1", "CUE_CDTEXT_TOC_INFO2", "CUE_CDTEXT_UPC_EAN",
   "CUE_REMARK_LEAD_OUT", "CUE_REMARK_ORIGINAL_MEDIA_TYPE",
-  "CUE_REMARK_RUN_OUT", "CUE_REMARK_SESSION", "$accept", "cue_main",
-  "cue_main_items", "cue_main_item", "cue_main_tracks", "cue_main_track",
+  "CUE_REMARK_RUN_OUT", "CUE_REMARK_SESSION", "CUE_UNDEFINED", "$accept",
+  "cue_main", "cue_header_item", "cue_session_type", "cue_main_items",
+  "cue_main_item", "cue_main_tracks", "cue_main_track",
   "cue_main_track_preceding_items", "cue_main_track_preceding_item",
   "cue_main_track_leading_items", "cue_main_track_leading_item",
   "cue_main_track_index_items", "cue_main_track_index_item",
   "cue_main_track_trailing_items", "cue_main_track_trailing_item",
-  "cue_catalog", "cue_cdtext", "cue_cdtext_type", "cue_cdtextfile",
-  "cue_file", "cue_flags", "cue_flags_types", "cue_index", "cue_isrc",
-  "cue_postgap", "cue_pregap", "cue_remark_item", "cue_lead_out",
+  "cue_catalog", "cue_cdtext", "cue_cdtext_type", "cue_cd_da",
+  "cue_cd_rom", "cue_cd_rom_xa", "cue_cdtextfile", "cue_file", "cue_flags",
+  "cue_flags_types", "cue_index", "cue_copy", "cue_datafile",
+  "cue_four_channel_audio", "cue_isrc", "cue_no_copy",
+  "cue_no_pre_emphasis", "cue_postgap", "cue_pre_emphasis", "cue_pregap",
+  "cue_two_channel_audio", "cue_remark_item", "cue_lead_out",
   "cue_original_media_type", "cue_remark", "cue_remark_start",
   "cue_run_out", "cue_session", "cue_track", "cue_empty_line", YY_NULLPTR
 };
@@ -836,16 +868,17 @@ static const yytype_int16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290,   291
+     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
+     295,   296,   297,   298,   299,   300,   301,   302,   303
 };
 # endif
 
-#define YYPACT_NINF (-68)
+#define YYPACT_NINF (-79)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-14)
+#define YYTABLE_NINF (-20)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -854,18 +887,22 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      70,   -68,    -5,    -6,   -68,   -68,   -68,   -68,   -68,   -68,
-     -68,   -68,   -68,   -68,   -68,   -68,   -68,     2,     4,     6,
-      11,    18,     5,    70,   -68,   -68,    16,   -68,   -68,   -68,
-     -68,   -68,    27,   -68,   -68,   -68,    28,    29,    30,    37,
-      38,    39,   -68,    20,    70,   -68,    44,    47,   -68,   -68,
-     -68,   -68,   -68,   -68,    45,   138,   -68,   -68,    53,   -68,
-     138,    54,   142,   -68,   -68,   -68,   -68,   -68,    71,    36,
-     -68,    67,    69,    72,    74,    10,    36,   -68,   -68,   -68,
-     -68,   -68,   -68,    75,    69,    77,    81,    82,    83,   104,
-      10,   -68,   -68,   -68,   -68,   -68,   -68,   -68,   -68,   -68,
-      78,    99,   -68,   104,   -68,   -68,   -68,   -68,   -68,    87,
-     106,   -68,   -68,   -68
+      -4,     3,    10,    96,   -79,    18,   -79,   -79,    20,    27,
+      28,    29,   -79,   -79,   -79,   -79,   -79,   -79,   -79,   -79,
+     -79,   -79,   -79,   -79,   -79,     4,    30,    31,    36,   186,
+      34,   186,   -79,    38,   -79,   -79,   -79,   -79,   -79,   -79,
+     -79,   -79,    50,   -79,   -79,   -79,   -79,   -79,   -79,   -79,
+      53,    58,    59,    60,    61,    -1,    55,   186,   -79,    63,
+      64,   -79,   -79,   -79,   -79,   -79,   -79,    -1,    42,   213,
+     -79,   -79,   -79,    66,    -1,   -79,   -79,   -79,     0,   141,
+     -79,    76,   -79,    73,    97,    93,    95,    94,    13,   141,
+     -79,   -79,   -79,   -79,   -79,   -79,   -79,   101,   -79,    93,
+     102,   103,   104,   106,    51,    13,   -79,   -79,   -79,   -79,
+     -79,   -79,   -79,   -79,   -79,   105,   110,   107,   112,   113,
+     115,   111,   116,   118,   -79,    51,   -79,   -79,   -79,   -79,
+     -79,   -79,   -79,   -79,   -79,   -79,   -79,   -79,   119,   -79,
+     114,   -79,   -79,   -79,   121,   -79,   -79,   -79,   -79,   123,
+     -79,   -79
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -873,127 +910,159 @@ static const yytype_int16 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       3,    72,     0,     0,    68,    39,    40,    41,    42,    43,
-      44,    45,    46,    47,    48,    49,    50,     0,     0,     0,
-       0,     0,     0,     3,     5,     7,     0,     6,     8,    60,
-      61,    62,     0,    63,    64,     9,     0,     0,     0,     0,
-       0,     0,     1,     0,     3,     4,     0,     0,    37,    51,
-      65,    66,    69,    70,     0,    10,    38,    67,     0,     2,
-      10,     0,    13,    15,    16,    17,    52,    11,     0,    18,
-      14,     0,    54,     0,     0,    26,    18,    20,    21,    22,
-      23,    24,    25,     0,    54,     0,     0,     0,     0,    31,
-      26,    28,    29,    30,    19,    71,    55,    53,    57,    59,
-       0,     0,    12,    31,    33,    34,    35,    36,    27,     0,
-       0,    32,    56,    58
+       4,     0,     0,     6,     5,     0,     1,    96,     0,     0,
+       0,     0,    91,    52,    53,    54,    55,    56,    57,    58,
+      59,    60,    61,    62,    63,     0,     0,     0,     0,    10,
+       0,    10,    13,     0,     7,     8,     9,    12,    14,    83,
+      84,    85,     0,    86,    87,    15,    50,    64,    65,    66,
+       0,     0,     0,     0,     0,    16,     0,    10,    11,     0,
+       0,    67,    88,    89,    92,    93,     2,    16,     0,    19,
+      21,    22,    23,     0,    16,    51,    90,    17,     0,    24,
+      20,     0,     3,     0,     0,    70,     0,     0,    32,    24,
+      26,    27,    28,    29,    30,    31,    68,     0,    94,    70,
+       0,     0,     0,     0,    37,    32,    34,    35,    36,    25,
+      95,    71,    69,    76,    81,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    18,    37,    39,    40,    41,    42,
+      43,    44,    45,    46,    47,    48,    49,    33,     0,    73,
+       0,    75,    77,    78,     0,    80,    82,    38,    72,     0,
+      79,    74
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -68,   -68,   -17,   -68,    26,   -68,    48,   -68,    35,   -68,
-      22,   -68,    12,   -68,   -68,   -67,   -68,   -68,    91,   -68,
-      32,   -68,   -68,   -68,   -68,   -55,   -68,   -68,   -68,   -68,
-     -68,   -68,   -68,   -52
+     -79,   -79,   -79,   -79,   -25,   -79,   -49,   -79,    77,   -79,
+      56,   -79,    22,   -79,    23,   -79,   -79,   -78,   -79,   -79,
+     -79,   -79,   -79,   117,   -79,    52,   -79,   -79,   -79,   -79,
+     -79,   -79,   -79,   -79,   -79,   -79,   -79,   -55,   -79,   -79,
+     -79,   -79,   -79,   -79,   -79,   -52
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int8 yydefgoto[] =
+static const yytype_int16 yydefgoto[] =
 {
-      -1,    21,    22,    23,    59,    60,    61,    62,    75,    76,
-      89,    90,   102,   103,    24,    25,    26,    27,    63,    78,
-      85,    91,    79,   105,    80,    28,    29,    30,    31,    32,
-      33,    34,    69,    35
+      -1,     2,     3,    29,    30,    31,    66,    67,    68,    69,
+      88,    89,   104,   105,   124,   125,     4,    32,    33,    34,
+      35,    36,    37,    70,    91,   100,   106,   127,   128,   129,
+      92,   130,   131,   132,   133,    93,   134,    38,    39,    40,
+      41,    42,    43,    44,    79,    45
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule whose
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
-static const yytype_int8 yytable[] =
+static const yytype_int16 yytable[] =
 {
-      64,    36,    77,    65,    37,    64,    45,    64,    65,    77,
-      65,    38,    39,     1,    81,    40,    41,    82,    42,    43,
-      92,    81,   104,    93,    82,    88,    46,    55,    47,     4,
-      54,    48,    49,    50,   106,    92,   104,   107,    93,     1,
-      51,    52,    53,    17,    18,    19,    20,    56,   106,    72,
-      57,   107,    73,    58,    74,     4,    66,     5,     6,     7,
-       8,     9,    10,    11,    12,    13,    14,    15,    16,    17,
-      18,    19,    20,     1,    68,    83,    71,    84,    95,    86,
-      97,     2,     3,    87,    98,    99,    67,   109,   100,     4,
-     112,     5,     6,     7,     8,     9,    10,    11,    12,    13,
-      14,    15,    16,    17,    18,    19,    20,     1,   110,   113,
-      70,    94,   108,    44,     0,   111,    96,     0,     0,     0,
-       0,   101,     0,     4,     0,     5,     6,     7,     8,     9,
-      10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
-      20,     1,     0,     0,     0,     1,     0,     0,     0,     0,
-       0,     0,    43,     0,     0,     0,    43,     4,   -13,     0,
-       0,     4,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    17,    18,    19,    20,    17,    18,    19,    20
+      71,    90,     7,    72,    55,    83,    58,     1,    84,     5,
+       6,    90,    71,    51,    71,    72,     7,    72,    77,    71,
+      56,    46,    72,    47,    94,    82,   126,    95,    12,   -19,
+      48,    49,    74,   107,    94,   103,   108,    95,    52,    50,
+      53,    54,    12,    25,    26,    27,    28,   126,    59,   135,
+     107,    60,   136,   108,     7,    56,    61,    25,    26,    27,
+      28,    62,    63,    64,    65,    73,    75,    76,   116,   117,
+     135,   118,    78,   136,    81,   119,   120,   121,   122,    96,
+      12,    97,   123,    13,    14,    15,    16,    17,    18,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,     7,
+      98,    99,   101,   102,   110,   112,   113,   114,     8,     9,
+      10,   115,    11,   139,   138,   141,   142,   140,   143,   145,
+     144,   146,   148,   149,   150,    12,   151,   137,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,     7,   109,    80,    57,   147,     0,
+       0,   111,     0,     0,     0,     0,     0,     0,     0,     0,
+      85,     0,     0,     0,    86,     0,     0,     0,     0,    87,
+      12,     0,     0,    13,    14,    15,    16,    17,    18,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,     7,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    11,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    12,     7,     0,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    56,     0,     0,     0,     0,     0,
+       0,     0,    12,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    25,    26,    27,
+      28
 };
 
 static const yytype_int8 yycheck[] =
 {
-      55,     6,    69,    55,    10,    60,    23,    62,    60,    76,
-      62,     9,     8,     3,    69,     9,     5,    69,     0,    14,
-      75,    76,    89,    75,    76,    15,    10,    44,     1,    19,
-      10,     3,     3,     3,    89,    90,   103,    89,    90,     3,
-       3,     3,     3,    33,    34,    35,    36,     3,   103,    13,
-       3,   103,    16,     8,    18,    19,     3,    21,    22,    23,
-      24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
-      34,    35,    36,     3,    20,     8,     5,     8,     3,     7,
-       3,    11,    12,     9,     3,     3,    60,     9,     5,    19,
-       3,    21,    22,    23,    24,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,     3,     9,     3,
-      62,    76,    90,    22,    -1,   103,    84,    -1,    -1,    -1,
-      -1,    17,    -1,    19,    -1,    21,    22,    23,    24,    25,
-      26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
-      36,     3,    -1,    -1,    -1,     3,    -1,    -1,    -1,    -1,
-      -1,    -1,    14,    -1,    -1,    -1,    14,    19,    20,    -1,
-      -1,    19,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    33,    34,    35,    36,    33,    34,    35,    36
+      55,    79,     3,    55,    29,     5,    31,    11,     8,     6,
+       0,    89,    67,     9,    69,    67,     3,    69,    67,    74,
+      21,     3,    74,     3,    79,    74,   104,    79,    29,    30,
+       3,     3,    57,    88,    89,    22,    88,    89,     8,    10,
+       9,     5,    29,    44,    45,    46,    47,   125,    10,   104,
+     105,     1,   104,   105,     3,    21,     3,    44,    45,    46,
+      47,     3,     3,     3,     3,    10,     3,     3,    17,    18,
+     125,    20,    30,   125,     8,    24,    25,    26,    27,     3,
+      29,     8,    31,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    44,    45,    46,    47,     3,
+       3,     8,     7,     9,     3,     3,     3,     3,    12,    13,
+      14,     5,    16,     3,     9,     3,     3,    10,     3,     3,
+       9,     3,     3,     9,     3,    29,     3,   105,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
+      44,    45,    46,    47,     3,    89,    69,    30,   125,    -1,
+      -1,    99,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      19,    -1,    -1,    -1,    23,    -1,    -1,    -1,    -1,    28,
+      29,    -1,    -1,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    44,    45,    46,    47,     3,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    16,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    29,     3,    -1,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
+      44,    45,    46,    47,    21,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    29,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    44,    45,    46,
+      47
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,    11,    12,    19,    21,    22,    23,    24,    25,
-      26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
-      36,    38,    39,    40,    51,    52,    53,    54,    62,    63,
-      64,    65,    66,    67,    68,    70,     6,    10,     9,     8,
-       9,     5,     0,    14,    55,    39,    10,     1,     3,     3,
-       3,     3,     3,     3,    10,    39,     3,     3,     8,    41,
-      42,    43,    44,    55,    62,    70,     3,    41,    20,    69,
-      43,     5,    13,    16,    18,    45,    46,    52,    56,    59,
-      61,    62,    70,     8,     8,    57,     7,     9,    15,    47,
-      48,    58,    62,    70,    45,     3,    57,     3,     3,     3,
-       5,    17,    49,    50,    52,    60,    62,    70,    47,     9,
-       9,    49,     3,     3
+       0,    11,    50,    51,    65,     6,     0,     3,    12,    13,
+      14,    16,    29,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    44,    45,    46,    47,    52,
+      53,    54,    66,    67,    68,    69,    70,    71,    86,    87,
+      88,    89,    90,    91,    92,    94,     3,     3,     3,     3,
+      10,     9,     8,     9,     5,    53,    21,    72,    53,    10,
+       1,     3,     3,     3,     3,     3,    55,    56,    57,    58,
+      72,    86,    94,    10,    53,     3,     3,    55,    30,    93,
+      57,     8,    55,     5,     8,    19,    23,    28,    59,    60,
+      66,    73,    79,    84,    86,    94,     3,     8,     3,     8,
+      74,     7,     9,    22,    61,    62,    75,    86,    94,    59,
+       3,    74,     3,     3,     3,     5,    17,    18,    20,    24,
+      25,    26,    27,    31,    63,    64,    66,    76,    77,    78,
+      80,    81,    82,    83,    85,    86,    94,    61,     9,     3,
+      10,     3,     3,     3,     9,     3,     3,    63,     3,     9,
+       3,     3
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    37,    38,    39,    39,    40,    40,    40,    40,    40,
-      41,    41,    42,    43,    43,    44,    44,    44,    45,    45,
-      46,    46,    46,    46,    46,    46,    47,    47,    48,    48,
-      48,    49,    49,    50,    50,    50,    50,    51,    52,    53,
-      53,    53,    53,    53,    53,    53,    53,    53,    53,    53,
-      53,    54,    55,    56,    57,    57,    58,    59,    60,    61,
-      62,    62,    62,    62,    62,    63,    64,    65,    66,    67,
-      68,    69,    70
+       0,    49,    50,    50,    51,    51,    52,    52,    52,    52,
+      53,    53,    54,    54,    54,    54,    55,    55,    56,    57,
+      57,    58,    58,    58,    59,    59,    60,    60,    60,    60,
+      60,    60,    61,    61,    62,    62,    62,    63,    63,    64,
+      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+      65,    66,    67,    67,    67,    67,    67,    67,    67,    67,
+      67,    67,    67,    67,    68,    69,    70,    71,    72,    73,
+      74,    74,    75,    76,    77,    78,    79,    80,    81,    82,
+      83,    84,    85,    86,    86,    86,    86,    86,    87,    88,
+      89,    90,    91,    92,    93,    93,    94
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     4,     0,     2,     1,     1,     1,     1,     1,
-       0,     2,     5,     0,     2,     1,     1,     1,     0,     2,
-       1,     1,     1,     1,     1,     1,     0,     2,     1,     1,
-       1,     0,     2,     1,     1,     1,     1,     3,     3,     1,
+       0,     2,     4,     5,     0,     1,     0,     1,     1,     1,
+       0,     2,     1,     1,     1,     1,     0,     2,     5,     0,
+       2,     1,     1,     1,     0,     2,     1,     1,     1,     1,
+       1,     1,     0,     2,     1,     1,     1,     0,     2,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     3,     4,     3,     0,     2,     4,     3,     3,     3,
-       1,     1,     1,     1,     1,     3,     3,     3,     1,     3,
-       3,     4,     1
+       3,     3,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     2,     2,     2,     3,     4,     3,
+       0,     2,     4,     2,     4,     2,     3,     2,     2,     3,
+       2,     3,     2,     1,     1,     1,     1,     1,     3,     3,
+       3,     1,     3,     3,     3,     4,     1
 };
 
 
@@ -1690,56 +1759,76 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 37:
+  case 50:
         {
-		cue_parser_rule_print(
+		libodraw_cue_parser_rule_print(
 		 "cue_catalog" );
-	}
-    break;
-
-  case 38:
-        {
-		cue_parser_rule_print(
-		 "cue_cdtext" );
 	}
     break;
 
   case 51:
         {
-		cue_parser_rule_print(
+		libodraw_cue_parser_rule_print(
+		 "cue_cdtext" );
+	}
+    break;
+
+  case 64:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_cd_da" );
+	}
+    break;
+
+  case 65:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_cd_rom" );
+	}
+    break;
+
+  case 66:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_cd_rom_xa" );
+	}
+    break;
+
+  case 67:
+        {
+		libodraw_cue_parser_rule_print(
 		 "cue_cdtextfile" );
 	}
     break;
 
-  case 52:
+  case 68:
         {
-		cue_parser_rule_print(
+		libodraw_cue_parser_rule_print(
 		 "cue_file" );
 
 		if( (yyvsp[-2].string_value).data == NULL )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
 			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid filename.",
-			 cue_parser_function );
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-/* TODO what about the string quotation marks */
 		if( (yyvsp[-1].string_value).data == NULL )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
 			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid file type.",
-			 cue_parser_function );
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		( (cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_UNKNOWN;
+		( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_UNKNOWN;
 
 		if( (yyvsp[-1].string_value).length == 3 )
 		{
@@ -1748,7 +1837,7 @@ yyreduce:
 			     "MP3",
 			     3 ) == 0 )
 			{
-				( (cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_AUDIO_MPEG1_LAYER3;
+				( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_AUDIO_MPEG1_LAYER3;
 			}
 		}
 		else if( (yyvsp[-1].string_value).length == 4 )
@@ -1758,14 +1847,14 @@ yyreduce:
 			     "AIFF",
 			     4 ) == 0 )
 			{
-				( (cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_AUDIO_AIFF;
+				( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_AUDIO_AIFF;
 			}
 			else if( narrow_string_compare(
 			          (yyvsp[-1].string_value).data,
 			          "WAVE",
 			          4 ) == 0 )
 			{
-				( (cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_AUDIO_WAVE;
+				( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_AUDIO_WAVE;
 			}
 		}
 		else if( (yyvsp[-1].string_value).length == 6 )
@@ -1775,7 +1864,7 @@ yyreduce:
 			     "BINARY",
 			     6 ) == 0 )
 			{
-				( (cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_BINARY_LITTLE_ENDIAN;
+				( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_BINARY_LITTLE_ENDIAN;
 			}
 		}
 		else if( (yyvsp[-1].string_value).length == 8 )
@@ -1785,709 +1874,606 @@ yyreduce:
 			     "MOTOROLA",
 			     8 ) == 0 )
 			{
-				( (cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_BINARY_BIG_ENDIAN;
+				( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_BINARY_BIG_ENDIAN;
 			}
 		}
 		if( libodraw_handle_append_data_file(
-		     ( (cue_parser_state_t *) parser_state )->handle,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->handle,
 		     (yyvsp[-2].string_value).data,
 		     (yyvsp[-2].string_value).length,
-		     ( (cue_parser_state_t *) parser_state )->file_type,
-		     ( (cue_parser_state_t *) parser_state )->error ) != 1 )
+		     ( (libodraw_cue_parser_state_t *) parser_state )->file_type,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 			 "%s: unable to append data file.",
-			 cue_parser_function );
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		( (cue_parser_state_t *) parser_state )->current_file_index += 1;
-	}
-    break;
-
-  case 53:
-        {
-		cue_parser_rule_print(
-		 "cue_flags" );
-	}
-    break;
-
-  case 56:
-        {
-		cue_parser_rule_print(
-		 "cue_index" );
-
-		if( (yyvsp[-2].string_value).data == NULL )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid index number.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		( (cue_parser_state_t *) parser_state )->previous_index = ( (cue_parser_state_t *) parser_state )->current_index;
-
-		if( ( ( (yyvsp[-2].string_value).data )[ 0 ] < '0' )
-		 || ( ( (yyvsp[-2].string_value).data )[ 0 ] > '9' ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported index number.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		( (cue_parser_state_t *) parser_state )->current_index = ( (yyvsp[-2].string_value).data )[ 0 ] - '0';
-
-		if( (yyvsp[-2].string_value).length == 2 )
-		{
-			( (cue_parser_state_t *) parser_state )->current_index *= 10;
-
-			if( ( ( (yyvsp[-2].string_value).data )[ 1 ] < '0' )
-			 || ( ( (yyvsp[-2].string_value).data )[ 1 ] > '9' ) )
-			{
-				libcerror_error_set(
-				 ( (cue_parser_state_t *) parser_state )->error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported index number.",
-				 cue_parser_function );
-
-				YYABORT;
-			}
-			( (cue_parser_state_t *) parser_state )->current_index += ( (yyvsp[-2].string_value).data )[ 1 ] - '0';
-		}
-		if( ( ( (cue_parser_state_t *) parser_state )->current_index != 0 )
-		 && ( ( (cue_parser_state_t *) parser_state )->current_index != ( ( (cue_parser_state_t *) parser_state )->previous_index + 1 ) ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported index number - values are not sequential.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		if( ( (yyvsp[-1].string_value).data == NULL )
-		 || ( (yyvsp[-1].string_value).length != 8 ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid index MSF.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		if( ( ( (yyvsp[-1].string_value).data )[ 0 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 0 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 1 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 1 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 2 ] != ':' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 3 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 3 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 4 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 4 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 5 ] != ':' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 6 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 6 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 7 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 7 ] > '9' ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported index MSF.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		cue_parser_copy_relative_msf_to_lba(
-		 (yyvsp[-1].string_value).data,
-		 ( (cue_parser_state_t *) parser_state )->current_start_sector );
-
-		/* The MSF can be relative to the start of the file
-		 */
-		if( ( (cue_parser_state_t *) parser_state )->current_start_sector != 0 )
-		{
-			if( ( ( (cue_parser_state_t *) parser_state )->current_index == 0 )
-			 || ( ( (cue_parser_state_t *) parser_state )->current_index == 1 ) )
-			{
-				if( ( ( (cue_parser_state_t *) parser_state )->session_number_of_sectors == 0 )
-				 || ( ( (cue_parser_state_t *) parser_state )->previous_track_type == LIBODRAW_TRACK_TYPE_AUDIO ) )
-				{
-					if( ( (cue_parser_state_t *) parser_state )->current_start_sector < ( (cue_parser_state_t *) parser_state )->previous_session_start_sector )
-					{
-						libcerror_error_set(
-						 ( (cue_parser_state_t *) parser_state )->error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-						 "%s: invalid session start sector value preceeds previous.",
-						 cue_parser_function );
-
-						YYABORT;
-					}
-					( (cue_parser_state_t *) parser_state )->session_number_of_sectors = ( (cue_parser_state_t *) parser_state )->current_start_sector
-					                                                                   - ( (cue_parser_state_t *) parser_state )->previous_session_start_sector;
-				}
-				if( ( ( (cue_parser_state_t *) parser_state )->lead_out_number_of_sectors == 0 )
-				 || ( ( (cue_parser_state_t *) parser_state )->previous_track_type == LIBODRAW_TRACK_TYPE_AUDIO ) )
-				{
-					if( ( (cue_parser_state_t *) parser_state )->current_start_sector < ( (cue_parser_state_t *) parser_state )->previous_lead_out_start_sector )
-					{
-						libcerror_error_set(
-						 ( (cue_parser_state_t *) parser_state )->error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-						 "%s: invalid lead-out start sector value preceeds previous.",
-						 cue_parser_function );
-
-						YYABORT;
-					}
-					( (cue_parser_state_t *) parser_state )->lead_out_number_of_sectors = ( (cue_parser_state_t *) parser_state )->current_start_sector
-					                                                                    - ( (cue_parser_state_t *) parser_state )->previous_lead_out_start_sector;
-				}
-			}
-			if( ( (cue_parser_state_t *) parser_state )->current_index == 1 )
-			{
-				if( ( (cue_parser_state_t *) parser_state )->track_number_of_sectors == 0 )
-				{
-					if( ( (cue_parser_state_t *) parser_state )->current_start_sector < ( (cue_parser_state_t *) parser_state )->previous_track_start_sector )
-					{
-						libcerror_error_set(
-						 ( (cue_parser_state_t *) parser_state )->error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-						 "%s: invalid track start sector value preceeds previous.",
-						 cue_parser_function );
-
-						YYABORT;
-					}
-					( (cue_parser_state_t *) parser_state )->track_number_of_sectors = ( (cue_parser_state_t *) parser_state )->current_start_sector
-					                                                                 - ( (cue_parser_state_t *) parser_state )->previous_track_start_sector;
-				}
-			}
-		}
-		if( ( (cue_parser_state_t *) parser_state )->current_index == 1 )
-		{
-			if( ( (cue_parser_state_t *) parser_state )->current_session > 1 )
-			{
-				if( libodraw_handle_append_session(
-				     ( (cue_parser_state_t *) parser_state )->handle,
-				     ( (cue_parser_state_t *) parser_state )->previous_session_start_sector,
-				     ( (cue_parser_state_t *) parser_state )->session_number_of_sectors,
-				     ( (cue_parser_state_t *) parser_state )->error ) != 1 )
-				{
-					libcerror_error_set(
-					 ( (cue_parser_state_t *) parser_state )->error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append session.",
-					 cue_parser_function );
-
-					YYABORT;
-				}
-				( (cue_parser_state_t *) parser_state )->previous_session_start_sector = ( (cue_parser_state_t *) parser_state )->current_start_sector;
-				( (cue_parser_state_t *) parser_state )->session_number_of_sectors     = 0;
-			}
-			if( ( (cue_parser_state_t *) parser_state )->current_lead_out > ( (cue_parser_state_t *) parser_state )->previous_lead_out )
-			{
-				if( libodraw_handle_append_lead_out(
-				     ( (cue_parser_state_t *) parser_state )->handle,
-				     ( (cue_parser_state_t *) parser_state )->previous_lead_out_start_sector,
-				     ( (cue_parser_state_t *) parser_state )->lead_out_number_of_sectors,
-				     ( (cue_parser_state_t *) parser_state )->error ) != 1 )
-				{
-					libcerror_error_set(
-					 ( (cue_parser_state_t *) parser_state )->error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append lead-out.",
-					 cue_parser_function );
-
-					YYABORT;
-				}
-				( (cue_parser_state_t *) parser_state )->previous_lead_out          = ( (cue_parser_state_t *) parser_state )->current_lead_out;
-				( (cue_parser_state_t *) parser_state )->lead_out_number_of_sectors = 0;
-			}
-			if( ( (cue_parser_state_t *) parser_state )->current_track > 1 )
-			{
-				if( ( (cue_parser_state_t *) parser_state )->previous_file_index < 0 )
-				{
-					( (cue_parser_state_t *) parser_state )->file_sector = ( (cue_parser_state_t *) parser_state )->previous_track_start_sector;
-
-					( (cue_parser_state_t *) parser_state )->previous_file_index += 1;
-				}
-				( (cue_parser_state_t *) parser_state )->previous_file_sector = ( (cue_parser_state_t *) parser_state )->previous_track_start_sector
-				                                                              - ( (cue_parser_state_t *) parser_state )->file_sector;
-
-				if( libodraw_handle_append_track(
-				     ( (cue_parser_state_t *) parser_state )->handle,
-				     ( (cue_parser_state_t *) parser_state )->previous_track_start_sector,
-				     ( (cue_parser_state_t *) parser_state )->track_number_of_sectors,
-				     ( (cue_parser_state_t *) parser_state )->previous_track_type,
-				     ( (cue_parser_state_t *) parser_state )->previous_file_index,
-				     ( (cue_parser_state_t *) parser_state )->previous_file_sector,
-				     ( (cue_parser_state_t *) parser_state )->error ) != 1 )
-				{
-					libcerror_error_set(
-					 ( (cue_parser_state_t *) parser_state )->error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append track.",
-					 cue_parser_function );
-
-					YYABORT;
-				}
-				if( ( (cue_parser_state_t *) parser_state )->previous_file_index < ( (cue_parser_state_t *) parser_state )->current_file_index )
-				{
-					( (cue_parser_state_t *) parser_state )->file_sector = ( (cue_parser_state_t *) parser_state )->current_start_sector;
-
-					( (cue_parser_state_t *) parser_state )->previous_file_index += 1;
-				}
-				( (cue_parser_state_t *) parser_state )->previous_track_start_sector = ( (cue_parser_state_t *) parser_state )->current_start_sector;
-				( (cue_parser_state_t *) parser_state )->track_number_of_sectors     = 0;
-			}
-		}
-	}
-    break;
-
-  case 57:
-        {
-		cue_parser_rule_print(
-		 "cue_isrc" );
-	}
-    break;
-
-  case 58:
-        {
-		cue_parser_rule_print(
-		 "cue_postgap" );
-	}
-    break;
-
-  case 59:
-        {
-		cue_parser_rule_print(
-		 "cue_pregap" );
-	}
-    break;
-
-  case 65:
-        {
-		cue_parser_rule_print(
-		 "cue_lead_out" );
-
-		if( ( (yyvsp[-1].string_value).data == NULL )
-		 || ( (yyvsp[-1].string_value).length != 8 ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid index MSF.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		if( ( ( (yyvsp[-1].string_value).data )[ 0 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 0 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 1 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 1 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 2 ] != ':' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 3 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 3 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 4 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 4 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 5 ] != ':' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 6 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 6 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 7 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 7 ] > '9' ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported index MSF.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		cue_parser_copy_relative_msf_to_lba(
-		 (yyvsp[-1].string_value).data,
-		 ( (cue_parser_state_t *) parser_state )->previous_lead_out_start_sector );
-
-		if( ( (cue_parser_state_t *) parser_state )->track_number_of_sectors == 0 )
-		{
-			if( ( (cue_parser_state_t *) parser_state )->previous_lead_out_start_sector < ( (cue_parser_state_t *) parser_state )->previous_track_start_sector )
-			{
-				libcerror_error_set(
-				 ( (cue_parser_state_t *) parser_state )->error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid lead-out start sector value preceeds previous track start sector.",
-				 cue_parser_function );
-
-				YYABORT;
-			}
-			( (cue_parser_state_t *) parser_state )->track_number_of_sectors = ( (cue_parser_state_t *) parser_state )->previous_lead_out_start_sector
-			                                                                 - ( (cue_parser_state_t *) parser_state )->previous_track_start_sector;
-		}
-		( (cue_parser_state_t *) parser_state )->current_lead_out += 1;
-	}
-    break;
-
-  case 66:
-        {
-		cue_parser_rule_print(
-		 "cue_original_media_type" );
-	}
-    break;
-
-  case 67:
-        {
-		cue_parser_rule_print(
-		 "cue_remark" );
-
-		cue_scanner_suppress_error = 0;
-	}
-    break;
-
-  case 68:
-        {
-		/* The build-in rule error will gobble up all the tokens until the end-of-line
-		 * because these are no syntax errors suppress the error output
-		 */
-		cue_scanner_suppress_error = 1;
+		( (libodraw_cue_parser_state_t *) parser_state )->current_file_index += 1;
 	}
     break;
 
   case 69:
         {
-		cue_parser_rule_print(
-		 "cue_run_out" );
-
-		if( ( (yyvsp[-1].string_value).data == NULL )
-		 || ( (yyvsp[-1].string_value).length != 8 ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid index MSF.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		if( ( ( (yyvsp[-1].string_value).data )[ 0 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 0 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 1 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 1 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 2 ] != ':' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 3 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 3 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 4 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 4 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 5 ] != ':' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 6 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 6 ] > '9' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 7 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 7 ] > '9' ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported index MSF.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		cue_parser_copy_relative_msf_to_lba(
-		 (yyvsp[-1].string_value).data,
-		 ( (cue_parser_state_t *) parser_state )->current_start_sector );
-
-		if( ( (cue_parser_state_t *) parser_state )->track_number_of_sectors == 0 )
-		{
-			if( ( (cue_parser_state_t *) parser_state )->current_start_sector < ( (cue_parser_state_t *) parser_state )->previous_track_start_sector )
-			{
-				libcerror_error_set(
-				 ( (cue_parser_state_t *) parser_state )->error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid track start sector value preceeds previous.",
-				 cue_parser_function );
-
-				YYABORT;
-			}
-			( (cue_parser_state_t *) parser_state )->track_number_of_sectors = ( (cue_parser_state_t *) parser_state )->current_start_sector
-									                 - ( (cue_parser_state_t *) parser_state )->previous_track_start_sector;
-		}
+		libodraw_cue_parser_rule_print(
+		 "cue_flags" );
 	}
     break;
 
-  case 70:
+  case 72:
         {
-		cue_parser_rule_print(
-		 "cue_session" );
+		libodraw_cue_parser_rule_print(
+		 "cue_index" );
 
-		if( (yyvsp[-1].string_value).data == NULL )
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_index = ( (libodraw_cue_parser_state_t *) parser_state )->current_index;
+
+		if( libodraw_cue_parser_parse_number(
+		     (yyvsp[-2].string_value).data,
+		     (yyvsp[-2].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_index ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid session number.",
-			 cue_parser_function );
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse index number.",
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		( (cue_parser_state_t *) parser_state )->previous_session = ( (cue_parser_state_t *) parser_state )->current_session;
-
-		if( ( ( (yyvsp[-1].string_value).data )[ 0 ] < '0' )
-		 || ( ( (yyvsp[-1].string_value).data )[ 0 ] > '9' ) )
+		if( ( ( (libodraw_cue_parser_state_t *) parser_state )->current_index != 0 )
+		 && ( ( (libodraw_cue_parser_state_t *) parser_state )->current_index != ( ( (libodraw_cue_parser_state_t *) parser_state )->previous_index + 1 ) ) )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported session number.",
-			 cue_parser_function );
-
-			YYABORT;
-		}
-		( (cue_parser_state_t *) parser_state )->current_session = ( (yyvsp[-1].string_value).data )[ 0 ] - '0';
-
-		if( (yyvsp[-1].string_value).length == 2 )
-		{
-			( (cue_parser_state_t *) parser_state )->current_session *= 10;
-
-			if( ( ( (yyvsp[-1].string_value).data )[ 1 ] < '0' )
-			 || ( ( (yyvsp[-1].string_value).data )[ 1 ] > '9' ) )
-			{
-				libcerror_error_set(
-				 ( (cue_parser_state_t *) parser_state )->error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported session number.",
-				 cue_parser_function );
-
-				YYABORT;
-			}
-			( (cue_parser_state_t *) parser_state )->current_session += ( (yyvsp[-1].string_value).data )[ 1 ] - '0';
-		}
-		if( ( ( (cue_parser_state_t *) parser_state )->current_session != 0 )
-		 && ( ( (cue_parser_state_t *) parser_state )->current_session != ( ( (cue_parser_state_t *) parser_state )->previous_session + 1 ) ) )
-		{
-			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported session number - values are not sequential.",
-			 cue_parser_function );
+			 "%s: unsupported index number - values are not sequential.",
+			 libodraw_cue_parser_function );
 
 			YYABORT;
+		}
+		if( libodraw_cue_parser_parse_msf(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse index MSF.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		/* The MSF can be relative to the start of the file
+		 */
+		if( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector != 0 )
+		{
+			if( ( ( (libodraw_cue_parser_state_t *) parser_state )->current_index == 0 )
+			 || ( ( (libodraw_cue_parser_state_t *) parser_state )->current_index == 1 ) )
+			{
+				if( ( ( (libodraw_cue_parser_state_t *) parser_state )->session_number_of_sectors == 0 )
+				 || ( ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_type == LIBODRAW_TRACK_TYPE_AUDIO ) )
+				{
+					if( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector < ( (libodraw_cue_parser_state_t *) parser_state )->previous_session_start_sector )
+					{
+						libcerror_error_set(
+						 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid session start sector value precedes previous.",
+						 libodraw_cue_parser_function );
+
+						YYABORT;
+					}
+					( (libodraw_cue_parser_state_t *) parser_state )->session_number_of_sectors = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector
+					                                                                            - ( (libodraw_cue_parser_state_t *) parser_state )->previous_session_start_sector;
+				}
+				if( ( ( (libodraw_cue_parser_state_t *) parser_state )->lead_out_number_of_sectors == 0 )
+				 || ( ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_type == LIBODRAW_TRACK_TYPE_AUDIO ) )
+				{
+					if( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector < ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out_start_sector )
+					{
+						libcerror_error_set(
+						 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid lead-out start sector value precedes previous.",
+						 libodraw_cue_parser_function );
+
+						YYABORT;
+					}
+					( (libodraw_cue_parser_state_t *) parser_state )->lead_out_number_of_sectors = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector
+					                                                                             - ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out_start_sector;
+				}
+			}
+			if( ( (libodraw_cue_parser_state_t *) parser_state )->current_index == 1 )
+			{
+				if( ( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors == 0 )
+				{
+					if( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector < ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector )
+					{
+						libcerror_error_set(
+						 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid track start sector value precedes previous.",
+						 libodraw_cue_parser_function );
+
+						YYABORT;
+					}
+					( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector
+					                                                                          - ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector;
+				}
+			}
+		}
+		if( ( (libodraw_cue_parser_state_t *) parser_state )->current_index == 1 )
+		{
+			if( ( (libodraw_cue_parser_state_t *) parser_state )->current_session > 1 )
+			{
+				if( libodraw_handle_append_session(
+				     ( (libodraw_cue_parser_state_t *) parser_state )->handle,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->previous_session_start_sector,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->session_number_of_sectors,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+				{
+					libcerror_error_set(
+					 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append session.",
+					 libodraw_cue_parser_function );
+
+					YYABORT;
+				}
+				( (libodraw_cue_parser_state_t *) parser_state )->previous_session_start_sector = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector;
+				( (libodraw_cue_parser_state_t *) parser_state )->session_number_of_sectors     = 0;
+			}
+			if( ( (libodraw_cue_parser_state_t *) parser_state )->current_lead_out > ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out )
+			{
+				if( libodraw_handle_append_lead_out(
+				     ( (libodraw_cue_parser_state_t *) parser_state )->handle,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out_start_sector,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->lead_out_number_of_sectors,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+				{
+					libcerror_error_set(
+					 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append lead-out.",
+					 libodraw_cue_parser_function );
+
+					YYABORT;
+				}
+				( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out          = ( (libodraw_cue_parser_state_t *) parser_state )->current_lead_out;
+				( (libodraw_cue_parser_state_t *) parser_state )->lead_out_number_of_sectors = 0;
+			}
+			if( ( (libodraw_cue_parser_state_t *) parser_state )->current_track > 1 )
+			{
+				if( ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index < 0 )
+				{
+					( (libodraw_cue_parser_state_t *) parser_state )->file_sector = ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector;
+
+					( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index += 1;
+				}
+				( (libodraw_cue_parser_state_t *) parser_state )->previous_file_sector = ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector
+				                                                                       - ( (libodraw_cue_parser_state_t *) parser_state )->file_sector;
+
+				if( libodraw_handle_append_track(
+				     ( (libodraw_cue_parser_state_t *) parser_state )->handle,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_type,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_sector,
+				     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+				{
+					libcerror_error_set(
+					 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append track.",
+					 libodraw_cue_parser_function );
+
+					YYABORT;
+				}
+				if( ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index < ( (libodraw_cue_parser_state_t *) parser_state )->current_file_index )
+				{
+					( (libodraw_cue_parser_state_t *) parser_state )->file_sector = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector;
+
+					( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index += 1;
+				}
+				( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector;
+				( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors     = 0;
+			}
 		}
 	}
     break;
 
-  case 71:
+  case 73:
         {
-		cue_parser_rule_print(
-		 "cue_track" );
+		libodraw_cue_parser_rule_print(
+		 "cue_copy" );
+	}
+    break;
+
+  case 74:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_datafile" );
 
 		if( (yyvsp[-2].string_value).data == NULL )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
 			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid track number.",
-			 cue_parser_function );
+			 "%s: invalid filename.",
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		( (cue_parser_state_t *) parser_state )->previous_track = ( (cue_parser_state_t *) parser_state )->current_track;
-
-		if( ( ( (yyvsp[-2].string_value).data )[ 0 ] < '0' )
-		 || ( ( (yyvsp[-2].string_value).data )[ 0 ] > '9' ) )
+		if( libodraw_cue_parser_parse_msf(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported track number.",
-			 cue_parser_function );
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse datafile MSF.",
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		( (cue_parser_state_t *) parser_state )->current_track = ( (yyvsp[-2].string_value).data )[ 0 ] - '0';
+		( (libodraw_cue_parser_state_t *) parser_state )->file_type = LIBODRAW_FILE_TYPE_BINARY_LITTLE_ENDIAN;
 
-		if( (yyvsp[-2].string_value).length == 2 )
+		if( libodraw_handle_append_data_file(
+		     ( (libodraw_cue_parser_state_t *) parser_state )->handle,
+		     (yyvsp[-2].string_value).data,
+		     (yyvsp[-2].string_value).length,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->file_type,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
 		{
-			( (cue_parser_state_t *) parser_state )->current_track *= 10;
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append data file.",
+			 libodraw_cue_parser_function );
 
-			if( ( ( (yyvsp[-2].string_value).data )[ 1 ] < '0' )
-			 || ( ( (yyvsp[-2].string_value).data )[ 1 ] > '9' ) )
+			YYABORT;
+		}
+		if( ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index < 0 )
+		{
+			( (libodraw_cue_parser_state_t *) parser_state )->file_sector = ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector;
+
+			( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index += 1;
+		}
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_file_sector = ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector
+		                                                                       - ( (libodraw_cue_parser_state_t *) parser_state )->file_sector;
+
+		if( libodraw_handle_append_track(
+		     ( (libodraw_cue_parser_state_t *) parser_state )->handle,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->current_track_type,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_index,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->previous_file_sector,
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append track.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		( (libodraw_cue_parser_state_t *) parser_state )->current_file_index += 1;
+	}
+    break;
+
+  case 75:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_four_channel_audio" );
+	}
+    break;
+
+  case 76:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_isrc" );
+	}
+    break;
+
+  case 77:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_no_copy" );
+	}
+    break;
+
+  case 78:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_no_pre_emphasis" );
+	}
+    break;
+
+  case 79:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_postgap" );
+	}
+    break;
+
+  case 80:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_pre_emphasis" );
+	}
+    break;
+
+  case 81:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_pregap" );
+	}
+    break;
+
+  case 82:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_two_channel_audio" );
+	}
+    break;
+
+  case 88:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_lead_out" );
+
+		if( libodraw_cue_parser_parse_msf(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out_start_sector ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse lead-out MSF.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		if( ( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors == 0 )
+		{
+			if( ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out_start_sector < ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector )
 			{
 				libcerror_error_set(
-				 ( (cue_parser_state_t *) parser_state )->error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported track number.",
-				 cue_parser_function );
+				 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid lead-out start sector value precedes previous track start sector.",
+				 libodraw_cue_parser_function );
 
 				YYABORT;
 			}
-			( (cue_parser_state_t *) parser_state )->current_track += ( (yyvsp[-2].string_value).data )[ 1 ] - '0';
+			( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors = ( (libodraw_cue_parser_state_t *) parser_state )->previous_lead_out_start_sector
+			                                                                          - ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector;
 		}
-		if( ( ( (cue_parser_state_t *) parser_state )->current_track != 0 )
-		 && ( ( (cue_parser_state_t *) parser_state )->current_track != ( ( (cue_parser_state_t *) parser_state )->previous_track + 1 ) ) )
+		( (libodraw_cue_parser_state_t *) parser_state )->current_lead_out += 1;
+	}
+    break;
+
+  case 89:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_original_media_type" );
+	}
+    break;
+
+  case 90:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_remark" );
+
+		libodraw_cue_scanner_suppress_error = 0;
+	}
+    break;
+
+  case 91:
+        {
+		/* The build-in rule error will gobble up all the tokens until the end-of-line
+		 * because these are no syntax errors suppress the error output
+		 */
+		libodraw_cue_scanner_suppress_error = 1;
+	}
+    break;
+
+  case 92:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_run_out" );
+
+		if( libodraw_cue_parser_parse_msf(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse run-out MSF.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		if( ( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors == 0 )
+		{
+			if( ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector < ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector )
+			{
+				libcerror_error_set(
+				 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid track start sector value precedes previous.",
+				 libodraw_cue_parser_function );
+
+				YYABORT;
+			}
+			( (libodraw_cue_parser_state_t *) parser_state )->track_number_of_sectors = ( (libodraw_cue_parser_state_t *) parser_state )->current_start_sector
+									                          - ( (libodraw_cue_parser_state_t *) parser_state )->previous_track_start_sector;
+		}
+	}
+    break;
+
+  case 93:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_session" );
+
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_session = ( (libodraw_cue_parser_state_t *) parser_state )->current_session;
+
+		if( libodraw_cue_parser_parse_number(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_session ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse session number.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		if( ( ( (libodraw_cue_parser_state_t *) parser_state )->current_session != 0 )
+		 && ( ( (libodraw_cue_parser_state_t *) parser_state )->current_session != ( ( (libodraw_cue_parser_state_t *) parser_state )->previous_session + 1 ) ) )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported session number - values are not sequential.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+	}
+    break;
+
+  case 94:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_track" );
+
+		if( ( (libodraw_cue_parser_state_t *) parser_state )->current_track != 0 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported track number - only single track supported.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_track_type = ( (libodraw_cue_parser_state_t *) parser_state )->current_track_type;
+
+		if( libodraw_cue_parser_parse_track_type(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_track_type ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse track type.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_index = 0;
+		( (libodraw_cue_parser_state_t *) parser_state )->current_index  = 0;
+	}
+    break;
+
+  case 95:
+        {
+		libodraw_cue_parser_rule_print(
+		 "cue_track" );
+
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_track = ( (libodraw_cue_parser_state_t *) parser_state )->current_track;
+
+		if( libodraw_cue_parser_parse_number(
+		     (yyvsp[-2].string_value).data,
+		     (yyvsp[-2].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_track ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse track number.",
+			 libodraw_cue_parser_function );
+
+			YYABORT;
+		}
+		if( ( ( (libodraw_cue_parser_state_t *) parser_state )->current_track != 0 )
+		 && ( ( (libodraw_cue_parser_state_t *) parser_state )->current_track != ( ( (libodraw_cue_parser_state_t *) parser_state )->previous_track + 1 ) ) )
+		{
+			libcerror_error_set(
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported track number - values are not sequential.",
-			 cue_parser_function );
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		if( (yyvsp[-1].string_value).data == NULL )
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_track_type = ( (libodraw_cue_parser_state_t *) parser_state )->current_track_type;
+
+		if( libodraw_cue_parser_parse_track_type(
+		     (yyvsp[-1].string_value).data,
+		     (yyvsp[-1].string_value).length,
+		     &( ( (libodraw_cue_parser_state_t *) parser_state )->current_track_type ),
+		     ( (libodraw_cue_parser_state_t *) parser_state )->error ) != 1 )
 		{
 			libcerror_error_set(
-			 ( (cue_parser_state_t *) parser_state )->error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid track number.",
-			 cue_parser_function );
+			 ( (libodraw_cue_parser_state_t *) parser_state )->error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to parse track type.",
+			 libodraw_cue_parser_function );
 
 			YYABORT;
 		}
-		( (cue_parser_state_t *) parser_state )->previous_track_type = ( (cue_parser_state_t *) parser_state )->current_track_type;
-
-		( (cue_parser_state_t *) parser_state )->previous_index     = 0;
-		( (cue_parser_state_t *) parser_state )->current_index      = 0;
-		( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_UNKNOWN;
-
-		if( (yyvsp[-1].string_value).length == 3 )
-		{
-			if( narrow_string_compare(
-			     (yyvsp[-1].string_value).data,
-			     "CDG",
-			     3 ) == 0 )
-			{
-				( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_CDG;
-			}
-		}
-		else if( (yyvsp[-1].string_value).length == 5 )
-		{
-			if( narrow_string_compare(
-			     (yyvsp[-1].string_value).data,
-			     "AUDIO",
-			     5 ) == 0 )
-			{
-				( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_AUDIO;
-			}
-		}
-		else if( (yyvsp[-1].string_value).length == 8 )
-		{
-			if( narrow_string_compare(
-			     (yyvsp[-1].string_value).data,
-			     "CDI",
-			     3 ) == 0 )
-			{
-				if( ( (yyvsp[-1].string_value).data )[ 3 ] == '/' )
-				{
-					if( narrow_string_compare(
-					     &( ( (yyvsp[-1].string_value).data )[ 4 ] ),
-					     "2336",
-					     4 ) == 0 )
-					{
-						 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_CDI_2336;
-					}
-					else if( narrow_string_compare(
-						  &( ( (yyvsp[-1].string_value).data )[ 4 ] ),
-						  "2352",
-						  4 ) == 0 )
-					{
-						 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_CDI_2352;
-					}
-				}
-			}
-		}
-		else if( (yyvsp[-1].string_value).length == 10 )
-		{
-			if( narrow_string_compare(
-			     (yyvsp[-1].string_value).data,
-			     "MODE",
-			     4 ) == 0 )
-			{
-				if( ( (yyvsp[-1].string_value).data )[ 5 ] == '/' )
-				{
-					if( ( (yyvsp[-1].string_value).data )[ 4 ] == '1' )
-					{
-						if( narrow_string_compare(
-						     &( ( (yyvsp[-1].string_value).data )[ 6 ] ),
-						     "2048",
-						     4 ) == 0 )
-						{
-							 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_MODE1_2048;
-						}
-						else if( narrow_string_compare(
-						          &( ( (yyvsp[-1].string_value).data )[ 6 ] ),
-						          "2352",
-						          4 ) == 0 )
-						{
-							 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_MODE1_2352;
-						}
-					}
-					else if( ( (yyvsp[-1].string_value).data )[ 4 ] == '2' )
-					{
-						if( narrow_string_compare(
-						     &( ( (yyvsp[-1].string_value).data )[ 6 ] ),
-						     "2048",
-						     4 ) == 0 )
-						{
-							 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_MODE2_2048;
-						}
-						else if( narrow_string_compare(
-						          &( ( (yyvsp[-1].string_value).data )[ 6 ] ),
-						          "2324",
-						          4 ) == 0 )
-						{
-							 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_MODE2_2324;
-						}
-						else if( narrow_string_compare(
-						          &( ( (yyvsp[-1].string_value).data )[ 6 ] ),
-						          "2336",
-						          4 ) == 0 )
-						{
-							 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_MODE2_2336;
-						}
-						else if( narrow_string_compare(
-						          &( ( (yyvsp[-1].string_value).data )[ 6 ] ),
-						          "2352",
-						          4 ) == 0 )
-						{
-							 ( (cue_parser_state_t *) parser_state )->current_track_type = LIBODRAW_TRACK_TYPE_MODE2_2352;
-						}
-					}
-				}
-			}
-		}
+		( (libodraw_cue_parser_state_t *) parser_state )->previous_index = 0;
+		( (libodraw_cue_parser_state_t *) parser_state )->current_index  = 0;
 	}
     break;
 
@@ -2725,18 +2711,370 @@ yyreturn:
 }
 
 
-int cue_parser_parse_buffer(
+/* Parses a number
+ * Returns 1 if successful or -1 on error
+ */
+int libodraw_cue_parser_parse_number(
+     const char *token,
+     size_t token_size,
+     int *number,
+     libcerror_error_t **error )
+{
+	static char *function = "libodraw_cue_parser_parse_number";
+	int safe_number       = 0;
+
+	if( token == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid token.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( token_size < 1 )
+	 || ( token_size > 2 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid token size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( number == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( token[ 0 ] < '0' )
+	 || ( token[ 0 ] > '9' ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported first digit of number token.",
+		 function );
+
+		return( -1 );
+	}
+	safe_number = token[ 0 ] - '0';
+
+	if( token_size == 2 )
+	{
+		safe_number *= 10;
+
+		if( ( token[ 1 ] < '0' )
+		 || ( token[ 1 ] > '9' ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported second digit of number token.",
+			 function );
+
+			return( -1 );
+		}
+		safe_number += token[ 1 ] - '0';
+	}
+	*number = safe_number;
+
+	return( 1 );
+}
+
+/* Parses a MFS (minutes:seconds:frames) value and converts it into a logical block address (LBA)
+ * Returns 1 if successful or -1 on error
+ */
+int libodraw_cue_parser_parse_msf(
+     const char *token,
+     size_t token_size,
+     uint64_t *lba,
+     libcerror_error_t **error )
+{
+	static char *function = "libodraw_cue_parser_parse_msf";
+	uint64_t safe_lba     = 0;
+
+	if( token == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid token.",
+		 function );
+
+		return( -1 );
+	}
+	if( token_size != 8 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid token size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( lba == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid LBA.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( token[ 0 ] < '0' )
+	 || ( token[ 0 ] > '9' )
+	 || ( token[ 1 ] < '0' )
+	 || ( token[ 1 ] > '9' )
+	 || ( token[ 2 ] != ':' )
+	 || ( token[ 3 ] < '0' )
+	 || ( token[ 3 ] > '9' )
+	 || ( token[ 4 ] < '0' )
+	 || ( token[ 4 ] > '9' )
+	 || ( token[ 5 ] != ':' )
+	 || ( token[ 6 ] < '0' )
+	 || ( token[ 6 ] > '9' )
+	 || ( token[ 7 ] < '0' )
+	 || ( token[ 7 ] > '9' ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported MSF token.",
+		 function );
+
+		return( -1 );
+	}
+	/* Note that the MSF are relative, so there is no need for the MSF offset correction
+	 */
+        safe_lba  = ( ( token[ 0 ] - '0' ) * 10 ) + ( token[ 1 ] - '0' ); \
+        safe_lba *= CD_SECS; \
+        safe_lba += ( ( token[ 3 ] - '0' ) * 10 ) + ( token[ 4 ] - '0' ); \
+        safe_lba *= CD_FRAMES; \
+        safe_lba += ( ( token[ 6 ] - '0' ) * 10 ) + ( token[ 7 ] - '0' );
+
+	*lba = safe_lba;
+
+	return( 1 );
+}
+
+/* Parses a track type
+ * Returns 1 if successful or -1 on error
+ */
+int libodraw_cue_parser_parse_track_type(
+     const char *token,
+     size_t token_size,
+     uint8_t *track_type,
+     libcerror_error_t **error )
+{
+	static char *function = "libodraw_cue_parser_parse_track_type";
+
+	if( token == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid token.",
+		 function );
+
+		return( -1 );
+	}
+	if( token_size < 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid token size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( track_type == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid track type.",
+		 function );
+
+		return( -1 );
+	}
+	*track_type = LIBODRAW_TRACK_TYPE_UNKNOWN;
+
+	if( token_size == 3 )
+	{
+		if( narrow_string_compare(
+		     token,
+		     "CDG",
+		     3 ) == 0 )
+		{
+			*track_type = LIBODRAW_TRACK_TYPE_CDG;
+		}
+	}
+	else if( token_size == 5 )
+	{
+		if( narrow_string_compare(
+		     token,
+		     "AUDIO",
+		     5 ) == 0 )
+		{
+			*track_type = LIBODRAW_TRACK_TYPE_AUDIO;
+		}
+	}
+	else if( token_size == 8 )
+	{
+		if( narrow_string_compare(
+		     token,
+		     "CDI",
+		     3 ) == 0 )
+		{
+			if( token[ 3 ] == '/' )
+			{
+				if( narrow_string_compare(
+				     &( token[ 4 ] ),
+				     "2336",
+				     4 ) == 0 )
+				{
+					 *track_type = LIBODRAW_TRACK_TYPE_CDI_2336;
+				}
+				else if( narrow_string_compare(
+					  &( token[ 4 ] ),
+					  "2352",
+					  4 ) == 0 )
+				{
+					 *track_type = LIBODRAW_TRACK_TYPE_CDI_2352;
+				}
+			}
+		}
+	}
+	else if( token_size == 9 )
+	{
+		if( narrow_string_compare(
+		     token,
+		     "MODE1_RAW",
+		     9 ) == 0 )
+		{
+			*track_type = LIBODRAW_TRACK_TYPE_MODE1_2352;
+		}
+		else if( narrow_string_compare(
+		          token,
+		          "MODE2_RAW",
+		          9 ) == 0 )
+		{
+			*track_type = LIBODRAW_TRACK_TYPE_MODE2_2352;
+		}
+	}
+	else if( token_size == 10 )
+	{
+		if( narrow_string_compare(
+		     token,
+		     "MODE",
+		     4 ) == 0 )
+		{
+			if( token[ 5 ] == '/' )
+			{
+				if( token[ 4 ] == '1' )
+				{
+					if( narrow_string_compare(
+					     &( token[ 6 ] ),
+					     "2048",
+					     4 ) == 0 )
+					{
+						 *track_type = LIBODRAW_TRACK_TYPE_MODE1_2048;
+					}
+					else if( narrow_string_compare(
+						  &( token[ 6 ] ),
+						  "2352",
+						  4 ) == 0 )
+					{
+						 *track_type = LIBODRAW_TRACK_TYPE_MODE1_2352;
+					}
+				}
+				else if( token[ 4 ] == '2' )
+				{
+					if( narrow_string_compare(
+					     &( token[ 6 ] ),
+					     "2048",
+					     4 ) == 0 )
+					{
+						 *track_type = LIBODRAW_TRACK_TYPE_MODE2_2048;
+					}
+					else if( narrow_string_compare(
+						  &( token[ 6 ] ),
+						  "2324",
+						  4 ) == 0 )
+					{
+						 *track_type = LIBODRAW_TRACK_TYPE_MODE2_2324;
+					}
+					else if( narrow_string_compare(
+						  &( token[ 6 ] ),
+						  "2336",
+						  4 ) == 0 )
+					{
+						 *track_type = LIBODRAW_TRACK_TYPE_MODE2_2336;
+					}
+					else if( narrow_string_compare(
+						  &( token[ 6 ] ),
+						  "2352",
+						  4 ) == 0 )
+					{
+						 *track_type = LIBODRAW_TRACK_TYPE_MODE2_2352;
+					}
+				}
+			}
+		}
+	}
+	return( 1 );
+}
+
+/* Parses a CUE file
+ * Returns 1 if successful or -1 on error
+ */
+int libodraw_cue_parser_parse_buffer(
      libodraw_handle_t *handle,
      const uint8_t *buffer,
      size_t buffer_size,
      libcerror_error_t **error )
 {
-	cue_parser_state_t parser_state;
+	libodraw_cue_parser_state_t parser_state;
 	
+	static char *function        = "libodraw_cue_parser_parse_buffer";
 	YY_BUFFER_STATE buffer_state = NULL;
 	size_t buffer_offset         = 0;
 	int result                   = -1;
 
+	if( buffer == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid buffer.",
+		 function );
+
+		return( -1 );
+	}
 	if( buffer_size >= 3 )
 	{
 		if( ( buffer[ 0 ] == 0x0ef )
@@ -2746,11 +3084,11 @@ int cue_parser_parse_buffer(
 			buffer_offset = 3;
 		}
 	}
-	buffer_state = cue_scanner__scan_buffer(
+	buffer_state = libodraw_cue_scanner__scan_buffer(
 	                (char *) &( buffer[ buffer_offset ] ),
 	                buffer_size - buffer_offset );
 
-	cue_scanner_buffer_offset = (size_t) buffer_offset;
+	libodraw_cue_scanner_buffer_offset = (size_t) buffer_offset;
 
 	if( buffer_state != NULL )
 	{
@@ -2779,12 +3117,12 @@ int cue_parser_parse_buffer(
 		parser_state.previous_index                 = 0;
 		parser_state.current_index                  = 0;
 
-		if( cue_scanner_parse(
+		if( libodraw_cue_scanner_parse(
 		     &parser_state ) == 0 )
 		{
 			result = 1;
 		}
-		cue_scanner__delete_buffer(
+		libodraw_cue_scanner__delete_buffer(
 		 buffer_state );
 
 		if( parser_state.current_session > 0 )
@@ -2800,7 +3138,7 @@ int cue_parser_parse_buffer(
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 				 "%s: unable to append session.",
-				 cue_parser_function );
+				 function );
 
 				result = -1;
 			}
@@ -2818,7 +3156,7 @@ int cue_parser_parse_buffer(
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 				 "%s: unable to append lead-out.",
-				 cue_parser_function );
+				 function );
 
 				result = -1;
 			}
@@ -2848,13 +3186,13 @@ int cue_parser_parse_buffer(
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 				 "%s: unable to append track.",
-				 cue_parser_function );
+				 function );
 
 				result = -1;
 			}
 		}
 	}
-	cue_scanner_lex_destroy();
+	libodraw_cue_scanner_lex_destroy();
 
 	return( result );
 }
